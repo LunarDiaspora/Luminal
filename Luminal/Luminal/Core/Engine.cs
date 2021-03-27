@@ -75,7 +75,7 @@ namespace Luminal.Core
             SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_JPG | SDL_image.IMG_InitFlags.IMG_INIT_PNG |
                                SDL_image.IMG_InitFlags.IMG_INIT_TIF | SDL_image.IMG_InitFlags.IMG_INIT_WEBP);
 
-            OnLoading(this);
+            if (OnLoading != null) OnLoading(this);
 
             //var sdlResult = SDL.SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, 0, out Renderer, out Window);
             //Console.WriteLine($"{sdlResult}");
@@ -83,7 +83,7 @@ namespace Luminal.Core
 
             //Window.SetFramerateLimit(500);
 
-            OnFinishedLoad(this);
+            if (OnFinishedLoad != null) OnFinishedLoad(this);
             WindowOpen = true;
 
             sfClock = new Clock();
@@ -120,9 +120,11 @@ namespace Luminal.Core
                 if (sceneManager.ActiveScene != null)
                     sceneManager.ActiveScene.Update(this, t.AsSeconds());
 
-                OnUpdate(this, t.AsSeconds());
+                if (OnUpdate != null)
+                    OnUpdate(this, t.AsSeconds());
 
-                OnDraw(this);
+                if (OnDraw != null)
+                    OnDraw(this);
 
                 if (sceneManager.ActiveScene != null) 
                     sceneManager.ActiveScene.Draw(this);
@@ -146,14 +148,16 @@ namespace Luminal.Core
 
         private void WinKeyDown(SDL.SDL_Scancode scancode)
         {
-            KeyDown(this, scancode);
+            if (KeyDown != null)
+                KeyDown(this, scancode);
 
             sceneManager.ActiveScene.OnKeyDown(this, scancode);
         }
 
         private void WinKeyUp(SDL.SDL_Scancode scancode)
         {
-            KeyUp(this, scancode);
+            if (KeyUp != null)
+                KeyUp(this, scancode);
 
             sceneManager.ActiveScene.OnKeyUp(this, scancode);
         }
