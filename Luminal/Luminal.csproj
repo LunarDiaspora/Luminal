@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <Authors>Supernova Dev Team</Authors>
+    <Description>Fast game engine for Supernova.</Description>
+    <Copyright>(C) 2021 Supernova Dev Team</Copyright>
+    <AssemblyName>Luminal</AssemblyName>
+    <PackageId>LuminalEngine</PackageId>
+    <Product>Luminal Game Engine</Product>
+    <RootNamespace></RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>bin\Debug\net5.0\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SFML.System" Version="2.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SDL2-CS">
+      <HintPath>SDL2-CS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

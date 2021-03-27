@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows7.0</TargetFramework>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FmodAudio" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Luminal\Luminal.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="robocopy /is /it /njh /njs /nfl /ndl $(SolutionDir)$(ProjectName)\bin\$(ConfigurationName)\net5.0-windows7.0\ $(SolutionDir)\BMSPlayer\bin\x64\$(ConfigurationName)\net5.0-windows\ *.dll /XF Luminal.dll SFML.*.dll&#xD;&#xA;exit /b 0" />
+  </Target>
+
+</Project>
