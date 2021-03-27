@@ -151,7 +151,8 @@ namespace Luminal.Core
             if (KeyDown != null)
                 KeyDown(this, scancode);
 
-            sceneManager.ActiveScene.OnKeyDown(this, scancode);
+            if (sceneManager.ActiveScene != null)
+                sceneManager.ActiveScene.OnKeyDown(this, scancode);
         }
 
         private void WinKeyUp(SDL.SDL_Scancode scancode)
@@ -159,7 +160,8 @@ namespace Luminal.Core
             if (KeyUp != null)
                 KeyUp(this, scancode);
 
-            sceneManager.ActiveScene.OnKeyUp(this, scancode);
+            if (sceneManager.ActiveScene != null)
+                sceneManager.ActiveScene.OnKeyUp(this, scancode);
         }
 
         private void WinClose()
