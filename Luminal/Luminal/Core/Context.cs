@@ -48,6 +48,7 @@ namespace Luminal.Core
         public static void SetColour(byte r, byte g, byte b, byte a = 255)
         {
             IntColour = MakeColourFromRGBA(r, g, b, a);
+            SDL.SDL_SetRenderDrawColor(Engine.Renderer, r, g, b, a);
         }
     }
 }

@@ -8,6 +8,7 @@ using Luminal.Configuration;
 using SDL2;
 using SFML.System;
 using Luminal.Logging;
+using Luminal.GUI;
 
 namespace Luminal.Core
 {
@@ -32,6 +33,9 @@ namespace Luminal.Core
 
         public delegate void DrawCallback(Engine main);
         public event DrawCallback OnDraw;
+
+        public delegate void GUICallback(Engine main);
+        public event GUICallback OnGUI;
 
         public delegate void KeyDownCallback(Engine main, SDL.SDL_Scancode Keycode);
         public delegate void KeyUpCallback(Engine main, SDL.SDL_Scancode Keycode);
@@ -94,6 +98,10 @@ namespace Luminal.Core
                 SDL.SDL_RenderClear(Renderer);
                 SDL.SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
 
+                GUIManager.Begin();
+
+                if (OnGUI != null) OnGUI(this);
+
                 SDL.SDL_Event evt;
                 while (SDL.SDL_PollEvent(out evt) == 1)
                 {
@@ -109,6 +117,18 @@ namespace Luminal.Core
                         case SDL.SDL_EventType.SDL_KEYUP:
                             var k = evt.key.keysym.scancode;
                             WinKeyUp(k);
+                            break;
+                        case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
+                            var m = evt.button.button;
+                            MouseButtonDown(m, evt.button.x, evt.button.y);
+                            break;
+                        case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
+                            var u = evt.button.button;
+                            MouseButtonUp(u, evt.button.x, evt.button.y);
+                            break;
+                        case SDL.SDL_EventType.SDL_MOUSEMOTION:
+                            var d = evt.motion;
+                            MouseDrag(d.x, d.y, d.xrel, d.yrel);
                             break;
                     }
                 }
@@ -129,7 +149,11 @@ namespace Luminal.Core
                 if (sceneManager.ActiveScene != null) 
                     sceneManager.ActiveScene.Draw(this);
 
+                GUIManager.RenderAll();
+
                 SDL.SDL_RenderPresent(Renderer);
+
+                GUIManager.End();
 
                 //SDL.SDL_Delay(1);
             }
@@ -163,6 +187,22 @@ namespace Luminal.Core
             if (sceneManager.ActiveScene != null)
                 sceneManager.ActiveScene.OnKeyUp(this, scancode);
         }
+
+        private void MouseButtonDown(byte btn, int x, int y)
+        {
+            GUIManager.OnMouseDown(x, y, btn);
+        }
+
+        private void MouseButtonUp(byte btn, int x, int y)
+        {
+            GUIManager.OnMouseUp(x, y, btn);
+        }
+
+        private void MouseDrag(int x, int y, int xrel, int yrel)
+        {
+            GUIManager.OnMouseDrag(x, y, xrel, yrel);
+        }
+
 
         private void WinClose()
         {
