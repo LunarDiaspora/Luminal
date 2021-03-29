@@ -1,2 +1,2 @@
 ImguiGlue/ext/**/* linguist-vendored
-ImguiGlue/ext/**/*.h linguist-vendored
+ImguiGlue/ext/* linguist-vendored
