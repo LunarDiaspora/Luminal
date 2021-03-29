@@ -21,62 +21,51 @@ namespace Luminal.Graphics
 
     public static class Render
     {
-        public static void Rectangle(int x, int y, int w, int h, RenderMode mode = RenderMode.STROKE)
+        public static void Rectangle(float x, float y, float w, float h, RenderMode mode = RenderMode.STROKE)
         {
             if (!Engine.WindowOpen) return; // Let's just not, ok
 
-            SDL.SDL_Rect r = new()
-            {
-                x = x,
-                y = y,
-                w = w,
-                h = h
-            };
-
-            int res = 0;
             switch(mode)
             {
                 case RenderMode.FILL:
-                    res = SDL.SDL_RenderFillRect(Engine.Renderer, ref r);
+                    SDL_GPU.GPU_RectangleFilled(Engine.Screen, x, y, x+w, y+h, Context.Colour);
                     break;
                 case RenderMode.STROKE:
-                    res = SDL.SDL_RenderDrawRect(Engine.Renderer, ref r);
+                    SDL_GPU.GPU_Rectangle(Engine.Screen, x, y, x + w, y + h, Context.Colour);
                     break;
-            }
-
-            if (res != 0)
-            {
-                // We fucked up
-                var error = SDL.SDL_GetError();
-                throw new LuminalException($"Render.Rectangle: {error}");
             }
         }
 
-        public static void Line(int x, int y, int ex, int ey)
+        public static void Line(float x, float y, float ex, float ey)
         {
             // This is to prevent weird things happening because it WILL crash if it tries to draw to a null pointer
             if (!Engine.WindowOpen) return;
 
-            var res = SDL.SDL_RenderDrawLine(Engine.Renderer, x, y, ex, ey);
-            if (res != 0)
-            {
-                // ...oops
-                var error = SDL.SDL_GetError();
-                throw new LuminalException($"Render.Line: {error}");
-            }
+            SDL_GPU.GPU_Line(Engine.Screen, x, y, ex, ey, Context.Colour);
+        }
+
+        public static void Point(float x, float y)
+        {
+            if (!Engine.WindowOpen) return;
+
+            SDL_GPU.GPU_Pixel(Engine.Screen, x, y, Context.Colour);
+        }
+
+
+        // Type overrides (some code still uses int)
+        public static void Rectangle(int x, int y, int w, int h, RenderMode mode = RenderMode.STROKE)
+        {
+            Rectangle((float)x, (float)y, (float)w, (float)h, mode); // This overflows the stack if I don't manually tell it which one to use.
+        }
+
+        public static void Line(int x, int y, int ex, int ey)
+        {
+            Line((float)x, y, ex, ey);
         }
 
         public static void Point(int x, int y)
         {
-            if (!Engine.WindowOpen) return;
-
-            var res = SDL.SDL_RenderDrawPoint(Engine.Renderer, x, y);
-
-            if (res != 0)
-            {
-                var error = SDL.SDL_GetError();
-                throw new LuminalException($"Render.Point: {error}");
-            }
+            Point((float)x, y);
         }
     }
 }

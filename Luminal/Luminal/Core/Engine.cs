@@ -22,6 +22,8 @@ namespace Luminal.Core
     {
         public static IntPtr Renderer; // SDL_Renderer*
         public static IntPtr Window; // SDL_Window*
+        public static IntPtr Screen;
+
         public SceneManager sceneManager;
 
         public static bool WindowOpen;
@@ -74,8 +76,8 @@ namespace Luminal.Core
             sceneManager = new SceneManager(executingType);
             //sceneManager.SwitchScene("Dummy");
 
-            Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, WindowWidth, WindowHeight, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
-            Renderer = SDL.SDL_CreateRenderer(Window, 0, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
+            //Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, WindowWidth, WindowHeight, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
+            //Renderer = SDL.SDL_CreateRenderer(Window, 0, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
 
             Context.SetColour(255, 255, 255, 255);
 
@@ -90,6 +92,8 @@ namespace Luminal.Core
             {
                 IMGUIManager.Initialise();
             }
+
+            Screen = SDL_GPU.GPU_Init((uint)Width, (uint)Height, 0);
 
             if (OnLoading != null) OnLoading(this);
 
@@ -106,9 +110,12 @@ namespace Luminal.Core
 
             while (WindowOpen)
             {
-                SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
-                SDL.SDL_RenderClear(Renderer);
-                SDL.SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
+                //SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+                //SDL.SDL_RenderClear(Renderer);
+                //SDL.SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
+
+
+                SDL_GPU.GPU_ClearColor(Screen, Context.MakeColourFromRGBA(0, 0, 0, 255));
 
                 GUIManager.Begin();
 
@@ -173,7 +180,8 @@ namespace Luminal.Core
                     IMGUIManager.Draw();
                 }
 
-                SDL.SDL_RenderPresent(Renderer);
+                //SDL.SDL_RenderPresent(Renderer);
+                SDL_GPU.GPU_Flip(Screen);
 
                 GUIManager.End();
 
@@ -186,8 +194,10 @@ namespace Luminal.Core
             AudioEngineManager.Engine.Dispose(); // Clean up after ourselves
 
             WindowOpen = false;
-            SDL.SDL_DestroyWindow(Window);
-            SDL.SDL_DestroyRenderer(Renderer);
+            //SDL.SDL_DestroyWindow(Window);
+            //SDL.SDL_DestroyRenderer(Renderer);
+
+            SDL_GPU.GPU_Quit();
 
             Context.FreeAllImages();
         }

@@ -41,7 +41,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -83,6 +83,7 @@
     <IncludePath>$(ProjectDir)ext\cimgui\;$(ProjectDir)ext\SDL2\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)ext\cimgui\win-x64;$(ProjectDir)ext\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Luminal\bin\$(Configuration)\net5.0\net5.0-windows</OutDir>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

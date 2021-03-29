@@ -10,6 +10,7 @@
     <PackageId>LuminalEngine</PackageId>
     <Product>Luminal Game Engine</Product>
     <RootNamespace></RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -24,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="ImGui.NET" Version="1.78.0" />
+    <PackageReference Include="OpenGL.Net" Version="0.8.4" />
     <PackageReference Include="SFML.Net" Version="2.5.0" />
   </ItemGroup>
 

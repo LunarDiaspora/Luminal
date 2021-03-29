@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Luminal.Graphics;
 using SDL2;
 
 namespace Luminal.Core
@@ -25,24 +26,31 @@ namespace Luminal.Core
             }
         }
 
-        public void RawDraw(string Text, int x = 0, int y = 0)
+        public void RawDraw(string Text, float x = 0, float y = 0)
         {
             if (!Engine.WindowOpen) return;
 
             SDL.SDL_Rect rect = new();
-            rect.x = x;
-            rect.y = y;
+            rect.x = 0;
+            rect.y = 0;
 
             SDL_ttf.TTF_SizeUTF8(FontPointer, Text, out rect.w, out rect.h);
 
             IntPtr sur = SDL_ttf.TTF_RenderUTF8_Blended(FontPointer, Text, Context.Colour);
             // SDL_Surface*
             //SDL.SDL_BlitSurface(sur, IntPtr.Zero, Engine.Renderer, ref rect);
-            IntPtr tex = SDL.SDL_CreateTextureFromSurface(Engine.Renderer, sur);
-            var e = SDL.SDL_RenderCopy(Engine.Renderer, tex, IntPtr.Zero, ref rect);
-            SDL.SDL_RenderFlush(Engine.Renderer);
+            IntPtr tex = SDL_GPU.GPU_CopyImageFromSurface(sur);
+
+            GPU_Rect r = new();
+            r.x = x;
+            r.y = y;
+            r.w = rect.w;
+            r.h = rect.h;
+
+            SDL_GPU.GPU_Blit(tex, ref r, Engine.Screen, x, y);
+            SDL_GPU.GPU_FlushBlitBuffer();
             SDL.SDL_FreeSurface(sur);
-            SDL.SDL_DestroyTexture(tex);
+            SDL_GPU.GPU_FreeImage(tex);
         }
 
         public void GetDimensions(string Text, out int Width, out int Height)
@@ -56,7 +64,7 @@ namespace Luminal.Core
             SDL_ttf.TTF_SizeUTF8(FontPointer, Text, out Width, out Height);
         }
 
-        public void Draw(string Text, int x = 0, int y = 0)
+        public void Draw(string Text, float x = 0, float y = 0)
         {
             SDL_ttf.TTF_SizeUTF8(FontPointer, Text, out _, out int fonty);
             var j = Text.Split("\n");
@@ -64,6 +72,11 @@ namespace Luminal.Core
             {
                 RawDraw(j[k], x, y + (fonty * k));
             }
+        }
+
+        public void Draw(string Text, int x = 0, int y = 0)
+        {
+            Draw(Text, x, y);
         }
     }
 }

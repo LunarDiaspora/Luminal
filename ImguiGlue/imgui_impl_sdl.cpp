@@ -1,969 +1,296 @@
-// ImGui SDL2 + software rasterizer
-// In this binding, ImTextureID is used to store a texture identifier represented as an SDL surface. Read the FAQ about ImTextureID in imgui.cpp.
+// dear imgui: Platform Binding for SDL2
+// This needs to be used along with a Renderer (e.g. DirectX11, OpenGL3, Vulkan..)
+// (Info: SDL2 is a cross-platform general purpose library for handling windows, inputs, graphics context creation, etc.)
+
+// Implemented features:
+//  [X] Platform: Mouse cursor shape and visibility. Disable with 'io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange'.
+//  [X] Platform: Clipboard support.
+//  [X] Platform: Keyboard arrays indexed using SDL_SCANCODE_* codes, e.g. ImGui::IsKeyPressed(SDL_SCANCODE_SPACE).
+// Missing features:
+//  [ ] Platform: SDL2 handling of IME under Windows appears to be broken and it explicitly disable the regular Windows IME. You can restore Windows IME by compiling SDL with SDL_DISABLE_WINDOWS_IME.
+//  [ ] Platform: Gamepad support (need to use SDL_GameController API to fill the io.NavInputs[] value when ImGuiConfigFlags_NavEnableGamepad is set).
 
 // You can copy and use unmodified imgui_impl_* files in your project. See main.cpp for an example of using this.
-// If you use this binding you'll need to call 4 functions: ImGui_ImplXXXX_Init(), ImGui_ImplXXXX_NewFrame(), ImGui::Render() and ImGui_ImplXXXX_Shutdown().
-// If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
+// If you are new to dear imgui, read examples/README.txt and read the documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
+
+// CHANGELOG
+// (minor and older changes stripped away, please see git history for details)
+//  2018-08-01: Inputs: Workaround for Emscripten which doesn't seem to handle focus related calls.
+//  2018-06-29: Inputs: Added support for the ImGuiMouseCursor_Hand cursor.
+//  2018-06-08: Misc: Extracted imgui_impl_sdl.cpp/.h away from the old combined SDL2+OpenGL/Vulkan examples.
+//  2018-06-08: Misc: ImGui_ImplSDL2_InitForOpenGL() now takes a SDL_GLContext parameter. 
+//  2018-05-09: Misc: Fixed clipboard paste memory leak (we didn't call SDL_FreeMemory on the data returned by SDL_GetClipboardText).
+//  2018-03-20: Misc: Setup io.BackendFlags ImGuiBackendFlags_HasMouseCursors flag + honor ImGuiConfigFlags_NoMouseCursorChange flag.
+//  2018-02-16: Inputs: Added support for mouse cursors, honoring ImGui::GetMouseCursor() value.
+//  2018-02-06: Misc: Removed call to ImGui::Shutdown() which is not available from 1.60 WIP, user needs to call CreateContext/DestroyContext themselves.
+//  2018-02-06: Inputs: Added mapping for ImGuiKey_Space.
+//  2018-02-05: Misc: Using SDL_GetPerformanceCounter() instead of SDL_GetTicks() to be able to handle very high framerate (1000+ FPS).
+//  2018-02-05: Inputs: Keyboard mapping is using scancodes everywhere instead of a confusing mixture of keycodes and scancodes. 
+//  2018-01-20: Inputs: Added Horizontal Mouse Wheel support.
+//  2018-01-19: Inputs: When available (SDL 2.0.4+) using SDL_CaptureMouse() to retrieve coordinates outside of client area when dragging. Otherwise (SDL 2.0.3 and before) testing for SDL_WINDOW_INPUT_FOCUS instead of SDL_WINDOW_MOUSE_FOCUS.
+//  2018-01-18: Inputs: Added mapping for ImGuiKey_Insert.
+//  2017-08-25: Inputs: MousePos set to -FLT_MAX,-FLT_MAX when mouse is unavailable/missing (instead of -1,-1).
+//  2016-10-15: Misc: Added a void* user_data parameter to Clipboard function handlers.
 
 #include "pch.h"
 
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
+// SDL
+// (the multi-viewports feature requires SDL features supported from SDL 2.0.5+)
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <SDL_opengl.h>
+
 #include <cimgui.h>
 #include "imgui_impl_sdl.h"
+#include<cfloat>
 
-// Uncomment desired texture mode
-// Note: TEXTURE_MODE_NO_CHECK check will not wrap nor clamp but can crash the renderer for UVs outside [0, 1]
-#define TEXTURE_MODE_NO_CHECK
-//#define TEXTURE_MODE_REPEAT
-//#define TEXTURE_MODE_CLAMP
-
-#ifdef IMGUI_USE_BGRA_PACKED_COLOR
-#define IM_COL32_R_SHIFT    16
-#define IM_COL32_G_SHIFT    8
-#define IM_COL32_B_SHIFT    0
-#define IM_COL32_A_SHIFT    24
-#define IM_COL32_A_MASK     0xFF000000
-#else
-#define IM_COL32_R_SHIFT    0
-#define IM_COL32_G_SHIFT    8
-#define IM_COL32_B_SHIFT    16
-#define IM_COL32_A_SHIFT    24
-#define IM_COL32_A_MASK     0xFF000000
+#define SDL_HAS_CAPTURE_MOUSE               SDL_VERSION_ATLEAST(2,0,4)
+#define SDL_HAS_VULKAN                      SDL_VERSION_ATLEAST(2,0,6)
+#define SDL_HAS_MOUSE_FOCUS_CLICKTHROUGH    SDL_VERSION_ATLEAST(2,0,5)
+#if !SDL_HAS_VULKAN
+static const Uint32 SDL_WINDOW_VULKAN = 0x10000000;
 #endif
-
-struct render_data
-{
-    SDL_Surface* screen;
-    SDL_Surface* texture;
-    ImVec4 clip_rect;
-};
-
-struct color
-{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-};
-
-struct pixel
-{
-    int x;
-    int y;
-    color c;
-    float u;
-    float v;
-};
-
-struct line
-{
-    float x1;
-    float x2;
-    float y;
-    color c1;
-    color c2;
-    float u1;
-    float u2;
-    float v;
-};
-
-struct triangle
-{
-    float x1;
-    float y1;
-    float x2;
-    float y2;
-    float x3;
-    float y3;
-    color c1;
-    color c2;
-    color c3;
-    float u1;
-    float v1;
-    float u2;
-    float v2;
-    float u3;
-    float v3;
-};
-
-struct rectangle
-{
-    float x1;
-    float y1;
-    float x2;
-    float y2;
-    color c;
-    float u1;
-    float v1;
-    float u2;
-    float v2;
-};
 
 // Data
-static double       g_Time = 0.0f;
+static SDL_Window* g_Window = NULL;
+static Uint64       g_Time = 0;
 static bool         g_MousePressed[3] = { false, false, false };
-static float        g_MouseWheel = 0.0f;
-static SDL_Surface* g_FontTexture = 0;
+static SDL_Cursor* g_MouseCursors[ImGuiMouseCursor_COUNT] = { 0 };
+static char* g_ClipboardTextData = NULL;
 
-static void draw_pixel(render_data* render_data, pixel* pixel)
+static const char* ImGui_ImplSDL2_GetClipboardText(void*)
 {
-    // Discard pixel if it is outside the frame buffer or clip area
-    if ((pixel->x < 0) ||
-        (pixel->x >= render_data->screen->w) ||
-        (pixel->x < render_data->clip_rect.x) ||
-        (pixel->x >= render_data->clip_rect.z))
-        return;
-
-    // Compute pixel offset
-    uint32_t* p = (uint32_t*)render_data->screen->pixels + pixel->y * render_data->screen->w + pixel->x;
-
-    // Get destination pixel
-    uint32_t dst = *p;
-    uint8_t dst_r = (dst >> 16) & 0xFF;
-    uint8_t dst_g = (dst >> 8) & 0xFF;
-    uint8_t dst_b = (dst >> 0) & 0xFF;
-    uint8_t dst_a = (dst >> 24) & 0xFF;
-
-    // Get source pixel
-    uint8_t src_r = pixel->c.r;
-    uint8_t src_g = pixel->c.g;
-    uint8_t src_b = pixel->c.b;
-    uint8_t src_a = pixel->c.a;
-
-    // Update source pixel if texture is set
-    if (render_data->texture)
-    {
-#if defined(TEXTURE_MODE_REPEAT)
-        int u = (int)((pixel->u * render_data->texture->w) + 0.5f) % render_data->texture->w;
-        int v = (int)((pixel->v * render_data->texture->h) + 0.5f) % render_data->texture->h;
-#elif defined(TEXTURE_MODE_CLAMP)
-        int u = (int)((pixel->u * render_data->texture->w) + 0.5f);
-        int v = (int)((pixel->v * render_data->texture->h) + 0.5f);
-        if (u < 0)
-            u = 0;
-        else if (u >= render_data->texture->w)
-            u = render_data->texture->w - 1;
-        if (v < 0)
-            v = 0;
-        else if (v >= render_data->texture->h)
-            v = render_data->texture->h - 1;
-#elif defined(TEXTURE_MODE_NO_CHECK)
-        int u = (int)((pixel->u * render_data->texture->w) + 0.5f);
-        int v = (int)((pixel->v * render_data->texture->h) + 0.5f);
-#endif
-        uint32_t* pixels = (uint32_t*)render_data->texture->pixels;
-        uint32_t texel = pixels[u + v * render_data->texture->w];
-        uint8_t t_a = (texel >> 24) & 0xFF;
-        uint8_t t_r = (texel >> 16) & 0xFF;
-        uint8_t t_g = (texel >> 8) & 0xFF;
-        uint8_t t_b = texel & 0xFF;
-        src_r = src_r * t_r / 255;
-        src_g = src_g * t_g / 255;
-        src_b = src_b * t_b / 255;
-        src_a = src_a * t_a / 255;
-    }
-
-    // Compute final pixel based on alpha-blending formula
-    uint8_t a = ((int)src_a + ((int)dst_a * (255 - (int)src_a) / 255));
-    if (a == 0) a = 1;
-    uint8_t r = ((int)src_r * src_a / 255) + ((int)dst_r * (int)dst_a * (255 - src_a) / (255 * 255));
-    uint8_t g = ((int)src_g * src_a / 255) + ((int)dst_g * (int)dst_a * (255 - src_a) / (255 * 255));
-    uint8_t b = ((int)src_b * src_a / 255) + ((int)dst_b * (int)dst_a * (255 - src_a) / (255 * 255));
-    uint32_t col = (a << 24) | (r << 16) | (g << 8) | b;
-
-    // Set pixel in frame buffer
-    *p = col;
+    if (g_ClipboardTextData)
+        SDL_free(g_ClipboardTextData);
+    g_ClipboardTextData = SDL_GetClipboardText();
+    return g_ClipboardTextData;
 }
 
-static void draw_line(render_data* render_data, line* line)
+static void ImGui_ImplSDL2_SetClipboardText(void*, const char* text)
 {
-    pixel pixel;
-    color c;
-    float u;
-    float f;
-    float cur_x;
-
-    // Round X values
-    line->x1 = roundf(line->x1);
-    line->x2 = roundf(line->x2);
-
-    // Discard line if it is outside the frame buffer
-    if ((line->x2 < 0) ||
-        (line->y < 0) ||
-        (line->x1 >= render_data->screen->w) ||
-        (line->y >= render_data->screen->h))
-        return;
-
-    // Discard line if it is outside of the clip area
-    if ((line->x2 < render_data->clip_rect.x) ||
-        (line->y < render_data->clip_rect.y) ||
-        (line->x1 >= render_data->clip_rect.z) ||
-        (line->y >= render_data->clip_rect.w))
-        return;
-
-    // Draw line
-    for (cur_x = line->x1; cur_x < line->x2; cur_x++)
-    {
-        // Get interpolation factor
-        f = fmaxf((cur_x - line->x1) / (line->x2 - line->x1), 0.0f);
-
-        // Interpolate color
-        c.r = line->c1.r + (uint8_t)(f * (line->c2.r - line->c1.r));
-        c.g = line->c1.g + (uint8_t)(f * (line->c2.g - line->c1.g));
-        c.b = line->c1.b + (uint8_t)(f * (line->c2.b - line->c1.b));
-        c.a = line->c1.a + (uint8_t)(f * (line->c2.a - line->c1.a));
-
-        // Interpolate texture U coordinate
-        u = line->u1 + f * (line->u2 - line->u1);
-
-        // Build and draw pixel
-        pixel.x = (int)cur_x;
-        pixel.y = (int)line->y;
-        pixel.c = c;
-        pixel.u = u;
-        pixel.v = line->v;
-        draw_pixel(render_data, &pixel);
-    }
+    SDL_SetClipboardText(text);
 }
 
-static void draw_triangle_flat_bottom(render_data* render_data, triangle* triangle)
+// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+bool ImGui_ImplSDL2_ProcessEvent(SDL_Event* event)
 {
-    float x;
-    float y;
-    color c;
-    float u;
-    float v;
-    line l;
-    float t1;
-    float t2;
-    float t3;
-    float t4;
-    float f;
-    double x1;
-    double x2;
-    double x1_inc;
-    double x2_inc;
-    float cur_y;
-
-    // Swap second and third vertices if needed
-    if (triangle->x3 < triangle->x2)
+    ImGuiIO* io = igGetIO();
+    switch (event->type)
     {
-        x = triangle->x2;
-        y = triangle->y2;
-        c = triangle->c2;
-        u = triangle->u2;
-        v = triangle->v2;
-        triangle->x2 = triangle->x3;
-        triangle->y2 = triangle->y3;
-        triangle->c2 = triangle->c3;
-        triangle->u2 = triangle->u3;
-        triangle->v2 = triangle->v3;
-        triangle->x3 = x;
-        triangle->y3 = y;
-        triangle->c3 = c;
-        triangle->u3 = u;
-        triangle->v3 = v;
-    }
-
-    // Calculate line X increments
-    x1_inc = triangle->x2 - triangle->x1;
-    x1_inc /= triangle->y2 - triangle->y1;
-    x2_inc = triangle->x3 - triangle->x1;
-    x2_inc /= triangle->y3 - triangle->y1;
-
-    // Initialize X coordinates to first vertex X coordinate
-    x1 = triangle->x1;
-    x2 = triangle->x1;
-
-    // Draw triangle
-    for (cur_y = triangle->y1; cur_y < triangle->y2; cur_y++)
+    case SDL_MOUSEWHEEL:
     {
-        // Set line coordinates
-        l.x1 = (float)x1;
-        l.x2 = (float)x2;
-        l.y = cur_y;
-
-        // Compute first line vertex interpolation factor
-        t1 = triangle->x1 - (float)x1;
-        t2 = triangle->y1 - cur_y;
-        t3 = triangle->x2 - triangle->x1;
-        t4 = triangle->y2 - triangle->y1;
-        f = sqrtf((t1 * t1) + (t2 * t2));
-        if ((t3 != 0.0f) || (t4 != 0.0f))
-            f /= sqrtf((t3 * t3) + (t4 * t4));
-
-        // Compute first vertex color
-        l.c1.r = triangle->c1.r + (uint8_t)(f * (triangle->c2.r - triangle->c1.r));
-        l.c1.g = triangle->c1.g + (uint8_t)(f * (triangle->c2.g - triangle->c1.g));
-        l.c1.b = triangle->c1.b + (uint8_t)(f * (triangle->c2.b - triangle->c1.b));
-        l.c1.a = triangle->c1.a + (uint8_t)(f * (triangle->c2.a - triangle->c1.a));
-
-        // Compute first vertex texture U coordinate
-        l.u1 = triangle->u1 + f * (triangle->u2 - triangle->u1);
-
-        // Compute second line vertex interpolation factor
-        t1 = triangle->x1 - (float)x2;
-        t2 = triangle->y1 - cur_y;
-        t3 = triangle->x3 - triangle->x1;
-        t4 = triangle->y3 - triangle->y1;
-        f = sqrtf((t1 * t1) + (t2 * t2));
-        if ((t3 != 0.0f) || (t4 != 0.0f))
-            f /= sqrtf((t3 * t3) + (t4 * t4));
-
-        // Compute second vertex color
-        l.c2.r = triangle->c1.r + (uint8_t)(f * (triangle->c3.r - triangle->c1.r));
-        l.c2.g = triangle->c1.g + (uint8_t)(f * (triangle->c3.g - triangle->c1.g));
-        l.c2.b = triangle->c1.b + (uint8_t)(f * (triangle->c3.b - triangle->c1.b));
-        l.c2.a = triangle->c1.a + (uint8_t)(f * (triangle->c3.a - triangle->c1.a));
-
-        // Compute second vertex texture U coordinate
-        l.u2 = triangle->u1 + f * (triangle->u3 - triangle->u1);
-
-        // Compute line texture V coordinate
-        f = cur_y - triangle->y1;
-        if (triangle->y1 != triangle->y2)
-            f /= triangle->y2 - triangle->y1;
-        l.v = triangle->v1 + f * (triangle->v2 - triangle->v1);
-
-        // Update X coordinates
-        x1 += x1_inc;
-        x2 += x2_inc;
-
-        // Draw single line
-        draw_line(render_data, &l);
-    }
-}
-
-static void draw_triangle_flat_top(render_data* render_data, triangle* triangle)
-{
-    float x;
-    float y;
-    color c;
-    float u;
-    float v;
-    line l;
-    float t1;
-    float t2;
-    float t3;
-    float t4;
-    float f;
-    double x1;
-    double x2;
-    double x1_inc;
-    double x2_inc;
-    float cur_y;
-
-    // Swap first and second vertices if needed
-    if (triangle->x2 < triangle->x1)
-    {
-        x = triangle->x1;
-        y = triangle->y1;
-        c = triangle->c1;
-        u = triangle->u1;
-        v = triangle->v1;
-        triangle->x1 = triangle->x2;
-        triangle->y1 = triangle->y2;
-        triangle->c1 = triangle->c2;
-        triangle->u1 = triangle->u2;
-        triangle->v1 = triangle->v2;
-        triangle->x2 = x;
-        triangle->y2 = y;
-        triangle->c2 = c;
-        triangle->u2 = u;
-        triangle->v2 = v;
-    }
-
-    // Calculate line X increments
-    x1_inc = triangle->x1 - triangle->x3;
-    x1_inc /= triangle->y1 - triangle->y3;
-    x2_inc = triangle->x2 - triangle->x3;
-    x2_inc /= triangle->y2 - triangle->y3;
-
-    // Initialize X coordinates to third vertex X coordinate
-    x1 = triangle->x3;
-    x2 = triangle->x3;
-
-    // Draw triangle
-    for (cur_y = triangle->y3; cur_y >= triangle->y1; cur_y--)
-    {
-        // Set line coordinates
-        l.x1 = (float)x1;
-        l.x2 = (float)x2;
-        l.y = cur_y;
-
-        // Compute first line interpolation factor
-        t1 = triangle->x3 - (float)x1;
-        t2 = triangle->y3 - cur_y;
-        t3 = triangle->x3 - triangle->x1;
-        t4 = triangle->y3 - triangle->y1;
-        f = sqrtf((t1 * t1) + (t2 * t2));
-        if ((t3 != 0.0f) || (t4 != 0.0f))
-            f /= sqrtf((t3 * t3) + (t4 * t4));
-
-        // Compute first vertex color
-        l.c1.r = triangle->c3.r + (uint8_t)(f * (triangle->c1.r - triangle->c3.r));
-        l.c1.g = triangle->c3.g + (uint8_t)(f * (triangle->c1.g - triangle->c3.g));
-        l.c1.b = triangle->c3.b + (uint8_t)(f * (triangle->c1.b - triangle->c3.b));
-        l.c1.a = triangle->c3.a + (uint8_t)(f * (triangle->c1.a - triangle->c3.a));
-
-        // Compute second vertex texture U coordinate
-        l.u1 = triangle->u3 + f * (triangle->u1 - triangle->u3);
-
-        // Compute second line interpolation factor
-        t1 = triangle->x3 - (float)x2;
-        t2 = triangle->y3 - cur_y;
-        t3 = triangle->x3 - triangle->x2;
-        t4 = triangle->y3 - triangle->y2;
-        f = sqrtf((t1 * t1) + (t2 * t2));
-        if ((t3 != 0.0f) || (t4 != 0.0f))
-            f /= sqrtf((t3 * t3) + (t4 * t4));
-
-        // Compute second vertex color
-        l.c2.r = triangle->c3.r + (uint8_t)(f * (triangle->c2.r - triangle->c3.r));
-        l.c2.g = triangle->c3.g + (uint8_t)(f * (triangle->c2.g - triangle->c3.g));
-        l.c2.b = triangle->c3.b + (uint8_t)(f * (triangle->c2.b - triangle->c3.b));
-        l.c2.a = triangle->c3.a + (uint8_t)(f * (triangle->c2.a - triangle->c3.a));
-
-        // Compute second vertex texture U coordinate
-        l.u2 = triangle->u3 + f * (triangle->u2 - triangle->u3);
-
-        // Compute line texture V coordinate
-        f = cur_y - triangle->y1;
-        if (triangle->y1 != triangle->y3)
-            f /= triangle->y3 - triangle->y1;
-        l.v = triangle->v1 + f * (triangle->v3 - triangle->v1);
-
-        // Update X coordinates
-        x1 -= x1_inc;
-        x2 -= x2_inc;
-
-        // Draw single line
-        draw_line(render_data, &l);
-    }
-}
-
-static void draw_triangle(render_data* render_data, triangle* tri)
-{
-    float x;
-    float y;
-    color c;
-    float u;
-    float v;
-    triangle flat;
-    float f;
-
-    // Round Y values
-    tri->y1 = roundf(tri->y1);
-    tri->y2 = roundf(tri->y2);
-    tri->y3 = roundf(tri->y3);
-
-    // Swap first and second vertices if needed
-    if (tri->y2 < tri->y1)
-    {
-        x = tri->x1;
-        y = tri->y1;
-        c = tri->c1;
-        u = tri->u1;
-        v = tri->v1;
-        tri->x1 = tri->x2;
-        tri->y1 = tri->y2;
-        tri->c1 = tri->c2;
-        tri->u1 = tri->u2;
-        tri->v1 = tri->v2;
-        tri->x2 = x;
-        tri->y2 = y;
-        tri->c2 = c;
-        tri->u2 = u;
-        tri->v2 = v;
-    }
-
-    // Swap first and third vertices if needed
-    if (tri->y3 < tri->y1)
-    {
-        x = tri->x1;
-        y = tri->y1;
-        c = tri->c1;
-        u = tri->u1;
-        v = tri->v1;
-        tri->x1 = tri->x3;
-        tri->y1 = tri->y3;
-        tri->c1 = tri->c3;
-        tri->u1 = tri->u3;
-        tri->v1 = tri->v3;
-        tri->x3 = x;
-        tri->y3 = y;
-        tri->c3 = c;
-        tri->u3 = u;
-        tri->v3 = v;
-    }
-
-    // Swap second and third vertices if needed
-    if (tri->y3 < tri->y2)
-    {
-        x = tri->x2;
-        y = tri->y2;
-        c = tri->c2;
-        u = tri->u2;
-        v = tri->v2;
-        tri->x2 = tri->x3;
-        tri->y2 = tri->y3;
-        tri->c2 = tri->c3;
-        tri->u2 = tri->u3;
-        tri->v2 = tri->v3;
-        tri->x3 = x;
-        tri->y3 = y;
-        tri->c3 = c;
-        tri->u3 = u;
-        tri->v3 = v;
-    }
-
-    // Draw flat bottom triangle and return if possible
-    if (tri->y2 == tri->y3)
-    {
-        draw_triangle_flat_bottom(render_data, tri);
-        return;
-    }
-
-    // Draw flat top triangle and return if possible
-    if (tri->y1 == tri->y2)
-    {
-        draw_triangle_flat_top(render_data, tri);
-        return;
-    }
-
-    // Compute new vertex
-    f = tri->y2 - tri->y1;
-    if (tri->y1 != tri->y3)
-        f /= tri->y3 - tri->y1;
-    x = tri->x1 + f * (tri->x3 - tri->x1);
-    y = tri->y2;
-    c.r = tri->c1.r + (uint8_t)(f * (tri->c3.r - tri->c1.r));
-    c.g = tri->c1.g + (uint8_t)(f * (tri->c3.g - tri->c1.g));
-    c.b = tri->c1.b + (uint8_t)(f * (tri->c3.b - tri->c1.b));
-    c.a = tri->c1.a + (uint8_t)(f * (tri->c3.a - tri->c1.a));
-    u = tri->u1 + f * (tri->u3 - tri->u1);
-    v = tri->v2;
-
-    // Create flat bottom triangle and draw it
-    flat.x1 = tri->x1;
-    flat.y1 = tri->y1;
-    flat.c1 = tri->c1;
-    flat.u1 = tri->u1;
-    flat.v1 = tri->v1;
-    flat.x2 = tri->x2;
-    flat.y2 = tri->y2;
-    flat.c2 = tri->c2;
-    flat.u2 = tri->u2;
-    flat.v2 = tri->v2;
-    flat.x3 = x;
-    flat.y3 = y;
-    flat.c3 = c;
-    flat.u3 = u;
-    flat.v3 = v;
-    draw_triangle_flat_bottom(render_data, &flat);
-
-    // Create flat top triangle and draw it
-    flat.x1 = tri->x2;
-    flat.y1 = tri->y2;
-    flat.c1 = tri->c2;
-    flat.u1 = tri->u2;
-    flat.v1 = tri->v2;
-    flat.x2 = x;
-    flat.y2 = y;
-    flat.c2 = c;
-    flat.u2 = u;
-    flat.v2 = v;
-    flat.x3 = tri->x3;
-    flat.y3 = tri->y3;
-    flat.c3 = tri->c3;
-    flat.u3 = tri->u3;
-    flat.v3 = tri->v3;
-    draw_triangle_flat_top(render_data, &flat);
-}
-
-static void draw_rectangle(render_data* render_data, rectangle* rectangle)
-{
-    line line;
-    float y;
-    float f;
-
-    // Discard rectangle if it is outside the frame buffer
-    if ((rectangle->x2 < 0) ||
-        (rectangle->y2 < 0) ||
-        (rectangle->x1 >= render_data->screen->w) ||
-        (rectangle->y2 >= render_data->screen->h))
-        return;
-
-    // Discard rectangle if it is outside of the clip area
-    if ((rectangle->x2 < render_data->clip_rect.x) ||
-        (rectangle->y2 < render_data->clip_rect.y) ||
-        (rectangle->x1 >= render_data->clip_rect.z) ||
-        (rectangle->y1 >= render_data->clip_rect.w))
-        return;
-
-    // Draw rectangle
-    for (y = rectangle->y1; y < rectangle->y2; y++)
-    {
-        // Fill general line data
-        line.x1 = rectangle->x1;
-        line.x2 = rectangle->x2;
-        line.y = y;
-        line.c1 = rectangle->c;
-        line.c2 = rectangle->c;
-        line.u1 = rectangle->u1;
-        line.u2 = rectangle->u2;
-
-        // Compute interpolation factor
-        f = (y - rectangle->y1) / (rectangle->y2 - rectangle->y1);
-
-        // Compute line texture V coordinate
-        line.v = rectangle->v1 + f * (rectangle->v2 - rectangle->v1);
-
-        // Draw single line
-        draw_line(render_data, &line);
-    }
-}
-
-extern "C" {
-
-    // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-    // If text or lines are blurry when integrating ImGui in your engine:
-    // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-    void ImGui_ImplSdl_RenderDrawLists(ImGuiIO* io, ImDrawData* draw_data)
-    {
-        // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-        int fb_width = (int)(io->DisplaySize.x * io->DisplayFramebufferScale.x);
-        int fb_height = (int)(io->DisplaySize.y * io->DisplayFramebufferScale.y);
-        if (fb_width == 0 || fb_height == 0)
-            return;
-
-        ImDrawData_ScaleClipRects(draw_data, io->DisplayFramebufferScale);
-
-        // Render command lists
-        for (int n = 0; n < draw_data->CmdListsCount; n++)
-        {
-            const ImDrawList* cmd_list = draw_data->CmdLists[n];
-            const ImDrawVert* vtx_buffer = cmd_list->VtxBuffer.Data;
-            const ImDrawIdx* idx_buffer = cmd_list->IdxBuffer.Data;
-
-            for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
-            {
-                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer.Data[cmd_i];
-                if (pcmd->UserCallback)
-                {
-                    pcmd->UserCallback(cmd_list, pcmd);
-                }
-                else
-                {
-                    // Set render data
-                    render_data render_data;
-                    render_data.screen = (SDL_Surface*)io->UserData;
-                    render_data.texture = (SDL_Surface*)pcmd->TextureId;
-                    render_data.clip_rect = pcmd->ClipRect;
-
-                    // Draw triangles
-                    for (unsigned int index = 0; index < pcmd->ElemCount; index += 3)
-                    {
-                        const ImDrawVert* vertices[] =
-                        {
-                            &vtx_buffer[idx_buffer[index]],
-                            &vtx_buffer[idx_buffer[index + 1]],
-                            &vtx_buffer[idx_buffer[index + 2]]
-                        };
-
-                        // Check if rectangle rendering is possible
-                        if (index < pcmd->ElemCount - 3)
-                        {
-                            // Get top left/bottom right coordinates from current triangle
-                            ImVec2 tl_pos = vertices[0]->pos;
-                            ImVec2 br_pos = vertices[0]->pos;
-                            ImVec2 tl_uv = vertices[0]->uv;
-                            ImVec2 br_uv = vertices[0]->uv;
-                            for (int v = 1; v < 3; v++)
-                            {
-                                if (vertices[v]->pos.x < tl_pos.x)
-                                {
-                                    tl_pos.x = vertices[v]->pos.x;
-                                    tl_uv.x = vertices[v]->uv.x;
-                                }
-                                else if (vertices[v]->pos.x > br_pos.x)
-                                {
-                                    br_pos.x = vertices[v]->pos.x;
-                                    br_uv.x = vertices[v]->uv.x;
-                                }
-                                if (vertices[v]->pos.y < tl_pos.y)
-                                {
-                                    tl_pos.y = vertices[v]->pos.y;
-                                    tl_uv.y = vertices[v]->uv.y;
-                                }
-                                else if (vertices[v]->pos.y > br_pos.y)
-                                {
-                                    br_pos.y = vertices[v]->pos.y;
-                                    br_uv.y = vertices[v]->uv.y;
-                                }
-                            }
-
-                            // Get next set of vertices
-                            const ImDrawVert* next_vertices[] =
-                            {
-                                &vtx_buffer[idx_buffer[index + 3]],
-                                &vtx_buffer[idx_buffer[index + 4]],
-                                &vtx_buffer[idx_buffer[index + 5]]
-                            };
-
-                            // Check if triangle pair is a rectangle
-                            bool is_rect = true;
-                            for (int v = 0; v < 3; v++)
-                                if (((next_vertices[v]->pos.x != tl_pos.x) && (next_vertices[v]->pos.x != br_pos.x)) ||
-                                    ((next_vertices[v]->pos.y != tl_pos.y) && (next_vertices[v]->pos.y != br_pos.y)) ||
-                                    ((next_vertices[v]->uv.x != tl_uv.x) && (next_vertices[v]->uv.x != br_uv.x)) ||
-                                    ((next_vertices[v]->uv.y != tl_uv.y) && (next_vertices[v]->uv.y != br_uv.y)))
-                                {
-                                    is_rect = false;
-                                    break;
-                                }
-
-                            // Handle rectangle fast path
-                            if (is_rect)
-                            {
-                                // Build rectangle
-                                rectangle rectangle;
-                                rectangle.x1 = tl_pos.x;
-                                rectangle.y1 = tl_pos.y;
-                                rectangle.x2 = br_pos.x;
-                                rectangle.y2 = br_pos.y;
-                                rectangle.u1 = tl_uv.x;
-                                rectangle.v1 = tl_uv.y;
-                                rectangle.u2 = br_uv.x;
-                                rectangle.v2 = br_uv.y;
-                                rectangle.c.r = (vertices[0]->col >> IM_COL32_R_SHIFT) & 0xFF;
-                                rectangle.c.g = (vertices[0]->col >> IM_COL32_G_SHIFT) & 0xFF;
-                                rectangle.c.b = (vertices[0]->col >> IM_COL32_B_SHIFT) & 0xFF;
-                                rectangle.c.a = (vertices[0]->col >> IM_COL32_A_SHIFT) & 0xFF;
-                                draw_rectangle(&render_data, &rectangle);
-
-                                // Increment command index and skip triangle rendering
-                                index += 3;
-                                continue;
-                            }
-                        }
-
-                        // Build and draw single triangle
-                        triangle triangle;
-                        triangle.x1 = vertices[0]->pos.x;
-                        triangle.y1 = vertices[0]->pos.y;
-                        triangle.u1 = vertices[0]->uv.x;
-                        triangle.v1 = vertices[0]->uv.y;
-                        triangle.c1.r = (vertices[0]->col >> IM_COL32_R_SHIFT) & 0xFF;
-                        triangle.c1.g = (vertices[0]->col >> IM_COL32_G_SHIFT) & 0xFF;
-                        triangle.c1.b = (vertices[0]->col >> IM_COL32_B_SHIFT) & 0xFF;
-                        triangle.c1.a = (vertices[0]->col >> IM_COL32_A_SHIFT) & 0xFF;
-                        triangle.x2 = vertices[1]->pos.x;
-                        triangle.y2 = vertices[1]->pos.y;
-                        triangle.u2 = vertices[1]->uv.x;
-                        triangle.v2 = vertices[1]->uv.y;
-                        triangle.c2.r = (vertices[1]->col >> IM_COL32_R_SHIFT) & 0xFF;
-                        triangle.c2.g = (vertices[1]->col >> IM_COL32_G_SHIFT) & 0xFF;
-                        triangle.c2.b = (vertices[1]->col >> IM_COL32_B_SHIFT) & 0xFF;
-                        triangle.c2.a = (vertices[1]->col >> IM_COL32_A_SHIFT) & 0xFF;
-                        triangle.x3 = vertices[2]->pos.x;
-                        triangle.y3 = vertices[2]->pos.y;
-                        triangle.u3 = vertices[2]->uv.x;
-                        triangle.v3 = vertices[2]->uv.y;
-                        triangle.c3.r = (vertices[2]->col >> IM_COL32_R_SHIFT) & 0xFF;
-                        triangle.c3.g = (vertices[2]->col >> IM_COL32_G_SHIFT) & 0xFF;
-                        triangle.c3.b = (vertices[2]->col >> IM_COL32_B_SHIFT) & 0xFF;
-                        triangle.c3.a = (vertices[2]->col >> IM_COL32_A_SHIFT) & 0xFF;
-                        draw_triangle(&render_data, &triangle);
-                    }
-                }
-                idx_buffer += pcmd->ElemCount;
-            }
-        }
-    }
-
-    static const char* ImGui_ImplSdl_GetClipboardText(void*)
-    {
-        return SDL_GetClipboardText();
-    }
-
-    static void ImGui_ImplSdl_SetClipboardText(void*, const char* text)
-    {
-        SDL_SetClipboardText(text);
-    }
-
-    bool ImGui_ImplSdl_ProcessEvent(ImGuiIO* io, SDL_Event* event)
-    {
-        switch (event->type)
-        {
-        case SDL_MOUSEWHEEL:
-        {
-            if (event->wheel.y > 0)
-                g_MouseWheel = 1;
-            if (event->wheel.y < 0)
-                g_MouseWheel = -1;
-            return true;
-        }
-        case SDL_MOUSEBUTTONDOWN:
-        {
-            if (event->button.button == SDL_BUTTON_LEFT) g_MousePressed[0] = true;
-            if (event->button.button == SDL_BUTTON_RIGHT) g_MousePressed[1] = true;
-            if (event->button.button == SDL_BUTTON_MIDDLE) g_MousePressed[2] = true;
-            return true;
-        }
-        case SDL_TEXTINPUT:
-        {
-            ImGuiIO_AddInputCharactersUTF8(io, event->text.text);
-            return true;
-        }
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-        {
-            int key = event->key.keysym.sym & ~SDLK_SCANCODE_MASK;
-            io->KeysDown[key] = (event->type == SDL_KEYDOWN);
-            io->KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
-            io->KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
-            io->KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
-            io->KeySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
-            return true;
-        }
-        }
-        return false;
-    }
-
-    bool ImGui_ImplSdl_CreateDeviceObjects(ImGuiIO* io)
-    {
-        // Build texture atlas
-        unsigned char* pixels;
-        int width, height;
-        ImFontAtlas_GetTexDataAsRGBA32(io->Fonts, &pixels, &width, &height, NULL);
-
-        // Upload texture to graphics system
-        const int depth = 4;
-
-        g_FontTexture = SDL_CreateRGBSurfaceFrom(pixels,
-            width,
-            height,
-            depth,
-            width,
-            (Uint32)(0xFF << IM_COL32_R_SHIFT),
-            (Uint32)(0xFF << IM_COL32_G_SHIFT),
-            (Uint32)(0xFF << IM_COL32_B_SHIFT),
-            (Uint32)(0xFF << IM_COL32_A_SHIFT));
-
-        // Store our identifier
-        io->Fonts->TexID = (void*)(intptr_t)g_FontTexture;
-
+        if (event->wheel.x > 0) io->MouseWheelH += 1;
+        if (event->wheel.x < 0) io->MouseWheelH -= 1;
+        if (event->wheel.y > 0) io->MouseWheel += 1;
+        if (event->wheel.y < 0) io->MouseWheel -= 1;
         return true;
     }
-
-    void    ImGui_ImplSdl_InvalidateDeviceObjects(ImGuiIO* io)
+    case SDL_MOUSEBUTTONDOWN:
     {
-        if (g_FontTexture)
-        {
-            SDL_FreeSurface(g_FontTexture);
-            io->Fonts->TexID = 0;
-            g_FontTexture = 0;
-        }
+        if (event->button.button == SDL_BUTTON_LEFT) g_MousePressed[0] = true;
+        if (event->button.button == SDL_BUTTON_RIGHT) g_MousePressed[1] = true;
+        if (event->button.button == SDL_BUTTON_MIDDLE) g_MousePressed[2] = true;
+        return true;
     }
-
-    bool    ImGui_ImplSdl_Init(ImGuiIO* io, SDL_Window* window, SDL_Surface* screen)
+    case SDL_TEXTINPUT:
     {
-        io->KeyMap[ImGuiKey_Tab] = SDLK_TAB;                     // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
-        io->KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;
-        io->KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;
-        io->KeyMap[ImGuiKey_UpArrow] = SDL_SCANCODE_UP;
-        io->KeyMap[ImGuiKey_DownArrow] = SDL_SCANCODE_DOWN;
-        io->KeyMap[ImGuiKey_PageUp] = SDL_SCANCODE_PAGEUP;
-        io->KeyMap[ImGuiKey_PageDown] = SDL_SCANCODE_PAGEDOWN;
-        io->KeyMap[ImGuiKey_Home] = SDL_SCANCODE_HOME;
-        io->KeyMap[ImGuiKey_End] = SDL_SCANCODE_END;
-        io->KeyMap[ImGuiKey_Delete] = SDLK_DELETE;
-        io->KeyMap[ImGuiKey_Backspace] = SDLK_BACKSPACE;
-        io->KeyMap[ImGuiKey_Enter] = SDLK_RETURN;
-        io->KeyMap[ImGuiKey_Escape] = SDLK_ESCAPE;
-        io->KeyMap[ImGuiKey_A] = SDLK_a;
-        io->KeyMap[ImGuiKey_C] = SDLK_c;
-        io->KeyMap[ImGuiKey_V] = SDLK_v;
-        io->KeyMap[ImGuiKey_X] = SDLK_x;
-        io->KeyMap[ImGuiKey_Y] = SDLK_y;
-        io->KeyMap[ImGuiKey_Z] = SDLK_z;
+        ImGuiIO_AddInputCharactersUTF8(io, event->text.text);
+        return true;
+    }
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+    {
+        int key = event->key.keysym.scancode;
+        //IM_ASSERT(key >= 0 && key < IM_ARRAYSIZE(io.KeysDown));
+        io->KeysDown[key] = (event->type == SDL_KEYDOWN);
+        io->KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+        io->KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+        io->KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+        io->KeySuper = ((SDL_GetModState() & KMOD_GUI) != 0);
+        return true;
+    }
+    }
+    return false;
+}
 
-        //io->RenderDrawListsFn = ImGui_ImplSdl_RenderDrawLists;   // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
-        io->UserData = screen;
-        io->SetClipboardTextFn = ImGui_ImplSdl_SetClipboardText;
-        io->GetClipboardTextFn = ImGui_ImplSdl_GetClipboardText;
-        io->ClipboardUserData = NULL;
+static bool ImGui_ImplSDL2_Init(SDL_Window* window)
+{
+    g_Window = window;
+
+    // Setup back-end capabilities flags
+    ImGuiIO& io = *igGetIO();
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;       // We can honor GetMouseCursor() values (optional)
+    io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;        // We can honor io.WantSetMousePos requests (optional, rarely used)
+
+    // Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
+    io.KeyMap[ImGuiKey_Tab] = SDL_SCANCODE_TAB;
+    io.KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow] = SDL_SCANCODE_UP;
+    io.KeyMap[ImGuiKey_DownArrow] = SDL_SCANCODE_DOWN;
+    io.KeyMap[ImGuiKey_PageUp] = SDL_SCANCODE_PAGEUP;
+    io.KeyMap[ImGuiKey_PageDown] = SDL_SCANCODE_PAGEDOWN;
+    io.KeyMap[ImGuiKey_Home] = SDL_SCANCODE_HOME;
+    io.KeyMap[ImGuiKey_End] = SDL_SCANCODE_END;
+    io.KeyMap[ImGuiKey_Insert] = SDL_SCANCODE_INSERT;
+    io.KeyMap[ImGuiKey_Delete] = SDL_SCANCODE_DELETE;
+    io.KeyMap[ImGuiKey_Backspace] = SDL_SCANCODE_BACKSPACE;
+    io.KeyMap[ImGuiKey_Space] = SDL_SCANCODE_SPACE;
+    io.KeyMap[ImGuiKey_Enter] = SDL_SCANCODE_RETURN;
+    io.KeyMap[ImGuiKey_Escape] = SDL_SCANCODE_ESCAPE;
+    io.KeyMap[ImGuiKey_A] = SDL_SCANCODE_A;
+    io.KeyMap[ImGuiKey_C] = SDL_SCANCODE_C;
+    io.KeyMap[ImGuiKey_V] = SDL_SCANCODE_V;
+    io.KeyMap[ImGuiKey_X] = SDL_SCANCODE_X;
+    io.KeyMap[ImGuiKey_Y] = SDL_SCANCODE_Y;
+    io.KeyMap[ImGuiKey_Z] = SDL_SCANCODE_Z;
+
+    io.SetClipboardTextFn = ImGui_ImplSDL2_SetClipboardText;
+    io.GetClipboardTextFn = ImGui_ImplSDL2_GetClipboardText;
+    io.ClipboardUserData = NULL;
+
+    g_MouseCursors[ImGuiMouseCursor_Arrow] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+    g_MouseCursors[ImGuiMouseCursor_TextInput] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+    g_MouseCursors[ImGuiMouseCursor_ResizeAll] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
+    g_MouseCursors[ImGuiMouseCursor_ResizeNS] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
+    g_MouseCursors[ImGuiMouseCursor_ResizeEW] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+    g_MouseCursors[ImGuiMouseCursor_ResizeNESW] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+    g_MouseCursors[ImGuiMouseCursor_ResizeNWSE] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+    g_MouseCursors[ImGuiMouseCursor_Hand] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 
 #ifdef _WIN32
-        /*SDL_SysWMinfo wmInfo;
-        SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(window, &wmInfo);
-        io->ImeWindowHandle = wmInfo.info.win.window;*/
-        // unsupported?
-        (void)window;
+    /*SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    io.ImeWindowHandle = wmInfo.info.win.window;*/
+    (void)window;
 #else
-        (void)window;
+    (void)window;
 #endif
 
-        return true;
-    }
+    return true;
+}
 
-    void ImGui_ImplSdl_Shutdown(ImGuiIO* io)
+bool ImGui_ImplSDL2_InitForOpenGL(struct SDL_Window* window, void* sdl_gl_context)
+{
+    (void)sdl_gl_context; // Viewport branch will need this.
+    return ImGui_ImplSDL2_Init(window);
+}
+
+bool ImGui_ImplSDL2_InitForVulkan(struct SDL_Window* window)
+{
+#if !SDL_HAS_VULKAN
+    IM_ASSERT(0 && "Unsupported");
+#endif
+    return ImGui_ImplSDL2_Init(window);
+}
+
+void ImGui_ImplSDL2_Shutdown()
+{
+    g_Window = NULL;
+
+    // Destroy last known clipboard data
+    if (g_ClipboardTextData)
+        SDL_free(g_ClipboardTextData);
+    g_ClipboardTextData = NULL;
+
+    // Destroy SDL mouse cursors
+    for (ImGuiMouseCursor cursor_n = 0; cursor_n < ImGuiMouseCursor_COUNT; cursor_n++)
+        SDL_FreeCursor(g_MouseCursors[cursor_n]);
+    memset(g_MouseCursors, 0, sizeof(g_MouseCursors));
+}
+
+static void ImGui_ImplSDL2_UpdateMousePosAndButtons()
+{
+    ImGuiIO& io = *igGetIO();
+
+    // Set OS mouse position if requested (rarely used, only when ImGuiConfigFlags_NavEnableSetMousePos is enabled by user)
+    if (io.WantSetMousePos)
+        SDL_WarpMouseInWindow(g_Window, (int)io.MousePos.x, (int)io.MousePos.y);
+    else {
+        io.MousePos.x = -FLT_MAX;
+        io.MousePos.y = FLT_MAX;
+    }
+        //io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+
+    int mx, my;
+    Uint32 mouse_buttons = SDL_GetMouseState(&mx, &my);
+    io.MouseDown[0] = g_MousePressed[0] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+    io.MouseDown[1] = g_MousePressed[1] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+    io.MouseDown[2] = g_MousePressed[2] || (mouse_buttons & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
+    g_MousePressed[0] = g_MousePressed[1] = g_MousePressed[2] = false;
+
+#if SDL_HAS_CAPTURE_MOUSE && !defined(__EMSCRIPTEN__)
+    SDL_Window* focused_window = SDL_GetKeyboardFocus();
+    if (g_Window == focused_window)
     {
-        ImGui_ImplSdl_InvalidateDeviceObjects(io);
-        //ImGui::Shutdown();
+        // SDL_GetMouseState() gives mouse position seemingly based on the last window entered/focused(?)
+        // The creation of a new windows at runtime and SDL_CaptureMouse both seems to severely mess up with that, so we retrieve that position globally.
+        int wx, wy;
+        SDL_GetWindowPosition(focused_window, &wx, &wy);
+        SDL_GetGlobalMouseState(&mx, &my);
+        mx -= wx;
+        my -= wy;
+        io.MousePos.x = mx;
+        io.MousePos.y = my;
     }
 
-    void ImGui_ImplSdl_PreNewFrame(ImGuiIO* io, SDL_Window* window)
+    // SDL_CaptureMouse() let the OS know e.g. that our imgui drag outside the SDL window boundaries shouldn't e.g. trigger the OS window resize cursor. 
+    // The function is only supported from SDL 2.0.4 (released Jan 2016)
+    bool any_mouse_button_down = igIsAnyMouseDown();
+    SDL_CaptureMouse(any_mouse_button_down ? SDL_TRUE : SDL_FALSE);
+#else
+    if (SDL_GetWindowFlags(g_Window) & SDL_WINDOW_INPUT_FOCUS)
+        io.MousePos = ImVec2((float)mx, (float)my);
+#endif
+}
+
+static void ImGui_ImplSDL2_UpdateMouseCursor()
+{
+    ImGuiIO& io = *igGetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange)
+        return;
+
+    ImGuiMouseCursor imgui_cursor = igGetMouseCursor();
+    if (io.MouseDrawCursor || imgui_cursor == ImGuiMouseCursor_None)
     {
-        if (!g_FontTexture)
-            ImGui_ImplSdl_CreateDeviceObjects(io);
-
-        // Setup display size (every frame to accommodate for window resizing)
-        // Note: frame buffer scaling is not supported in this example
-        int w, h;
-        SDL_GetWindowSize(window, &w, &h);
-        io->DisplaySize = { (float)w, (float)h };
-        io->DisplayFramebufferScale = { 1.0f, 1.0f };
-
-        // Setup time step
-        Uint32 time = SDL_GetTicks();
-        double current_time = time / 1000.0;
-        io->DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f / 60.0f);
-        g_Time = current_time;
-
-        // Setup inputs
-        // (we already got mouse wheel, keyboard keys & characters from SDL_PollEvent())
-        int mx, my;
-        Uint32 mouseMask = SDL_GetMouseState(&mx, &my);
-        if (SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)
-            io->MousePos = { (float)mx, (float)my };   // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
-        else
-            io->MousePos = { -1, -1 };
-
-        io->MouseDown[0] = g_MousePressed[0] || (mouseMask & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;        // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-        io->MouseDown[1] = g_MousePressed[1] || (mouseMask & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
-        io->MouseDown[2] = g_MousePressed[2] || (mouseMask & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0;
-        g_MousePressed[0] = g_MousePressed[1] = g_MousePressed[2] = false;
-
-        io->MouseWheel = g_MouseWheel;
-        g_MouseWheel = 0.0f;
-
-        {
-            SDL_Surface* surf = ((SDL_Surface*)io->UserData);
-            memset(surf->pixels, 0, surf->pitch * surf->h);
-        }
-        // Hide OS mouse cursor if ImGui is drawing it
-        SDL_ShowCursor(io->MouseDrawCursor ? 0 : 1);
-
-        // Start the frame
-        //igNewFrame();
+        // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor
+        SDL_ShowCursor(SDL_FALSE);
     }
+    else
+    {
+        // Show OS mouse cursor
+        SDL_SetCursor(g_MouseCursors[imgui_cursor] ? g_MouseCursors[imgui_cursor] : g_MouseCursors[ImGuiMouseCursor_Arrow]);
+        SDL_ShowCursor(SDL_TRUE);
+    }
+}
 
-};
+void ImGui_ImplSDL2_NewFrame(struct SDL_Window* window)
+{
+    ImGuiIO& io = *igGetIO();
+    //IM_ASSERT(io.Fonts->IsBuilt());     // Font atlas needs to be built, call renderer _NewFrame() function e.g. ImGui_ImplOpenGL3_NewFrame() 
+
+    // Setup display size (every frame to accommodate for window resizing)
+    int w, h;
+    int display_w, display_h;
+    SDL_GetWindowSize(window, &w, &h);
+    SDL_GL_GetDrawableSize(window, &display_w, &display_h);
+    io.DisplaySize.x = (float)w;
+    io.DisplaySize.y = (float)h;
+    io.DisplayFramebufferScale.x = w > 0 ? ((float)display_w / w) : 0;
+    io.DisplayFramebufferScale.y = h > 0 ? ((float)display_h / h) : 0;
+
+    // Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
+    static Uint64 frequency = SDL_GetPerformanceFrequency();
+    Uint64 current_time = SDL_GetPerformanceCounter();
+    io.DeltaTime = g_Time > 0 ? (float)((double)(current_time - g_Time) / frequency) : (float)(1.0f / 60.0f);
+    g_Time = current_time;
+
+    ImGui_ImplSDL2_UpdateMousePosAndButtons();
+    ImGui_ImplSDL2_UpdateMouseCursor();
+}
