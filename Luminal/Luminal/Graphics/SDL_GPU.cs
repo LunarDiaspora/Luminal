@@ -95,5 +95,8 @@ namespace Luminal.Graphics
 
         [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
         public static extern void GPU_FlushBlitBuffer();
+
+        [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void GPU_SetAnchor(IntPtr image, float x, float y);
     }
 }

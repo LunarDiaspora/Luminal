@@ -40,6 +40,7 @@ namespace Luminal.Core
             // SDL_Surface*
             //SDL.SDL_BlitSurface(sur, IntPtr.Zero, Engine.Renderer, ref rect);
             IntPtr tex = SDL_GPU.GPU_CopyImageFromSurface(sur);
+            SDL_GPU.GPU_SetAnchor(tex, 0f, 0f); // MY TEXT IS ALL CENTERED
 
             GPU_Rect r = new();
             r.x = 0;
