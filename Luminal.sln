@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal", "Luminal\Luminal.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuminalFMODCoreEngine", "LuminalFMODCoreEngine\LuminalFMODCoreEngine.csproj", "{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImguiGlue", "ImguiGlue\ImguiGlue.vcxproj", "{912E578A-D683-4C3E-A597-ABA1CE126B25}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -23,10 +21,6 @@ Global
 		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Debug|x64.Build.0 = Debug|Any CPU
 		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Release|x64.ActiveCfg = Release|Any CPU
 		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Release|x64.Build.0 = Release|Any CPU
-		{912E578A-D683-4C3E-A597-ABA1CE126B25}.Debug|x64.ActiveCfg = Debug|x64
-		{912E578A-D683-4C3E-A597-ABA1CE126B25}.Debug|x64.Build.0 = Debug|x64
-		{912E578A-D683-4C3E-A597-ABA1CE126B25}.Release|x64.ActiveCfg = Release|x64
-		{912E578A-D683-4C3E-A597-ABA1CE126B25}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,15 +19,6 @@ namespace Luminal.IMGUI
 
     public class IMGUIManager
     {
-        [DllImport("ImguiGlue.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern int ImGui_ImplSDL2_InitForOpenGL(IntPtr window, IntPtr GlContext);
-
-        [DllImport("ImguiGlue.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern int ImGui_ImplSDL2_NewFrame(IntPtr Window);
-
-        [DllImport("ImguiGlue.dll", CallingConvention = CallingConvention.Cdecl)]
-        static extern unsafe int ImGui_ImplSDL2_ProcessEvent(SDL.SDL_Event* ev);
-
         static bool Initialised = false;
 
         public static unsafe void Initialise()

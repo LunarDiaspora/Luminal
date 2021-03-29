@@ -30,10 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImguiGlue\ImguiGlue.vcxproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="SDL2-CS">
       <HintPath>SDL2-CS.dll</HintPath>
     </Reference>
