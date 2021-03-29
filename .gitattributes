@@ -1,3 +1,4 @@
 ImguiGlue/ext/**/* linguist-vendored
 ImguiGlue/ext/* linguist-vendored
 ImguiGlue/ext/SDL2/include/SDL_endian.h linguist-vendored
+ImguiGlue/imgui_impl_sdl.cpp linguist-vendored
