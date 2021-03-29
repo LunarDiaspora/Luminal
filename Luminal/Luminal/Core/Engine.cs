@@ -9,9 +9,15 @@ using SDL2;
 using SFML.System;
 using Luminal.Logging;
 using Luminal.LGUI;
+using Luminal.IMGUI;
 
 namespace Luminal.Core
 {
+    public enum LuminalFlags
+    {
+        ENABLE_DEAR_IMGUI = 1<<0
+    }
+
     public class Engine
     {
         public static IntPtr Renderer; // SDL_Renderer*
@@ -53,7 +59,8 @@ namespace Luminal.Core
             Log.SetLogLevel(logLevel);
         }
 
-        public void StartRenderer(int WindowWidth, int WindowHeight, string WindowTitle, Type executingType)
+        public void StartRenderer(int WindowWidth, int WindowHeight, string WindowTitle, Type executingType,
+                                  LuminalFlags Flags = 0)
         {
             Log.Info($"--- Luminal Engine ---\nStarting at {WindowWidth} x {WindowHeight} (\"{WindowTitle}\")\nExecuting application: {executingType.Name}\n");
 
@@ -79,6 +86,11 @@ namespace Luminal.Core
             SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_JPG | SDL_image.IMG_InitFlags.IMG_INIT_PNG |
                                SDL_image.IMG_InitFlags.IMG_INIT_TIF | SDL_image.IMG_InitFlags.IMG_INIT_WEBP);
 
+            if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+            {
+                IMGUIManager.Initialise();
+            }
+
             if (OnLoading != null) OnLoading(this);
 
             //var sdlResult = SDL.SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, 0, out Renderer, out Window);
@@ -99,6 +111,11 @@ namespace Luminal.Core
                 SDL.SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
 
                 GUIManager.Begin();
+
+                if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+                {
+                    IMGUIManager.BeforeFrame();
+                }
 
                 if (OnGUI != null) OnGUI(this);
 
@@ -150,6 +167,11 @@ namespace Luminal.Core
                     sceneManager.ActiveScene.Draw(this);
 
                 GUIManager.RenderAll();
+
+                if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+                {
+                    IMGUIManager.Draw();
+                }
 
                 SDL.SDL_RenderPresent(Renderer);
 
