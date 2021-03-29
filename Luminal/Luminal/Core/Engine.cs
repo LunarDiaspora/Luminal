@@ -8,7 +8,7 @@ using Luminal.Configuration;
 using SDL2;
 using SFML.System;
 using Luminal.Logging;
-using Luminal.GUI;
+using Luminal.LGUI;
 
 namespace Luminal.Core
 {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Luminal.GUI.Objects;
+using Luminal.LGUI.Objects;
 
-namespace Luminal.GUI
+namespace Luminal.LGUI
 {
     /*
      * An interface with Luminal's IMGUI framework.

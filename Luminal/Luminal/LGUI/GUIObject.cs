@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luminal.GUI
+namespace Luminal.LGUI
 {
     public abstract class GUIObject
     {

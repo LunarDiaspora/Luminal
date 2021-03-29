@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Luminal.Logging;
 
-namespace Luminal.GUI
+namespace Luminal.LGUI
 {
     public static class GUIManager
     {

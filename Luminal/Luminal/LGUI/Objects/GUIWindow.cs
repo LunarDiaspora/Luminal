@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Luminal.Core;
 using Luminal.Graphics;
-using Luminal.GUI;
+using Luminal.LGUI;
 
-namespace Luminal.GUI.Objects
+namespace Luminal.LGUI.Objects
 {
     public class GUIWindow : GUIObject
     {
