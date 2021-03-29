@@ -93,7 +93,7 @@ namespace Luminal.Core
                 IMGUIManager.Initialise();
             }
 
-            Screen = SDL_GPU.GPU_Init((uint)Width, (uint)Height, 0);
+            Screen = SDL_GPU.GPU_Init((uint)Width, (uint)Height, GPU_InitFlagEnum.GPU_INIT_DISABLE_VSYNC);
 
             if (OnLoading != null) OnLoading(this);
 

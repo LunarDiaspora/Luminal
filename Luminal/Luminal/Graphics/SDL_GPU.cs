@@ -31,6 +31,17 @@ namespace Luminal.Graphics
         GPU_BLEND_NORMAL_FACTOR_ALPHA = 10
     }
 
+    public static class GPU_InitFlagEnum
+    {
+        public static readonly uint GPU_INIT_ENABLE_VSYNC = 0x1;
+        public static readonly uint GPU_INIT_DISABLE_VSYNC = 0x2;
+        public static readonly uint GPU_INIT_DISABLE_DOUBLE_BUFFER = 0x4;
+        public static readonly uint GPU_INIT_DISABLE_AUTO_VIRTUAL_RESOLUTION = 0x8;
+        public static readonly uint GPU_INIT_REQUEST_COMPATIBILITY_PROFILE = 0x10;
+        public static readonly uint GPU_INIT_USE_ROW_BY_ROW_TEXTURE_UPLOAD_FALLBACK = 0x20;
+        public static readonly uint GPU_INIT_USE_COPY_TEXTURE_UPLOAD_FALLBACK = 0x40;
+    }
+
     public unsafe class SDL_GPU
     {
         [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
