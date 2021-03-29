@@ -42,8 +42,8 @@ namespace Luminal.Core
             IntPtr tex = SDL_GPU.GPU_CopyImageFromSurface(sur);
 
             GPU_Rect r = new();
-            r.x = x;
-            r.y = y;
+            r.x = 0;
+            r.y = 0;
             r.w = rect.w;
             r.h = rect.h;
 
@@ -61,7 +61,7 @@ namespace Luminal.Core
                 Height = 1;
                 return;
             }
-            SDL_ttf.TTF_SizeUTF8(FontPointer, Text, out Width, out Height);
+            SDL_ttf.TTF_SizeUTF8(FontPointer, Text ?? "", out Width, out Height);
         }
 
         public void Draw(string Text, float x = 0, float y = 0)
@@ -74,7 +74,7 @@ namespace Luminal.Core
             }
         }
 
-        public void Draw(string Text, int x = 0, int y = 0)
+        public void DrawInt(string Text, int x = 0, int y = 0)
         {
             Draw(Text, x, y);
         }
