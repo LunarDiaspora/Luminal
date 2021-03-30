@@ -84,7 +84,7 @@ namespace Luminal.OpenGL
             {
                 -0.5f, -0.5f, 0.0f,
                 0.5f, -0.5f, 0.0f,
-                0.0f, 0.5f, 0.2f
+                0.0f, 0.5f, 0.0f
             };
 
             VAO.Bind();
