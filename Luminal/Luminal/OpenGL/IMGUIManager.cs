@@ -42,6 +42,9 @@ namespace Luminal.OpenGL
 
         static GLShaderProgram Program;
 
+        static GLVertexArrayObject VAO = new();
+        static GLFloatBuffer VBO = new();
+
         public static unsafe void Initialise()
         {
             GL.LoadBindings(new SDLBindingsContext());
@@ -59,23 +62,38 @@ namespace Luminal.OpenGL
 
             Program = new GLShaderProgram().Attach(VS).Attach(FS).Link();
 
-            Context = ImGui.CreateContext();
+            //Context = ImGui.CreateContext();
 
-            ImGui.SetCurrentContext(Context);
-            ImGui.GetIO().Fonts.AddFontDefault();
+            //ImGui.SetCurrentContext(Context);
+            //ImGui.GetIO().Fonts.AddFontDefault();
 
-            ImGui.GetIO().DisplaySize.X = Engine.Width;
-            ImGui.GetIO().DisplaySize.Y = Engine.Height;
+            //ImGui.GetIO().DisplaySize.X = Engine.Width;
+            //ImGui.GetIO().DisplaySize.Y = Engine.Height;
 
-            ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
+            //ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
 
-            var fontTex = new GLTexture("ImGui Font Texture", w, h, p);
-            fontTex.SetMagFilter(TextureMagFilter.Nearest);
-            fontTex.SetMinFilter(TextureMinFilter.Nearest);
+            //var fontTex = new GLTexture("ImGui Font Texture", w, h, p);
+            //fontTex.SetMagFilter(TextureMagFilter.Nearest);
+            //fontTex.SetMinFilter(TextureMinFilter.Nearest);
 
-            ImGui.GetIO().Fonts.SetTexID((IntPtr)fontTex.GLObject);
+            //ImGui.GetIO().Fonts.SetTexID((IntPtr)fontTex.GLObject);
 
-            ImGui.GetIO().Fonts.ClearTexData();
+            //ImGui.GetIO().Fonts.ClearTexData();
+
+            float[] vertices =
+            {
+                -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f,
+                0.0f, 0.5f, 0.2f
+            };
+
+            VAO.Bind();
+
+            VBO.Bind(BufferTarget.ArrayBuffer);
+            VBO.Data(vertices, BufferUsageHint.DynamicDraw);
+
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
 
             Initialised = true;
         }
@@ -85,14 +103,20 @@ namespace Luminal.OpenGL
             if (!Initialised) throw new Exception("Tried to call BeforeFrame before initialising.");
 
 
-            ImGui.NewFrame();
+            //ImGui.NewFrame();
         }
 
         public static unsafe void Draw()
         {
-            ImGui.Render();
+            //ImGui.Render();
 
+            //GL.ClearColor(Color.CadetBlue);
+            //GL.Clear(ClearBufferMask.ColorBufferBit);
 
+            Program.Use();
+            VAO.Bind();
+
+            GL.DrawArrays(BeginMode.Triangles, 0, 3);
         }
 
         //public static unsafe void Draw()

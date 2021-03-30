@@ -141,5 +141,8 @@ namespace Luminal.Graphics
         [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr GPU_InitRenderer(int rid, uint w, uint h, uint flags);
 
+        [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void GPU_ResetRendererState();
+
     }
 }

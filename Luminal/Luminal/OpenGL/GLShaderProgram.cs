@@ -25,6 +25,8 @@ namespace Luminal.OpenGL
 
         public GLShaderProgram Link()
         {
+            GL.LinkProgram(GLObject); // ACTUALLY call your functions, guys.
+
             GL.GetProgram(GLObject, GetProgramParameterName.LinkStatus, out int ok);
 
             if (ok != 1)
@@ -36,6 +38,11 @@ namespace Luminal.OpenGL
             }
 
             return this;
+        }
+
+        public void Use()
+        {
+            GL.UseProgram(GLObject);
         }
     }
 }

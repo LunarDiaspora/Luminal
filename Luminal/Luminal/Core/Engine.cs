@@ -201,6 +201,8 @@ namespace Luminal.Core
                     IMGUIManager.Draw();
                 }
 
+                SDL_GPU.GPU_ResetRendererState();
+
                 //SDL.SDL_RenderPresent(Renderer);
                 SDL_GPU.GPU_Flip(Screen);
 
