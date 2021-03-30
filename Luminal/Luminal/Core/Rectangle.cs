@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Luminal.Graphics;
 using SDL2;
 
 namespace Luminal.Core
@@ -22,6 +23,18 @@ namespace Luminal.Core
                 y = (int)or.y,
                 w = (int)or.w,
                 h = (int)or.h
+            };
+            return r;
+        }
+
+        public static explicit operator GPU_Rect(Rectangle or)
+        {
+            var r = new GPU_Rect()
+            {
+                x = or.x,
+                y = or.y,
+                w = or.w,
+                h = or.h
             };
             return r;
         }
