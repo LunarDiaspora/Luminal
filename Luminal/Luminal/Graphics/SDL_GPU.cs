@@ -42,6 +42,22 @@ namespace Luminal.Graphics
         public static readonly uint GPU_INIT_USE_COPY_TEXTURE_UPLOAD_FALLBACK = 0x40;
     }
 
+    public static class GPU_RendererEnum
+    {
+        public static readonly int GPU_RENDERER_UNKNOWN = 0;  // invalid value
+        public static readonly int GPU_RENDERER_OPENGL_1_BASE = 1;
+        public static readonly int GPU_RENDERER_OPENGL_1 = 2;
+        public static readonly int GPU_RENDERER_OPENGL_2 = 3;
+        public static readonly int GPU_RENDERER_OPENGL_3 = 4;
+        public static readonly int GPU_RENDERER_OPENGL_4 = 5;
+        public static readonly int GPU_RENDERER_GLES_1 = 11;
+        public static readonly int GPU_RENDERER_GLES_2 = 12;
+        public static readonly int GPU_RENDERER_GLES_3 = 13;
+        public static readonly int GPU_RENDERER_D3D9 = 21;
+        public static readonly int GPU_RENDERER_D3D10 = 22;
+        public static readonly int GPU_RENDERER_D3D11 = 23;
+    }
+
     public unsafe class SDL_GPU
     {
         [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
@@ -112,6 +128,18 @@ namespace Luminal.Graphics
 
         [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
         public static extern void GPU_SetPreInitFlags(uint flags);
+
+        [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void GPU_SetDefaultAnchor(float x, float y);
+
+        [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GPU_CreateTargetFromWindow(uint windowid);
+
+        [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void GPU_SetInitWindow(uint winid);
+
+        [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GPU_InitRenderer(int rid, uint w, uint h, uint flags);
 
     }
 }

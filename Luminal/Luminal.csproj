@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Authors>Supernova Dev Team</Authors>
     <Description>Fast game engine for Supernova.</Description>
     <Copyright>(C) 2021 Supernova Dev Team</Copyright>
@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="ImGui.NET" Version="1.78.0" />
-    <PackageReference Include="OpenGL.Net" Version="0.8.4" />
+    <PackageReference Include="OpenTK.Graphics" Version="4.6.3" />
     <PackageReference Include="SFML.Net" Version="2.5.0" />
   </ItemGroup>
 

@@ -9,7 +9,7 @@ using SDL2;
 using SFML.System;
 using Luminal.Logging;
 using Luminal.LGUI;
-using Luminal.IMGUI;
+using Luminal.OpenGL;
 
 namespace Luminal.Core
 {
@@ -54,6 +54,8 @@ namespace Luminal.Core
         public static int Width;
         public static int Height;
 
+        public static IntPtr GlContext;
+
         public Engine(int logLevel = 0)
         {
             var logger = new ConsoleLogger();
@@ -76,8 +78,16 @@ namespace Luminal.Core
             sceneManager = new SceneManager(executingType);
             //sceneManager.SwitchScene("Dummy");
 
-            //Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, WindowWidth, WindowHeight, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
+            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 1);
+
+            Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, WindowWidth, WindowHeight,
+                                          SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
             //Renderer = SDL.SDL_CreateRenderer(Window, 0, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
+
+            var winid = SDL.SDL_GetWindowID(Window);
+
+            SDL_GPU.GPU_SetInitWindow(winid);
 
             Context.SetColour(255, 255, 255, 255);
 
@@ -88,16 +98,25 @@ namespace Luminal.Core
             SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_JPG | SDL_image.IMG_InitFlags.IMG_INIT_PNG |
                                SDL_image.IMG_InitFlags.IMG_INIT_TIF | SDL_image.IMG_InitFlags.IMG_INIT_WEBP);
 
+            SDL_GPU.GPU_SetPreInitFlags(GPU_InitFlagEnum.GPU_INIT_DISABLE_VSYNC);
+
+            //Screen = SDL_GPU.GPU_Init((uint)Width, (uint)Height, (uint)(SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL));
+
+            var winflags = SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
+
+            Screen = SDL_GPU.GPU_InitRenderer(GPU_RendererEnum.GPU_RENDERER_OPENGL_3, (uint)Width, (uint)Height, (uint)winflags);
+            SDL_GPU.GPU_SetDefaultAnchor(0, 0);
+
+            //GlContext = SDL.SDL_GL_CreateContext(Window);
+
             if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
             {
+                Log.Info("Enabling Dear IMGUI.");
                 IMGUIManager.Initialise();
             }
 
-            SDL_GPU.GPU_SetPreInitFlags(GPU_InitFlagEnum.GPU_INIT_DISABLE_VSYNC);
-
-            Screen = SDL_GPU.GPU_Init((uint)Width, (uint)Height, 0);
-
             if (OnLoading != null) OnLoading(this);
+
 
             //var sdlResult = SDL.SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, 0, out Renderer, out Window);
             //Console.WriteLine($"{sdlResult}");

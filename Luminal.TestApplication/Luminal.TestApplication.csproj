@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ImGui.NET" Version="1.78.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LuminalNullAudioEngine\LuminalNullAudioEngine.csproj" />
+    <ProjectReference Include="..\Luminal\Luminal.csproj" />
+  </ItemGroup>
+
+</Project>
