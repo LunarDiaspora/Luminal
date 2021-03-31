@@ -171,15 +171,13 @@ namespace Luminal.OpenGL
 
         public static void KeyPress(SDL.SDL_Scancode s)
         {
-            var ce = camera.Euler;
-
             switch (s)
             {
                 case SDL.SDL_Scancode.SDL_SCANCODE_S:
-                    camera.Position.Z -= 0.25f;
+                    camera.Translate(camera.Forward * -0.1f);
                     break;
                 case SDL.SDL_Scancode.SDL_SCANCODE_W:
-                    camera.Position.Z += 0.25f;
+                    camera.Translate(camera.Forward * 0.1f);
                     break;
                 case SDL.SDL_Scancode.SDL_SCANCODE_A:
                     //Angle -= GLHelper.DegRad(5.0f);
@@ -189,10 +187,10 @@ namespace Luminal.OpenGL
                     camera.Translate(camera.Right * -0.05f);
                     break;
                 case SDL.SDL_Scancode.SDL_SCANCODE_LEFT:
-                    camera.Euler = ce + new Vector3(0.0f, 2.0f, 0.0f);
+                    camera.Rotate(new Vector3(0.0f, -2.0f, 0.0f));
                     break;
                 case SDL.SDL_Scancode.SDL_SCANCODE_RIGHT:
-                    camera.Euler = ce + new Vector3(0.0f, -2.0f, 0.0f);
+                    camera.Rotate(new Vector3(0.0f, 2.0f, 0.0f));
                     break;
             }
 

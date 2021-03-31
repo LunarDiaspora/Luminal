@@ -43,9 +43,25 @@ namespace Luminal.OpenGL
             }
         }
 
+        public Vector3 Forward
+        {
+            get
+            {
+                var rot = Matrix4.CreateFromQuaternion(Quat.Inverted());
+                return Vector3.TransformPosition(GLHelper.Forward, rot);
+            }
+        }
+
         public void RotateAbout(Vector3 axis, float angle)
         {
             var q = Quaternion.FromAxisAngle(axis, angle);
+            Quat *= q;
+        }
+
+        public void Rotate(Vector3 eulers)
+        {
+            var eul = GLHelper.V3DegRad(eulers);
+            var q = Quaternion.FromEulerAngles(eul);
             Quat *= q;
         }
 
