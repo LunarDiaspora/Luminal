@@ -25,11 +25,11 @@ namespace Luminal.TestApplication
 
         public void GUI(Engine _)
         {
-            //ImGui.Begin("poggers");
+            ImGui.Begin("poggers");
 
-            //ImGui.Text("yay");
+            ImGui.Text("yay");
 
-            //ImGui.End();
+            ImGui.End();
         }
     }
 

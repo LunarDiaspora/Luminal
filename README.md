@@ -28,7 +28,7 @@ To make a custom logger, write a class that implements ILogger, then call `Log.S
 - [x] Audio
 - [x] Keyboard/mouse input
 - [x] Flexible logging
-- [ ] IMGUI support
+- [X] IMGUI support
 - [ ] Expose more of the engine to the end user
 - [ ] Finish LGUI
 - [ ] Extremely basic 3D support
