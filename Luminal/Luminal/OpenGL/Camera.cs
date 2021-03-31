@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Luminal.Core;
+﻿using Luminal.Core;
 using OpenTK.Mathematics;
 
 namespace Luminal.OpenGL
@@ -11,7 +6,7 @@ namespace Luminal.OpenGL
     public class Camera : SceneObject
     {
         public float FieldOfView = 90.0f;
-        
+
         public Camera(Vector3 position, Vector3 angle)
         {
             Position = position;

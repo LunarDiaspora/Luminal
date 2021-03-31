@@ -1,47 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SDL2;
-using ImGuiNET;
-using System.Runtime.InteropServices;
+﻿using ImGuiNET;
 using Luminal.Core;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Graphics.GL;
-using OpenTK.Mathematics;
 using Luminal.Logging;
-using System.Drawing;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using SDL2;
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-
+using System.Runtime.InteropServices;
 using SC = SDL2.SDL.SDL_Scancode;
 
 namespace Luminal.OpenGL
 {
     /**
-     * 
+     *
      * This class handles interfacing with OpenGL and rendering 3D things.
-     * 
+     *
      */
 
     public class OpenGLManager
     {
-        static bool Initialised = false;
+        private static bool Initialised = false;
 
         public static IntPtr Context;
 
-        static GLShader VS;
-        static GLShader FS;
+        private static GLShader VS;
+        private static GLShader FS;
 
-        static string VertexSource;
-        static string FragSource;
+        private static string VertexSource;
+        private static string FragSource;
 
-        static GLShaderProgram ImGuiProgram;
+        private static GLShaderProgram ImGuiProgram;
 
         public delegate void GLCallback();
+
         public static event GLCallback OnOpenGL;
+
         public static event GLCallback OnInitGL;
+
         public static event GLCallback OnEarlyOpenGL; // Called before SDL_gpu blits.
 
         //static GLVertexArrayObject VAO = new();
@@ -50,19 +46,19 @@ namespace Luminal.OpenGL
 
         //static GLTexture Texture;
 
-        static GLTexture ImguiFontTexture;
+        private static GLTexture ImguiFontTexture;
 
-        static bool NewFrame = false;
+        private static bool NewFrame = false;
 
         public static System.Numerics.Vector2 ImGuiScale = System.Numerics.Vector2.One;
 
-        static GLVertexArrayObject IG_VAO;
+        private static GLVertexArrayObject IG_VAO;
 
-        static int VtxBufSize;
-        static int IdxBufSize;
+        private static int VtxBufSize;
+        private static int IdxBufSize;
 
-        static int VertexBuffer; // Not using my abstractions here
-        static int IndexBuffer;
+        private static int VertexBuffer; // Not using my abstractions here
+        private static int IndexBuffer;
 
         public static bool DontPassKeyPresses = false;
 
@@ -160,12 +156,12 @@ namespace Luminal.OpenGL
         public static unsafe void BeforeFrame()
         {
             if (!Initialised) throw new Exception("Tried to call BeforeFrame before initialising.");
-            
+
             ImGui.NewFrame();
             NewFrame = true;
         }
 
-        static void ImGuiCreateFontAtlas()
+        private static void ImGuiCreateFontAtlas()
         {
             ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
 
@@ -180,7 +176,7 @@ namespace Luminal.OpenGL
             ImGui.GetIO().Fonts.ClearTexData();
         }
 
-        static void IGRender()
+        private static void IGRender()
         {
             if (NewFrame)
             {
@@ -190,7 +186,7 @@ namespace Luminal.OpenGL
             }
         }
 
-        static void IGRender2(ImDrawDataPtr dd)
+        private static void IGRender2(ImDrawDataPtr dd)
         {
             if (dd.CmdListsCount == 0)
             {
@@ -237,7 +233,7 @@ namespace Luminal.OpenGL
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.DepthTest);
 
-            for (int n=0; n<dd.CmdListsCount; n++)
+            for (int n = 0; n < dd.CmdListsCount; n++)
             {
                 ImDrawListPtr cmdList = dd.CmdListsRange[n];
 
@@ -247,13 +243,14 @@ namespace Luminal.OpenGL
                 int vOffset = 0;
                 int iOffset = 0;
 
-                for (int i=0; i<cmdList.CmdBuffer.Size; i++)
+                for (int i = 0; i < cmdList.CmdBuffer.Size; i++)
                 {
                     ImDrawCmdPtr pcmd = cmdList.CmdBuffer[i];
                     if (pcmd.UserCallback != IntPtr.Zero)
                     {
                         throw new NotImplementedException();
-                    } else
+                    }
+                    else
                     {
                         GLTexture.Active(TextureUnit.Texture0);
                         GL.BindTexture(TextureTarget.Texture2D, (int)pcmd.TextureId);
@@ -280,7 +277,7 @@ namespace Luminal.OpenGL
             GL.Disable(EnableCap.ScissorTest);
         }
 
-        static void IGUpdate(float dt)
+        private static void IGUpdate(float dt)
         {
             var io = ImGui.GetIO();
             io.DeltaTime = dt;
@@ -303,9 +300,9 @@ namespace Luminal.OpenGL
             OnEarlyOpenGL?.Invoke();
         }
 
-        static bool LMB_Down = false;
-        static bool MMB_Down = false;
-        static bool RMB_Down = false;
+        private static bool LMB_Down = false;
+        private static bool MMB_Down = false;
+        private static bool RMB_Down = false;
 
         public static unsafe void ImGuiHandleEvent(SDL.SDL_Event e)
         {
@@ -323,6 +320,7 @@ namespace Luminal.OpenGL
                     if (e.button.button == SDL.SDL_BUTTON_RIGHT)
                         RMB_Down = true;
                     break;
+
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
                     if (e.button.button == SDL.SDL_BUTTON_LEFT)
                         LMB_Down = false;
@@ -331,16 +329,19 @@ namespace Luminal.OpenGL
                     if (e.button.button == SDL.SDL_BUTTON_RIGHT)
                         RMB_Down = false;
                     break;
+
                 case SDL.SDL_EventType.SDL_MOUSEWHEEL:
                     if (e.wheel.x > 0) io.MouseWheelH += 1;
                     if (e.wheel.x < 0) io.MouseWheelH -= 1;
                     if (e.wheel.y > 0) io.MouseWheel += 1;
                     if (e.wheel.y < 0) io.MouseWheel -= 1;
                     break;
+
                 case SDL.SDL_EventType.SDL_TEXTINPUT:
                     var t = Marshal.PtrToStringUTF8((IntPtr)e.text.text);
                     io.AddInputCharactersUTF8(t);
                     break;
+
                 case SDL.SDL_EventType.SDL_KEYDOWN:
                 case SDL.SDL_EventType.SDL_KEYUP:
                     int key = (int)e.key.keysym.scancode;
@@ -352,7 +353,7 @@ namespace Luminal.OpenGL
             }
         }
 
-        static bool PreviousCapState = false;
+        private static bool PreviousCapState = false;
 
         public static void ImGuiUpdateMouse()
         {
@@ -381,7 +382,7 @@ namespace Luminal.OpenGL
 
             PreviousCapState = io.WantTextInput;
         }
-        
+
         public static unsafe void Draw()
         {
             OnOpenGL?.Invoke();

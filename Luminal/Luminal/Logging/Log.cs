@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Luminal.Logging
 {
@@ -35,6 +31,7 @@ namespace Luminal.Logging
         {
             Logger.Log(msg, LogLevel.INFO);
         }
+
         public static void Info(string msg, params object[] args)
         {
             Logger.Log(string.Format(msg, args.Select(t => t.ToString()).ToArray()), LogLevel.INFO);
@@ -44,6 +41,7 @@ namespace Luminal.Logging
         {
             Logger.Log(msg, LogLevel.WARNING);
         }
+
         public static void Warn(string msg, params object[] args)
         {
             Logger.Log(string.Format(msg, args.Select(t => t.ToString()).ToArray()), LogLevel.WARNING);
@@ -53,6 +51,7 @@ namespace Luminal.Logging
         {
             Logger.Log(msg, LogLevel.ERROR);
         }
+
         public static void Error(string msg, params object[] args)
         {
             Logger.Log(string.Format(msg, args.Select(t => t.ToString()).ToArray()), LogLevel.ERROR);
@@ -62,6 +61,7 @@ namespace Luminal.Logging
         {
             Logger.Log(msg, LogLevel.FATAL);
         }
+
         public static void Fatal(string msg, params object[] args)
         {
             Logger.Log(string.Format(msg, args.Select(t => t.ToString()).ToArray()), LogLevel.FATAL);
@@ -71,6 +71,7 @@ namespace Luminal.Logging
         {
             Logger.Log(msg, LogLevel.UNEXPECTED);
         }
+
         public static void Wtf(string msg, params object[] args)
         {
             Logger.Log(string.Format(msg, args.Select(t => t.ToString()).ToArray()), LogLevel.UNEXPECTED);

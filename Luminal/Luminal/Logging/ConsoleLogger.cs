@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 namespace Luminal.Logging
@@ -10,13 +7,13 @@ namespace Luminal.Logging
     public class ConsoleLogger : ILogger
     {
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetStdHandle(int nStdHandle);
+        private static extern IntPtr GetStdHandle(int nStdHandle);
 
         [DllImport("kernel32.dll")]
-        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
 
         [DllImport("kernel32.dll")]
-        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
 
         public ConsoleLogger()
         {
@@ -38,7 +35,7 @@ namespace Luminal.Logging
         {
             return _DoSGR($"38;2;{r};{g};{b}");
         }
-        
+
         public static string Rst()
         {
             return _DoSGR($"0");
@@ -47,20 +44,20 @@ namespace Luminal.Logging
         public static readonly string C_DG = Clr(105, 105, 105);
 
         public static readonly string C_DEBUG = Clr(105, 105, 105);
-        public static readonly string C_INFO  = Clr(0  , 214, 200);
-        public static readonly string C_WARN  = Clr(219, 179, 0  );
-        public static readonly string C_ERROR = Clr(214, 71 , 71 );
-        public static readonly string C_FATAL = Clr(237, 0  , 0  );
-        public static readonly string C_WTF   = Clr(237, 12 , 207);
+        public static readonly string C_INFO = Clr(0, 214, 200);
+        public static readonly string C_WARN = Clr(219, 179, 0);
+        public static readonly string C_ERROR = Clr(214, 71, 71);
+        public static readonly string C_FATAL = Clr(237, 0, 0);
+        public static readonly string C_WTF = Clr(237, 12, 207);
 
         public Dictionary<LogLevel, string> Formats = new()
         {
-            { LogLevel.DEBUG,      $"{C_DG}[DEBUG]{Rst()} {{0}}" },
-            { LogLevel.INFO,       $"{C_DG}[ {C_INFO}INFO{C_DG}]{Rst()} {{0}}"  },
-            { LogLevel.WARNING,    $"{C_DG}[ {C_WARN}WARN{C_DG}]{Rst()} {{0}}"  },
-            { LogLevel.ERROR,      $"{C_DG}[{C_ERROR}ERROR{C_DG}]{Rst()} {{0}}" },
-            { LogLevel.FATAL,      $"{C_DG}[ {C_FATAL}CRIT{C_DG}]{Rst()} {{0}}" },
-            { LogLevel.UNEXPECTED, $"{C_DG}[{C_WTF}WHAT?{C_DG}]{Rst()} {{0}}"   },
+            { LogLevel.DEBUG, $"{C_DG}[DEBUG]{Rst()} {{0}}" },
+            { LogLevel.INFO, $"{C_DG}[ {C_INFO}INFO{C_DG}]{Rst()} {{0}}" },
+            { LogLevel.WARNING, $"{C_DG}[ {C_WARN}WARN{C_DG}]{Rst()} {{0}}" },
+            { LogLevel.ERROR, $"{C_DG}[{C_ERROR}ERROR{C_DG}]{Rst()} {{0}}" },
+            { LogLevel.FATAL, $"{C_DG}[ {C_FATAL}CRIT{C_DG}]{Rst()} {{0}}" },
+            { LogLevel.UNEXPECTED, $"{C_DG}[{C_WTF}WHAT?{C_DG}]{Rst()} {{0}}" },
         };
 
         public void Log(string msg, LogLevel ll)
@@ -77,7 +74,8 @@ namespace Luminal.Logging
                 var s = msg.Split("\n");
                 foreach (var l in s)
                     Console.WriteLine(string.Format(fmt, l));
-            } else
+            }
+            else
             {
                 Console.WriteLine(string.Format(fmt, "null"));
             }

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SDL2;
+using System;
 using System.Runtime.InteropServices;
-using SDL2;
 
 namespace Luminal.Graphics
 {
@@ -143,6 +139,5 @@ namespace Luminal.Graphics
 
         [DllImport("SDL2_gpu", CallingConvention = CallingConvention.Cdecl)]
         public static extern void GPU_ResetRendererState();
-
     }
 }

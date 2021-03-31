@@ -1,7 +1,6 @@
-﻿using System;
-using Luminal.Modular;
-using Luminal.Audio;
+﻿using Luminal.Audio;
 using Luminal.Logging;
+using Luminal.Modular;
 
 namespace LuminalNullAudioEngine
 {

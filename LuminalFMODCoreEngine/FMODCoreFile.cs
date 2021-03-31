@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FmodAudio;
 using Luminal.Audio;
 using System.IO;
-using FmodAudio;
 
 namespace LuminalFMODCoreEngine
 {
     public class FMODCoreFile : GenericAudioFile
     {
         public Sound snd;
-        FMODCoreAudioEngine engine;
+        private FMODCoreAudioEngine engine;
 
         public FMODCoreFile(string Path, FMODCoreAudioEngine n)
         {
@@ -20,7 +15,7 @@ namespace LuminalFMODCoreEngine
             Begin(Path);
         }
 
-        bool Begin(string path)
+        private bool Begin(string path)
         {
             var extension = Path.GetExtension(path);
 
@@ -59,7 +54,7 @@ namespace LuminalFMODCoreEngine
             }*/
         }
 
-        string TryAlternativeFmt(string t)
+        private string TryAlternativeFmt(string t)
         {
             var h = ".ogg";
 
@@ -68,9 +63,11 @@ namespace LuminalFMODCoreEngine
                 case ".wav":
                     h = ".ogg";
                     break;
+
                 case ".ogg":
                     h = ".mp3";
                     break;
+
                 case ".mp3":
                     h = ".wav";
                     break;

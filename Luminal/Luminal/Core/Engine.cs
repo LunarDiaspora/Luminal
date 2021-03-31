@@ -1,17 +1,14 @@
-﻿using Luminal.Graphics;
+﻿using ImGuiNET;
 using Luminal.Audio;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using ImGuiNET;
 using Luminal.Configuration;
-using SDL2;
-using SFML.System;
-using Luminal.Logging;
+using Luminal.Graphics;
 using Luminal.LGUI;
+using Luminal.Logging;
 using Luminal.OpenGL;
 using Luminal.OpenGL.ImGuiTheme;
+using SDL2;
+using SFML.System;
+using System;
 
 namespace Luminal.Core
 {
@@ -33,26 +30,35 @@ namespace Luminal.Core
         public Clock sfClock;
 
         public delegate void FinishedLoadCallback(Engine main);
+
         public event FinishedLoadCallback OnFinishedLoad;
 
         public delegate void LoadingCallback(Engine main);
+
         public event LoadingCallback OnLoading;
 
         public delegate void UpdateCallback(Engine main, float Delta);
+
         public event UpdateCallback OnUpdate;
 
         public delegate void DrawCallback(Engine main);
+
         public event DrawCallback OnDraw;
+
         public event DrawCallback OnLateDraw;
+
         public event DrawCallback OnEarlyDraw;
 
         public delegate void GUICallback(Engine main);
+
         public event GUICallback OnGUI;
 
         public delegate void KeyDownCallback(Engine main, SDL.SDL_Scancode Keycode);
+
         public delegate void KeyUpCallback(Engine main, SDL.SDL_Scancode Keycode);
 
         public event KeyDownCallback KeyDown;
+
         public event KeyUpCallback KeyUp;
 
         public static int Width;
@@ -127,7 +133,6 @@ namespace Luminal.Core
 
             if (OnLoading != null) OnLoading(this);
 
-
             //var sdlResult = SDL.SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, 0, out Renderer, out Window);
             //Console.WriteLine($"{sdlResult}");
             //SDL.SDL_SetWindowTitle(Window, WindowTitle);
@@ -144,7 +149,6 @@ namespace Luminal.Core
                 //SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
                 //SDL.SDL_RenderClear(Renderer);
                 //SDL.SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
-
 
                 SDL_GPU.GPU_ClearColor(Screen, Context.MakeColourFromRGBA(0, 0, 0, 255));
 
@@ -175,22 +179,27 @@ namespace Luminal.Core
                         case SDL.SDL_EventType.SDL_QUIT:
                             WinClose();
                             break;
+
                         case SDL.SDL_EventType.SDL_KEYDOWN:
                             var e = evt.key.keysym.scancode;
                             WinKeyDown(e);
                             break;
+
                         case SDL.SDL_EventType.SDL_KEYUP:
                             var k = evt.key.keysym.scancode;
                             WinKeyUp(k);
                             break;
+
                         case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                             var m = evt.button.button;
                             MouseButtonDown(m, evt.button.x, evt.button.y);
                             break;
+
                         case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
                             var u = evt.button.button;
                             MouseButtonUp(u, evt.button.x, evt.button.y);
                             break;
+
                         case SDL.SDL_EventType.SDL_MOUSEMOTION:
                             var d = evt.motion;
                             MouseDrag(d.x, d.y, d.xrel, d.yrel);
@@ -298,7 +307,6 @@ namespace Luminal.Core
         {
             GUIManager.OnMouseDrag(x, y, xrel, yrel);
         }
-
 
         private void WinClose()
         {
