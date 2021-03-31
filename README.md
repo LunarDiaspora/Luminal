@@ -3,7 +3,7 @@
 
 ## What can you do with this?
 Luminal is a game engine, in C#, for C#.
-It has support for hardware-accelerated 2D graphics, audio, handling input, and most things you'd expect.
+It has support for hardware-accelerated 2D and 3D graphics, audio, handling input, and most things you'd expect.
 
 ## Progress at the moment
 This engine is extremely work-in-progress, and **is not stable**. Please do not yell at us when it crashes, until release.
