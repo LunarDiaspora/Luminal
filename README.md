@@ -34,8 +34,8 @@ To make a custom logger, write a class that implements ILogger, then call `Log.S
 - [ ] Extremely basic 3D support
 
 ## Credits
-Luminal is a (https://github.com/LunarDiaspora)[Lunar Diaspora] project.  
-All code by [https://github.com/ry00001](Rin).  
-Uses [https://libsdl.org](SDL2), using SDL2-CS.  
-Powered by [https://github.com/grimfang4/sdl-gpu](SDL_gpu) and [https://github.com/opentk](OpenTK).
+Luminal is a [Lunar Diaspora](https://github.com/LunarDiaspora) project.  
+All code by [Rin](https://github.com/ry00001).  
+Uses [SDL2](https://libsdl.org), using SDL2-CS.  
+Powered by [SDL_gpu](https://github.com/grimfang4/sdl-gpu) and [OpenTK](https://github.com/opentk).
 Special thanks to the .NET team, and especially the .NET 5.0 developers.
