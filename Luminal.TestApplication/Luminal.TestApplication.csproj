@@ -8,11 +8,18 @@
 
   <ItemGroup>
     <PackageReference Include="ImGui.NET" Version="1.78.0" />
+    <PackageReference Include="OpenTK.Graphics" Version="4.6.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LuminalNullAudioEngine\LuminalNullAudioEngine.csproj" />
     <ProjectReference Include="..\Luminal\Luminal.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SDL2-CS">
+      <HintPath>..\Luminal\SDL2-CS.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

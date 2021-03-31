@@ -255,11 +255,6 @@ namespace Luminal.Core
 
             if (sceneManager.ActiveScene != null)
                 sceneManager.ActiveScene.OnKeyDown(this, scancode);
-
-            if ((EngineFlags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-            {
-                OpenGLManager.KeyPress(scancode);
-            }
         }
 
         private void WinKeyUp(SDL.SDL_Scancode scancode)
