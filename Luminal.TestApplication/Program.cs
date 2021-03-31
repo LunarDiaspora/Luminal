@@ -5,13 +5,13 @@ using ImGuiNET;
 using Luminal.OpenGL;
 using OpenTK.Graphics.OpenGL;
 using System.IO;
+using Luminal.OpenGL.ImGuiTheme;
 using OpenTK.Mathematics;
-
 using SC = SDL2.SDL.SDL_Scancode;
 
 namespace Luminal.TestApplication
 {
-    class Main
+    internal class Main
     {
         public Main()
         {
@@ -45,19 +45,19 @@ namespace Luminal.TestApplication
             ImGui.End();
         }
 
-        static GLTexture Texture;
-        static GLVertexArrayObject VAO = new("My VAO");
-        static GLUIntBuffer EBO = new();
-        static GLFloatBuffer VBO = new();
+        private static GLTexture Texture;
+        private static GLVertexArrayObject VAO = new("My VAO");
+        private static GLUIntBuffer EBO = new();
+        private static GLFloatBuffer VBO = new();
 
-        static GLShader VS;
-        static GLShader FS;
+        private static GLShader VS;
+        private static GLShader FS;
 
-        static GLShaderProgram Program;
+        private static GLShaderProgram Program;
 
-        static Camera camera = new Camera(new Vector3(0f, 0f, -3.0f), Vector3.Zero);
+        private static Camera camera = new(new Vector3(0f, 0f, -3.0f), Vector3.Zero);
 
-        void InitGL()
+        private void InitGL()
         {
             var vsSource = File.ReadAllText("EngineResources/standard.vert");
             var fsSource = File.ReadAllText("EngineResources/standard.frag");
@@ -76,17 +76,17 @@ namespace Luminal.TestApplication
             Texture.ActiveBind(TextureUnit.Texture0);
         }
 
-        void GLDraw()
+        private void GLDraw()
         {
             // GL calls go here.
             // This is your draw loop.
 
             float[] vertices = // X Y Z R G B A U V
             {
-                -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f, 1.0f,  0.0f, 1.0f, // BL
-                0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f, // BR
-                -0.5f, 0.5f, 0.5f,   1.0f, 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, // TL
-                0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 0.0f  // TR
+                -0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, // BL
+                0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // BR
+                -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // TL
+                0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f // TR
             };
 
             uint[] indices =
@@ -118,7 +118,6 @@ namespace Luminal.TestApplication
 
             Program.Uniform2("ScreenSize", Engine.Width, Engine.Height);
 
-
             var Model = Matrix4.CreateRotationY(0.0f);
             var View = camera.View();
             var Projection = camera.Projection();
@@ -132,7 +131,7 @@ namespace Luminal.TestApplication
             GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 3);
         }
 
-        void KeyDown(Engine _, SC s)
+        private void KeyDown(Engine _, SC s)
         {
             const float speed = 0.1f;
             const float turnSpeed = 0.7f;
@@ -142,18 +141,23 @@ namespace Luminal.TestApplication
                 case SC.SDL_SCANCODE_S:
                     camera.Translate(camera.Forward * -speed);
                     break;
+
                 case SC.SDL_SCANCODE_W:
                     camera.Translate(camera.Forward * speed);
                     break;
+
                 case SC.SDL_SCANCODE_A:
                     camera.Translate(camera.Right * speed);
                     break;
+
                 case SC.SDL_SCANCODE_D:
                     camera.Translate(camera.Right * -speed);
                     break;
+
                 case SC.SDL_SCANCODE_LEFT:
                     camera.Rotate(new Vector3(0.0f, -turnSpeed, 0.0f));
                     break;
+
                 case SC.SDL_SCANCODE_RIGHT:
                     camera.Rotate(new Vector3(0.0f, turnSpeed, 0.0f));
                     break;
@@ -161,9 +165,9 @@ namespace Luminal.TestApplication
         }
     }
 
-    class Entrypoint
+    internal class Entrypoint
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             new Main();
         }

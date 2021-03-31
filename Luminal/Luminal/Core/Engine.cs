@@ -4,18 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using ImGuiNET;
 using Luminal.Configuration;
 using SDL2;
 using SFML.System;
 using Luminal.Logging;
 using Luminal.LGUI;
 using Luminal.OpenGL;
+using Luminal.OpenGL.ImGuiTheme;
 
 namespace Luminal.Core
 {
     public enum LuminalFlags
     {
-        ENABLE_USER_OPENGL = 1<<0
+        ENABLE_USER_OPENGL = 1 << 0
     }
 
     public class Engine
@@ -68,7 +70,7 @@ namespace Luminal.Core
         }
 
         public void StartRenderer(int WindowWidth, int WindowHeight, string WindowTitle, Type executingType,
-                                  LuminalFlags Flags = 0)
+                                  LuminalFlags Flags = 0, IImGuiTheme theme = null)
         {
             Log.Info($"--- Luminal Engine ---\nStarting at {WindowWidth} x {WindowHeight} (\"{WindowTitle}\")\nExecuting application: {executingType.Name}\n");
 
@@ -119,6 +121,8 @@ namespace Luminal.Core
             {
                 Log.Info("Enabling user-defined OpenGL and Dear IMGUI.");
                 OpenGLManager.Initialise();
+                theme ??= new LuminalTheme();
+                theme.InitTheme(ImGui.GetStyle());
             }
 
             if (OnLoading != null) OnLoading(this);
@@ -220,7 +224,7 @@ namespace Luminal.Core
                 if (OnDraw != null)
                     OnDraw(this);
 
-                if (sceneManager.ActiveScene != null) 
+                if (sceneManager.ActiveScene != null)
                     sceneManager.ActiveScene.Draw(this);
 
                 if (OnLateDraw != null)
