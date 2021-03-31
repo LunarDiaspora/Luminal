@@ -82,8 +82,8 @@ namespace Luminal.OpenGL
 
             bmp.UnlockBits(data);
 
-            SetMinFilter(TextureMinFilter.Nearest);
-            SetMagFilter(TextureMagFilter.Nearest);
+            SetMinFilter(TextureMinFilter.Linear);
+            SetMagFilter(TextureMagFilter.Linear);
 
             SetWrappingRules(TextureWrapMode.Repeat);
         }

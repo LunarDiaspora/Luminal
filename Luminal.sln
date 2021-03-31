@@ -7,9 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal", "Luminal\Luminal.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuminalFMODCoreEngine", "LuminalFMODCoreEngine\LuminalFMODCoreEngine.csproj", "{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luminal.TestApplication", "Luminal.TestApplication\Luminal.TestApplication.csproj", "{B270083C-523C-4EF8-80E1-B23DE46E802D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal.TestApplication", "Luminal.TestApplication\Luminal.TestApplication.csproj", "{B270083C-523C-4EF8-80E1-B23DE46E802D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuminalNullAudioEngine", "LuminalNullAudioEngine\LuminalNullAudioEngine.csproj", "{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuminalNullAudioEngine", "LuminalNullAudioEngine\LuminalNullAudioEngine.csproj", "{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{66D90BE2-7421-4854-8D52-36B3D2AA0428}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

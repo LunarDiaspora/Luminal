@@ -56,6 +56,8 @@ namespace Luminal.Core
 
         public static IntPtr GlContext;
 
+        public static LuminalFlags EngineFlags;
+
         public Engine(int logLevel = 0)
         {
             var logger = new ConsoleLogger();
@@ -70,6 +72,8 @@ namespace Luminal.Core
 
             Width = WindowWidth;
             Height = WindowHeight;
+
+            EngineFlags = Flags;
 
             var config = LuminalConfigLoader.LoadConfig("Luminal.json");
 
@@ -112,7 +116,7 @@ namespace Luminal.Core
             if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
             {
                 Log.Info("Enabling Dear IMGUI.");
-                IMGUIManager.Initialise();
+                OpenGLManager.Initialise();
             }
 
             if (OnLoading != null) OnLoading(this);
@@ -142,7 +146,7 @@ namespace Luminal.Core
 
                 if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
                 {
-                    IMGUIManager.BeforeFrame();
+                    OpenGLManager.BeforeFrame();
                 }
 
                 if (OnGUI != null) OnGUI(this);
@@ -198,7 +202,7 @@ namespace Luminal.Core
 
                 if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
                 {
-                    IMGUIManager.Draw();
+                    OpenGLManager.Draw();
                 }
 
                 SDL_GPU.GPU_ResetRendererState();
@@ -232,6 +236,11 @@ namespace Luminal.Core
 
             if (sceneManager.ActiveScene != null)
                 sceneManager.ActiveScene.OnKeyDown(this, scancode);
+
+            if ((EngineFlags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+            {
+                OpenGLManager.KeyPress(scancode);
+            }
         }
 
         private void WinKeyUp(SDL.SDL_Scancode scancode)

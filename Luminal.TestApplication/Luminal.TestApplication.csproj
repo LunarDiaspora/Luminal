@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +14,9 @@
     <ProjectReference Include="..\LuminalNullAudioEngine\LuminalNullAudioEngine.csproj" />
     <ProjectReference Include="..\Luminal\Luminal.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /E /Y $(SolutionDir)Luminal\EngineResources $(TargetDir)EngineResources" />
+  </Target>
 
 </Project>

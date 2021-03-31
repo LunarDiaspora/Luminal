@@ -9,18 +9,20 @@ using System.Runtime.InteropServices;
 using Luminal.Core;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Graphics.GL;
+using OpenTK.Mathematics;
 using Luminal.Logging;
 using System.Drawing;
+using System.IO;
 
 namespace Luminal.OpenGL
 {
     /**
      * 
-     * This class handles interfacing with Dear IMGUI.
+     * This class handles interfacing with OpenGL and rendering 3D things.
      * 
      */
 
-    public class IMGUIManager
+    public class OpenGLManager
     {
         static bool Initialised = false;
 
@@ -29,25 +31,8 @@ namespace Luminal.OpenGL
         static GLShader VS;
         static GLShader FS;
 
-        static string VertexSource = "#version 330 core\n" +
-            "layout (location=0) in vec3 aPos;\n" +
-            "layout (location=1) in vec4 aColour;\n" +
-            "layout (location=2) in vec2 aUV;\n" +
-            "out vec4 Colour;\n" +
-            "out vec2 UV;\n"+
-            "void main() {\n"+
-            "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n" +
-            "Colour = aColour;\n" +
-            "UV = aUV;\n"+
-            "}";
-        static string FragSource = "#version 330 core\n" +
-            "out vec4 FragColor;" +
-            "in vec4 Colour;\n" +
-            "in vec2 UV;\n" +
-            "uniform sampler2D Texture;\n" +
-            "void main() {\n" +
-            "FragColor = texture(Texture, UV);\n" +
-            "}";
+        static string VertexSource;
+        static string FragSource;
 
         static GLShaderProgram Program;
 
@@ -60,6 +45,9 @@ namespace Luminal.OpenGL
         public static unsafe void Initialise()
         {
             GL.LoadBindings(new SDLBindingsContext());
+
+            VertexSource = File.ReadAllText("EngineResources/standard.vert");
+            FragSource = File.ReadAllText("EngineResources/standard.frag");
 
             var maj = GL.GetInteger(GetPName.MajorVersion);
             var min = GL.GetInteger(GetPName.MinorVersion);
@@ -94,10 +82,10 @@ namespace Luminal.OpenGL
 
             float[] vertices = // X Y Z R G B A U V
             {
-                -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // BL
-                0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 1.0f, // BR
-                -0.5f, 0.5f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f,  0.0f, 0.0f, // TL
-                0.5f, 0.5f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 0.0f  // TR
+                -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f, 1.0f,  0.0f, 1.0f, // BL
+                0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 1.0f, // BR
+                -0.5f, 0.5f, 0.5f,   1.0f, 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, // TL
+                0.5f, 0.5f, 0.5f,    1.0f, 1.0f, 1.0f, 1.0f,  1.0f, 0.0f  // TR
             };
 
             GL.Disable(EnableCap.CullFace);
@@ -139,6 +127,13 @@ namespace Luminal.OpenGL
             //ImGui.NewFrame();
         }
 
+        public static float Z = -1.0f;
+        public static float Angle = 0.0f;
+        public static float CameraYaw = 0.0f;
+
+        public static Camera camera = new(new Vector3(0.0f, 0.0f, -3.0f),
+                                          new Vector3(0.0f, 0.0f, 0.0f));
+
         public static unsafe void Draw()
         {
             //ImGui.Render();
@@ -146,15 +141,61 @@ namespace Luminal.OpenGL
             //GL.ClearColor(Color.CadetBlue);
             //GL.Clear(ClearBufferMask.ColorBufferBit);
 
+            //var p = new Point(0, 0);
+            //var s = new Size(Engine.Width, Engine.Height);
+            //GL.Viewport(p, s);
+
             Program.Use();
 
             Texture.ActiveBind(TextureUnit.Texture0);
+
+            Program.Uniform2("ScreenSize", Engine.Width, Engine.Height);
+
+
+            var Model = Matrix4.CreateRotationY(Angle);
+            var View = camera.View();
+            var Projection = camera.Projection();
+
+            //var mat = Matrix4.CreateRotationY((float)(4f / Math.PI));
+
+            Program.UniformMatrix4("Model", ref Model);
+            Program.UniformMatrix4("View", ref View);
+            Program.UniformMatrix4("Projection", ref Projection);
 
             VAO.Bind();
 
             EBO.Bind(BufferTarget.ElementArrayBuffer);
 
             GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 3);
+        }
+
+        public static void KeyPress(SDL.SDL_Scancode s)
+        {
+            var ce = camera.Euler;
+
+            switch (s)
+            {
+                case SDL.SDL_Scancode.SDL_SCANCODE_S:
+                    camera.Position.Z -= 0.25f;
+                    break;
+                case SDL.SDL_Scancode.SDL_SCANCODE_W:
+                    camera.Position.Z += 0.25f;
+                    break;
+                case SDL.SDL_Scancode.SDL_SCANCODE_A:
+                    //Angle -= GLHelper.DegRad(5.0f);
+                    camera.Translate(camera.Right * 0.05f);
+                    break;
+                case SDL.SDL_Scancode.SDL_SCANCODE_D:
+                    camera.Translate(camera.Right * -0.05f);
+                    break;
+                case SDL.SDL_Scancode.SDL_SCANCODE_LEFT:
+                    camera.Euler = ce + new Vector3(0.0f, 2.0f, 0.0f);
+                    break;
+                case SDL.SDL_Scancode.SDL_SCANCODE_RIGHT:
+                    camera.Euler = ce + new Vector3(0.0f, -2.0f, 0.0f);
+                    break;
+            }
+
         }
 
         //public static unsafe void Draw()

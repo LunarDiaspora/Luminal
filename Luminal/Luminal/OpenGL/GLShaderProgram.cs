@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 using Luminal.Logging;
+using OpenTK.Mathematics;
 
 namespace Luminal.OpenGL
 {
@@ -44,5 +45,41 @@ namespace Luminal.OpenGL
         {
             GL.UseProgram(GLObject);
         }
+
+        public int UniformLocation(string uni)
+        {
+            return GL.GetUniformLocation(GLObject, uni);
+        }
+
+        public void Uniform1(string uni, float x)
+        {
+            var loc = UniformLocation(uni);
+            GL.Uniform1(loc, x);
+        }
+
+        public void Uniform2(string uni, float x, float y)
+        {
+            var loc = UniformLocation(uni);
+            GL.Uniform2(loc, x, y);
+        }
+
+        public void Uniform3(string uni, float x, float y, float z)
+        {
+            var loc = UniformLocation(uni);
+            GL.Uniform3(loc, x, y, z);
+        }
+
+        public void Uniform4(string uni, float x, float y, float z, float w)
+        {
+            var loc = UniformLocation(uni);
+            GL.Uniform4(loc, x, y, z, w);
+        }
+
+        public void UniformMatrix4(string uni, ref Matrix4 mat)
+        {
+            var loc = UniformLocation(uni);
+            GL.UniformMatrix4(loc, false, ref mat);
+        }
+
     }
 }
