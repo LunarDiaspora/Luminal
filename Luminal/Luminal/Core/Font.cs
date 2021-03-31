@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Luminal.Graphics;
+﻿using Luminal.Graphics;
 using SDL2;
+using System;
 
 namespace Luminal.Core
 {
@@ -12,6 +8,7 @@ namespace Luminal.Core
     {
         // Wrapper class for SDL2 fonts
         public IntPtr FontPointer;
+
         public Font(string Path, int Size = 12)
         {
             FontPointer = SDL_ttf.TTF_OpenFont(Path, Size);
@@ -69,7 +66,7 @@ namespace Luminal.Core
         {
             SDL_ttf.TTF_SizeUTF8(FontPointer, Text, out _, out int fonty);
             var j = Text.Split("\n");
-            for (int k=0; k<j.Length; k++)
+            for (int k = 0; k < j.Length; k++)
             {
                 RawDraw(j[k], x, y + (fonty * k));
             }

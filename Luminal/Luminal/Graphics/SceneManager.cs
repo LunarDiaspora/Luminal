@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Luminal.Logging;
+using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
-using Luminal.Logging;
 
 namespace Luminal.Graphics
 {
@@ -18,7 +17,7 @@ namespace Luminal.Graphics
             EnumerateAttributes(et);
         }
 
-        void EnumerateAttributes(Type et)
+        private void EnumerateAttributes(Type et)
         {
             Assembly asm = Assembly.GetAssembly(et);
 

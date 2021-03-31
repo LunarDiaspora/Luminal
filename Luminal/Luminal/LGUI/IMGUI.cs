@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Luminal.LGUI.Objects;
-
-namespace Luminal.LGUI
+﻿namespace Luminal.LGUI
 {
     /*
      * An interface with Luminal's IMGUI framework.
-     * 
+     *
      * (C) Lunar Diaspora 2021
-     * 
+     *
      */
-    
+
     public class IMGUI
     {
         public delegate void RenderDirective(GUIObject obj);

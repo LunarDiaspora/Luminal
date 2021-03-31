@@ -1,7 +1,4 @@
 ﻿using Luminal.Core;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using SDL2;
 
 namespace Luminal.Graphics

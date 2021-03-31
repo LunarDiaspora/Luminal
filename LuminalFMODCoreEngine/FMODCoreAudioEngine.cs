@@ -1,8 +1,7 @@
-﻿using System;
-using Luminal.Modular;
+﻿using FmodAudio;
 using Luminal.Audio;
 using Luminal.Logging;
-using FmodAudio;
+using Luminal.Modular;
 
 namespace LuminalFMODCoreEngine
 {
@@ -10,7 +9,7 @@ namespace LuminalFMODCoreEngine
     public class FMODCoreAudioEngine : GenericAudioEngine
     {
         public FmodSystem system;
-        bool closing = false;
+        private bool closing = false;
 
         public FMODCoreAudioEngine(int sr = 44100) : base(sr)
         {

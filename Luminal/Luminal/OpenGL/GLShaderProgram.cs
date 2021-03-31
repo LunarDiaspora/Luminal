@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Luminal.Logging;
 using OpenTK.Graphics.OpenGL;
-using Luminal.Logging;
 using OpenTK.Mathematics;
+using System;
 
 namespace Luminal.OpenGL
 {
@@ -80,6 +76,5 @@ namespace Luminal.OpenGL
             var loc = UniformLocation(uni);
             GL.UniformMatrix4(loc, false, ref mat);
         }
-
     }
 }

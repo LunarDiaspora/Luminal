@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Luminal.Graphics;
+﻿using Luminal.Graphics;
 using SDL2;
+using System;
 
 namespace Luminal.Core
 {
@@ -28,7 +24,7 @@ namespace Luminal.Core
             };
             return true;
         }
-        
+
         public void Draw(float x = 0, float y = 0)
         {
             if (!Engine.WindowOpen) return;

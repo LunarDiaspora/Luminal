@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System;
 
 namespace Luminal.OpenGL
 {
@@ -36,8 +31,8 @@ namespace Luminal.OpenGL
         }
 
         public static void VertexBuffer(string Name, out int Buf) => Buffer($"VBO: {Name}", out Buf);
-        public static void ElementBuffer(string Name, out int Buf) => Buffer($"EBO: {Name}", out Buf);
 
+        public static void ElementBuffer(string Name, out int Buf) => Buffer($"EBO: {Name}", out Buf);
 
         public static float DegRad(float deg)
         {

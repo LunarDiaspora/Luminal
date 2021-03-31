@@ -1,12 +1,10 @@
-﻿using System;
+﻿using ImGuiNET;
 using Luminal.Core;
 using Luminal.Graphics;
-using ImGuiNET;
 using Luminal.OpenGL;
 using OpenTK.Graphics.OpenGL;
-using System.IO;
-using Luminal.OpenGL.ImGuiTheme;
 using OpenTK.Mathematics;
+using System.IO;
 using SC = SDL2.SDL.SDL_Scancode;
 
 namespace Luminal.TestApplication

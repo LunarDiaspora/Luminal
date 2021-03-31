@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Luminal.Logging;
 using OpenTK.Graphics.OpenGL;
-using Luminal.Logging;
+using System;
 
 namespace Luminal.OpenGL
 {
@@ -18,7 +14,7 @@ namespace Luminal.OpenGL
     {
         public string SourceCode;
         public GLShaderType Type;
-        ShaderType TKType;
+        private ShaderType TKType;
 
         public int GLObject;
 
@@ -32,6 +28,7 @@ namespace Luminal.OpenGL
                 case GLShaderType.FRAGMENT:
                     TKType = ShaderType.FragmentShader;
                     break;
+
                 case GLShaderType.VERTEX:
                     TKType = ShaderType.VertexShader;
                     break;

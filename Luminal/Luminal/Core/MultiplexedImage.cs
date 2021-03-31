@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Luminal.Graphics;
+﻿using Luminal.Graphics;
 using SDL2;
+using System;
+using System.Collections.Generic;
 
 namespace Luminal.Core
 {

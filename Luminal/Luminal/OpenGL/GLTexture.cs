@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
@@ -41,7 +37,6 @@ namespace Luminal.OpenGL
             Width = source.w;
             Height = source.h;
 
-
             GLHelper.Texture(TextureTarget.Texture2D, name, out int gt);
             GL.BindTexture(TextureTarget.Texture2D, gt);
 
@@ -63,7 +58,6 @@ namespace Luminal.OpenGL
 
             SetMinFilter(TextureMinFilter.Nearest);
             SetMagFilter(TextureMagFilter.Nearest);
-
         }
 
         public GLTexture(string name, string file)
