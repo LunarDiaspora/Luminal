@@ -302,7 +302,73 @@ namespace Luminal.OpenGL
 
         public static void Update(float dt)
         {
+            ImGuiUpdateMouse();
+
             IGUpdate(dt);
+        }
+
+        static bool LMB_Down = false;
+        static bool MMB_Down = false;
+        static bool RMB_Down = false;
+
+        public static unsafe void ImGuiHandleEvent(SDL.SDL_Event e)
+        {
+            // This function is mostly straight ported from IMGUI's SDL backend thing.
+
+            var io = ImGui.GetIO();
+
+            switch (e.type)
+            {
+                case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
+                    if (e.button.button == SDL.SDL_BUTTON_LEFT)
+                        LMB_Down = true;
+                    if (e.button.button == SDL.SDL_BUTTON_MIDDLE)
+                        MMB_Down = true;
+                    if (e.button.button == SDL.SDL_BUTTON_RIGHT)
+                        RMB_Down = true;
+                    break;
+                case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
+                    if (e.button.button == SDL.SDL_BUTTON_LEFT)
+                        LMB_Down = false;
+                    if (e.button.button == SDL.SDL_BUTTON_MIDDLE)
+                        MMB_Down = false;
+                    if (e.button.button == SDL.SDL_BUTTON_RIGHT)
+                        RMB_Down = false;
+                    break;
+                case SDL.SDL_EventType.SDL_MOUSEWHEEL:
+                    if (e.wheel.x > 0) io.MouseWheelH += 1;
+                    if (e.wheel.x < 0) io.MouseWheelH -= 1;
+                    if (e.wheel.y > 0) io.MouseWheel += 1;
+                    if (e.wheel.y < 0) io.MouseWheel -= 1;
+                    break;
+                case SDL.SDL_EventType.SDL_TEXTINPUT:
+                    io.AddInputCharactersUTF8(Marshal.PtrToStringUTF8((IntPtr)e.text.text));
+                    break;
+                case SDL.SDL_EventType.SDL_KEYDOWN:
+                case SDL.SDL_EventType.SDL_KEYUP:
+                    int key = (int)e.key.keysym.scancode;
+                    io.KeysDown[key] = (e.type == SDL.SDL_EventType.SDL_KEYDOWN);
+                    io.KeyShift = ((SDL.SDL_GetModState() & SDL.SDL_Keymod.KMOD_SHIFT) != 0);
+                    io.KeyCtrl = ((SDL.SDL_GetModState() & SDL.SDL_Keymod.KMOD_CTRL) != 0);
+                    io.KeyAlt = ((SDL.SDL_GetModState() & SDL.SDL_Keymod.KMOD_ALT) != 0);
+                    break;
+            }
+        }
+
+        public static void ImGuiUpdateMouse()
+        {
+            var io = ImGui.GetIO();
+
+            uint mousestate = SDL.SDL_GetMouseState(out int x, out int y);
+            io.MousePos = new(x, y);
+
+            io.MouseDown[0] = LMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_LEFT)) != 0;
+            io.MouseDown[1] = MMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_MIDDLE)) != 0;
+            io.MouseDown[2] = RMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_RIGHT)) != 0;
+
+            LMB_Down = false;
+            MMB_Down = false;
+            RMB_Down = false;
         }
 
         public static void Gui()

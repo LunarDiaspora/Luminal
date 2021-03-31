@@ -154,6 +154,11 @@ namespace Luminal.Core
                 SDL.SDL_Event evt;
                 while (SDL.SDL_PollEvent(out evt) == 1)
                 {
+                    if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
+                    {
+                        OpenGLManager.ImGuiHandleEvent(evt);
+                    }
+
                     switch (evt.type)
                     {
                         case SDL.SDL_EventType.SDL_QUIT:
@@ -207,14 +212,15 @@ namespace Luminal.Core
 
                 GUIManager.RenderAll();
 
+                SDL_GPU.GPU_ResetRendererState();
+
+                //SDL.SDL_RenderPresent(Renderer);
+
                 if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
                 {
                     OpenGLManager.Draw();
                 }
 
-                SDL_GPU.GPU_ResetRendererState();
-
-                //SDL.SDL_RenderPresent(Renderer);
                 SDL_GPU.GPU_Flip(Screen);
 
                 GUIManager.End();
