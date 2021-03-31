@@ -117,7 +117,7 @@ namespace Luminal.Core
 
             if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
             {
-                Log.Info("Enabling Dear IMGUI.");
+                Log.Info("Enabling user-defined OpenGL and Dear IMGUI.");
                 OpenGLManager.Initialise();
             }
 
@@ -206,6 +206,11 @@ namespace Luminal.Core
 
                 if (OnEarlyDraw != null)
                     OnEarlyDraw(this);
+
+                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
+                {
+                    OpenGLManager.EarlyDraw();
+                }
 
                 if (OnDraw != null)
                     OnDraw(this);

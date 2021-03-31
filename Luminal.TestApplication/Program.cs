@@ -23,7 +23,7 @@ namespace Luminal.TestApplication
             e.KeyDown += KeyDown;
 
             OpenGLManager.OnInitGL += InitGL;
-            OpenGLManager.OnOpenGL += GLDraw;
+            OpenGLManager.OnEarlyOpenGL += GLDraw;
 
             e.StartRenderer(1280, 720, "Luminal Engine", typeof(Main), LuminalFlags.ENABLE_USER_OPENGL);
         }

@@ -40,6 +40,7 @@ namespace Luminal.OpenGL
         public delegate void GLCallback();
         public static event GLCallback OnOpenGL;
         public static event GLCallback OnInitGL;
+        public static event GLCallback OnEarlyOpenGL; // Called before SDL_gpu blits.
 
         //static GLVertexArrayObject VAO = new();
         //static GLFloatBuffer VBO = new();
@@ -276,6 +277,11 @@ namespace Luminal.OpenGL
             ImGuiUpdateMouse();
 
             IGUpdate(dt);
+        }
+
+        public static void EarlyDraw()
+        {
+            OnEarlyOpenGL?.Invoke();
         }
 
         static bool LMB_Down = false;
