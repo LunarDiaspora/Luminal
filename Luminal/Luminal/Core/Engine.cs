@@ -153,6 +153,11 @@ namespace Luminal.Core
 
                 if (OnGUI != null) OnGUI(this);
 
+                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
+                {
+                    OpenGLManager.AfterGUI();
+                }
+
                 SDL.SDL_Event evt;
                 while (SDL.SDL_PollEvent(out evt) == 1)
                 {
@@ -255,6 +260,8 @@ namespace Luminal.Core
 
         private void WinKeyDown(SDL.SDL_Scancode scancode)
         {
+            if (OpenGLManager.DontPassKeyPresses) return;
+
             if (KeyDown != null)
                 KeyDown(this, scancode);
 
@@ -264,6 +271,8 @@ namespace Luminal.Core
 
         private void WinKeyUp(SDL.SDL_Scancode scancode)
         {
+            if (OpenGLManager.DontPassKeyPresses) return;
+
             if (KeyUp != null)
                 KeyUp(this, scancode);
 

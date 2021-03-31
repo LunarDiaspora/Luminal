@@ -15,6 +15,8 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
 
+using SC = SDL2.SDL.SDL_Scancode;
+
 namespace Luminal.OpenGL
 {
     /**
@@ -62,6 +64,8 @@ namespace Luminal.OpenGL
         static int VertexBuffer; // Not using my abstractions here
         static int IndexBuffer;
 
+        public static bool DontPassKeyPresses = false;
+
         public static unsafe void Initialise()
         {
             GL.LoadBindings(new SDLBindingsContext());
@@ -76,6 +80,29 @@ namespace Luminal.OpenGL
 
             io.DisplaySize.X = Engine.Width;
             io.DisplaySize.Y = Engine.Height;
+
+            io.KeyMap[(int)ImGuiKey.Tab] = (int)SC.SDL_SCANCODE_TAB;
+            io.KeyMap[(int)ImGuiKey.LeftArrow] = (int)SC.SDL_SCANCODE_LEFT;
+            io.KeyMap[(int)ImGuiKey.RightArrow] = (int)SC.SDL_SCANCODE_RIGHT;
+            io.KeyMap[(int)ImGuiKey.UpArrow] = (int)SC.SDL_SCANCODE_UP;
+            io.KeyMap[(int)ImGuiKey.DownArrow] = (int)SC.SDL_SCANCODE_DOWN;
+            io.KeyMap[(int)ImGuiKey.PageUp] = (int)SC.SDL_SCANCODE_PAGEUP;
+            io.KeyMap[(int)ImGuiKey.PageDown] = (int)SC.SDL_SCANCODE_PAGEDOWN;
+            io.KeyMap[(int)ImGuiKey.Home] = (int)SC.SDL_SCANCODE_HOME;
+            io.KeyMap[(int)ImGuiKey.End] = (int)SC.SDL_SCANCODE_END;
+            io.KeyMap[(int)ImGuiKey.Insert] = (int)SC.SDL_SCANCODE_INSERT;
+            io.KeyMap[(int)ImGuiKey.Delete] = (int)SC.SDL_SCANCODE_DELETE;
+            io.KeyMap[(int)ImGuiKey.Backspace] = (int)SC.SDL_SCANCODE_BACKSPACE;
+            io.KeyMap[(int)ImGuiKey.Space] = (int)SC.SDL_SCANCODE_SPACE;
+            io.KeyMap[(int)ImGuiKey.Enter] = (int)SC.SDL_SCANCODE_RETURN;
+            io.KeyMap[(int)ImGuiKey.Escape] = (int)SC.SDL_SCANCODE_ESCAPE;
+            io.KeyMap[(int)ImGuiKey.KeyPadEnter] = (int)SC.SDL_SCANCODE_KP_ENTER;
+            io.KeyMap[(int)ImGuiKey.A] = (int)SC.SDL_SCANCODE_A;
+            io.KeyMap[(int)ImGuiKey.C] = (int)SC.SDL_SCANCODE_C;
+            io.KeyMap[(int)ImGuiKey.V] = (int)SC.SDL_SCANCODE_V;
+            io.KeyMap[(int)ImGuiKey.X] = (int)SC.SDL_SCANCODE_X;
+            io.KeyMap[(int)ImGuiKey.Y] = (int)SC.SDL_SCANCODE_Y;
+            io.KeyMap[(int)ImGuiKey.Z] = (int)SC.SDL_SCANCODE_Z;
 
             var maj = GL.GetInteger(GetPName.MajorVersion);
             var min = GL.GetInteger(GetPName.MinorVersion);
@@ -125,9 +152,6 @@ namespace Luminal.OpenGL
             GL.VertexArrayAttribBinding(va, 2, 0);
             GL.VertexArrayAttribFormat(va, 2, 4, VertexAttribType.UnsignedByte, true, 16);
 
-            /*
-            */
-
             Initialised = true;
 
             OnInitGL?.Invoke();
@@ -161,7 +185,6 @@ namespace Luminal.OpenGL
             if (NewFrame)
             {
                 NewFrame = false;
-                ImGui.Render();
                 var dd = ImGui.GetDrawData();
                 IGRender2(dd);
             }
@@ -319,7 +342,8 @@ namespace Luminal.OpenGL
                     if (e.wheel.y < 0) io.MouseWheel -= 1;
                     break;
                 case SDL.SDL_EventType.SDL_TEXTINPUT:
-                    io.AddInputCharactersUTF8(Marshal.PtrToStringUTF8((IntPtr)e.text.text));
+                    var t = Marshal.PtrToStringUTF8((IntPtr)e.text.text);
+                    io.AddInputCharactersUTF8(t);
                     break;
                 case SDL.SDL_EventType.SDL_KEYDOWN:
                 case SDL.SDL_EventType.SDL_KEYUP:
@@ -332,6 +356,8 @@ namespace Luminal.OpenGL
             }
         }
 
+        static bool PreviousCapState = false;
+
         public static void ImGuiUpdateMouse()
         {
             var io = ImGui.GetIO();
@@ -340,12 +366,24 @@ namespace Luminal.OpenGL
             io.MousePos = new(x, y);
 
             io.MouseDown[0] = LMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_LEFT)) != 0;
-            io.MouseDown[1] = MMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_MIDDLE)) != 0;
-            io.MouseDown[2] = RMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_RIGHT)) != 0;
+            io.MouseDown[2] = MMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_MIDDLE)) != 0;
+            io.MouseDown[1] = RMB_Down || (mousestate & SDL.SDL_BUTTON(SDL.SDL_BUTTON_RIGHT)) != 0;
 
             LMB_Down = false;
             MMB_Down = false;
             RMB_Down = false;
+
+            DontPassKeyPresses = io.WantCaptureKeyboard;
+
+            if (PreviousCapState != io.WantTextInput)
+            {
+                if (io.WantTextInput)
+                    SDL.SDL_StartTextInput();
+                else
+                    SDL.SDL_StopTextInput();
+            }
+
+            PreviousCapState = io.WantTextInput;
         }
         
         public static unsafe void Draw()
@@ -353,6 +391,11 @@ namespace Luminal.OpenGL
             OnOpenGL?.Invoke();
 
             IGRender();
+        }
+
+        public static void AfterGUI()
+        {
+            ImGui.Render();
         }
     }
 }

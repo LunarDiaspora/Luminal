@@ -36,6 +36,8 @@ namespace Luminal.TestApplication
 
         public void GUI(Engine _)
         {
+            ImGui.ShowDemoWindow();
+
             ImGui.Begin("Sample IMGUI Window", ImGuiWindowFlags.NoCollapse);
 
             ImGui.Text("As you can see, it is working.");
