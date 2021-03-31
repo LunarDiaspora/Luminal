@@ -16,6 +16,12 @@ namespace Luminal.OpenGL
             GLObject = GL.GenVertexArray();
         }
 
+        public GLVertexArrayObject(string name)
+        {
+            GLObject = GL.GenVertexArray();
+            GLHelper.LabelObj(ObjectLabelIdentifier.VertexArray, GLObject, $"VAO: {name}");
+        }
+
         public void Bind()
         {
             GL.BindVertexArray(GLObject);

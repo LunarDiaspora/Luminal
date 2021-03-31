@@ -13,6 +13,7 @@ using OpenTK.Mathematics;
 using Luminal.Logging;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Luminal.OpenGL
 {
@@ -34,25 +35,57 @@ namespace Luminal.OpenGL
         static string VertexSource;
         static string FragSource;
 
-        static GLShaderProgram Program;
+        static GLShaderProgram ImGuiProgram;
 
-        static GLVertexArrayObject VAO = new();
-        static GLFloatBuffer VBO = new();
-        static GLUIntBuffer EBO = new();
+        //static GLVertexArrayObject VAO = new();
+        //static GLFloatBuffer VBO = new();
+        //static GLUIntBuffer EBO = new();
 
-        static GLTexture Texture;
+        //static GLTexture Texture;
+
+        static GLTexture ImguiFontTexture;
+
+        static bool NewFrame = false;
+
+        public static System.Numerics.Vector2 ImGuiScale = System.Numerics.Vector2.One;
+
+        static GLVertexArrayObject IG_VAO;
+
+        static int VtxBufSize;
+        static int IdxBufSize;
+
+        static int VertexBuffer; // Not using my abstractions here
+        static int IndexBuffer;
 
         public static unsafe void Initialise()
         {
             GL.LoadBindings(new SDLBindingsContext());
 
-            VertexSource = File.ReadAllText("EngineResources/standard.vert");
-            FragSource = File.ReadAllText("EngineResources/standard.frag");
+            Context = ImGui.CreateContext();
+
+            ImGui.SetCurrentContext(Context);
+
+            var io = ImGui.GetIO();
+
+            io.Fonts.AddFontDefault();
+
+            io.DisplaySize.X = Engine.Width;
+            io.DisplaySize.Y = Engine.Height;
 
             var maj = GL.GetInteger(GetPName.MajorVersion);
             var min = GL.GetInteger(GetPName.MinorVersion);
 
-            Log.Info($"IMGUIManager: This appears to be OpenGL {maj}.{min}.");
+            Log.Info($"OpenGLManager: This appears to be OpenGL {maj}.{min}.");
+
+            VtxBufSize = 10000;
+            IdxBufSize = 2000;
+
+            IG_VAO = new("ImGui");
+
+            IG_VAO.Bind();
+
+            VertexSource = File.ReadAllText("EngineResources/2D.vert");
+            FragSource = File.ReadAllText("EngineResources/standard.frag");
 
             VS = new GLShader(VertexSource, GLShaderType.VERTEX);
             FS = new GLShader(FragSource, GLShaderType.FRAGMENT);
@@ -60,26 +93,34 @@ namespace Luminal.OpenGL
             VS.Compile();
             FS.Compile();
 
-            Program = new GLShaderProgram().Attach(VS).Attach(FS).Link();
+            ImGuiProgram = new GLShaderProgram().Attach(VS).Attach(FS).Link();
 
-            Context = ImGui.CreateContext();
+            GLHelper.VertexBuffer("ImGui VBO", out VertexBuffer);
+            GLHelper.ElementBuffer("ImGui EBO", out IndexBuffer);
 
-            ImGui.SetCurrentContext(Context);
-            ImGui.GetIO().Fonts.AddFontDefault();
+            GL.NamedBufferData(VertexBuffer, VtxBufSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+            GL.NamedBufferData(IndexBuffer, IdxBufSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
 
-            ImGui.GetIO().DisplaySize.X = Engine.Width;
-            ImGui.GetIO().DisplaySize.Y = Engine.Height;
+            ImGuiCreateFontAtlas();
 
-            //ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
+            var va = IG_VAO.GLObject;
 
-            //var fontTex = new GLTexture("ImGui Font Texture", w, h, p);
-            //fontTex.SetMagFilter(TextureMagFilter.Nearest);
-            //fontTex.SetMinFilter(TextureMinFilter.Nearest);
+            GL.VertexArrayVertexBuffer(va, 0, VertexBuffer, IntPtr.Zero, Unsafe.SizeOf<ImDrawVert>());
+            GL.VertexArrayElementBuffer(va, IndexBuffer);
 
-            //ImGui.GetIO().Fonts.SetTexID((IntPtr)fontTex.GLObject);
+            GL.EnableVertexArrayAttrib(va, 0);
+            GL.VertexArrayAttribBinding(va, 0, 0);
+            GL.VertexArrayAttribFormat(va, 0, 2, VertexAttribType.Float, false, 0);
 
-            //ImGui.GetIO().Fonts.ClearTexData();
+            GL.EnableVertexArrayAttrib(va, 1);
+            GL.VertexArrayAttribBinding(va, 1, 0);
+            GL.VertexArrayAttribFormat(va, 1, 2, VertexAttribType.Float, false, 8);
 
+            GL.EnableVertexArrayAttrib(va, 2);
+            GL.VertexArrayAttribBinding(va, 2, 0);
+            GL.VertexArrayAttribFormat(va, 2, 4, VertexAttribType.UnsignedByte, true, 16);
+
+            /*
             float[] vertices = // X Y Z R G B A U V
             {
                 -0.5f, -0.5f, 0.5f,   1.0f, 1.0f, 1.0f, 1.0f,  0.0f, 1.0f, // BL
@@ -115,6 +156,7 @@ namespace Luminal.OpenGL
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
             GL.EnableVertexAttribArray(2);
+            */
 
             Initialised = true;
         }
@@ -122,20 +164,158 @@ namespace Luminal.OpenGL
         public static unsafe void BeforeFrame()
         {
             if (!Initialised) throw new Exception("Tried to call BeforeFrame before initialising.");
-
-
-            //ImGui.NewFrame();
+            
+            ImGui.NewFrame();
+            NewFrame = true;
         }
 
-        public static float Z = -1.0f;
-        public static float Angle = 0.0f;
-        public static float CameraYaw = 0.0f;
+        static void ImGuiCreateFontAtlas()
+        {
+            ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
 
-        public static Camera camera = new(new Vector3(0.0f, 0.0f, -3.0f),
-                                          new Vector3(0.0f, 0.0f, 0.0f));
+            var fontTex = new GLTexture("ImGui Font Texture", w, h, p);
+            fontTex.SetMagFilter(TextureMagFilter.Nearest);
+            fontTex.SetMinFilter(TextureMinFilter.Nearest);
 
+            ImGui.GetIO().Fonts.SetTexID((IntPtr)fontTex.GLObject);
+
+            ImguiFontTexture = fontTex;
+
+            ImGui.GetIO().Fonts.ClearTexData();
+        }
+
+        static void IGRender()
+        {
+            if (NewFrame)
+            {
+                NewFrame = false;
+                ImGui.Render();
+                var dd = ImGui.GetDrawData();
+                IGRender2(dd);
+            }
+        }
+
+        static void IGRender2(ImDrawDataPtr dd)
+        {
+            if (dd.CmdListsCount == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < dd.CmdListsCount; i++)
+            {
+                ImDrawListPtr cmd_list = dd.CmdListsRange[i];
+
+                int vertexSize = cmd_list.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>();
+                if (vertexSize > VtxBufSize)
+                {
+                    int newSize = (int)Math.Max(VtxBufSize * 1.5f, vertexSize);
+                    GL.NamedBufferData(VertexBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+                    VtxBufSize = newSize;
+
+                    Log.Debug($"Resized dear imgui vertex buffer to new size {VtxBufSize}");
+                }
+
+                int indexSize = cmd_list.IdxBuffer.Size * sizeof(ushort);
+                if (indexSize > IdxBufSize)
+                {
+                    int newSize = (int)Math.Max(IdxBufSize * 1.5f, indexSize);
+                    GL.NamedBufferData(IndexBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+                    IdxBufSize = newSize;
+
+                    Log.Debug($"Resized dear imgui index buffer to new size {IdxBufSize}");
+                }
+            }
+
+            var io = ImGui.GetIO();
+            var MVP = Matrix4.CreateOrthographicOffCenter(0.0f, Engine.Width, Engine.Height, 0.0f, -1.0f, 1.0f);
+
+            ImGuiProgram.Use();
+
+            ImGuiProgram.UniformMatrix4("Projection", ref MVP);
+            GL.Uniform1(ImGuiProgram.UniformLocation("Texture"), 0);
+
+            IG_VAO.Bind();
+
+            dd.ScaleClipRects(io.DisplayFramebufferScale);
+
+            GL.Enable(EnableCap.Blend);
+            GL.Enable(EnableCap.ScissorTest);
+            GL.BlendEquation(BlendEquationMode.FuncAdd);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.Disable(EnableCap.CullFace);
+            GL.Disable(EnableCap.DepthTest);
+
+            for (int n=0; n<dd.CmdListsCount; n++)
+            {
+                ImDrawListPtr cmdList = dd.CmdListsRange[n];
+
+                GL.NamedBufferSubData(VertexBuffer, IntPtr.Zero, cmdList.VtxBuffer.Size * Unsafe.SizeOf<ImDrawVert>(), cmdList.VtxBuffer.Data);
+                GL.NamedBufferSubData(IndexBuffer, IntPtr.Zero, cmdList.IdxBuffer.Size * sizeof(ushort), cmdList.IdxBuffer.Data);
+
+                int vOffset = 0;
+                int iOffset = 0;
+
+                for (int i=0; i<cmdList.CmdBuffer.Size; i++)
+                {
+                    ImDrawCmdPtr pcmd = cmdList.CmdBuffer[i];
+                    if (pcmd.UserCallback != IntPtr.Zero)
+                    {
+                        throw new NotImplementedException();
+                    } else
+                    {
+                        GLTexture.Active(TextureUnit.Texture0);
+                        GL.BindTexture(TextureTarget.Texture2D, (int)pcmd.TextureId);
+
+                        var clip = pcmd.ClipRect;
+                        GL.Scissor((int)clip.X, Engine.Height - (int)clip.W, (int)(clip.Z - clip.X), (int)(clip.W - clip.Y));
+
+                        if ((io.BackendFlags & ImGuiBackendFlags.RendererHasVtxOffset) != 0)
+                        {
+                            GL.DrawElementsBaseVertex(PrimitiveType.Triangles, (int)pcmd.ElemCount, DrawElementsType.UnsignedShort, (IntPtr)(iOffset * sizeof(ushort)), vOffset);
+                        }
+                        else
+                        {
+                            GL.DrawElements(BeginMode.Triangles, (int)pcmd.ElemCount, DrawElementsType.UnsignedShort, (int)pcmd.IdxOffset * sizeof(ushort));
+                        }
+                    }
+                    iOffset += (int)pcmd.ElemCount;
+                }
+
+                vOffset += cmdList.VtxBuffer.Size;
+            }
+
+            GL.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.ScissorTest);
+        }
+
+        static void IGUpdate(float dt)
+        {
+            var io = ImGui.GetIO();
+            io.DeltaTime = dt;
+            io.DisplaySize = new System.Numerics.Vector2(
+                    Engine.Width / ImGuiScale.X,
+                    Engine.Height / ImGuiScale.Y
+                );
+            io.DisplayFramebufferScale = ImGuiScale;
+        }
+
+        public static void Update(float dt)
+        {
+            IGUpdate(dt);
+        }
+
+        public static void Gui()
+        {
+            ImGui.Begin("yay!");
+            ImGui.Text("woo");
+            ImGui.End();
+        }
+        
         public static unsafe void Draw()
         {
+            IGRender();
+
             //ImGui.Render();
 
             //GL.ClearColor(Color.CadetBlue);
@@ -145,6 +325,7 @@ namespace Luminal.OpenGL
             //var s = new Size(Engine.Width, Engine.Height);
             //GL.Viewport(p, s);
 
+            /*
             Program.Use();
 
             Texture.ActiveBind(TextureUnit.Texture0);
@@ -152,7 +333,7 @@ namespace Luminal.OpenGL
             Program.Uniform2("ScreenSize", Engine.Width, Engine.Height);
 
 
-            var Model = Matrix4.CreateRotationY(Angle);
+            var Model = Matrix4.CreateRotationY(0.0f);
             var View = camera.View();
             var Projection = camera.Projection();
 
@@ -167,10 +348,12 @@ namespace Luminal.OpenGL
             EBO.Bind(BufferTarget.ElementArrayBuffer);
 
             GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 3);
+            */
         }
 
         public static void KeyPress(SDL.SDL_Scancode s)
         {
+            /*
             switch (s)
             {
                 case SDL.SDL_Scancode.SDL_SCANCODE_S:
@@ -180,7 +363,6 @@ namespace Luminal.OpenGL
                     camera.Translate(camera.Forward * 0.1f);
                     break;
                 case SDL.SDL_Scancode.SDL_SCANCODE_A:
-                    //Angle -= GLHelper.DegRad(5.0f);
                     camera.Translate(camera.Right * 0.05f);
                     break;
                 case SDL.SDL_Scancode.SDL_SCANCODE_D:
@@ -193,7 +375,7 @@ namespace Luminal.OpenGL
                     camera.Rotate(new Vector3(0.0f, 2.0f, 0.0f));
                     break;
             }
-
+            */
         }
 
         //public static unsafe void Draw()

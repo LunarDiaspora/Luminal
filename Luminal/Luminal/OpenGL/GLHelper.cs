@@ -29,6 +29,16 @@ namespace Luminal.OpenGL
             LabelObj(ObjectLabelIdentifier.Texture, Tex, $"Luminal GLTexture: {Name}");
         }
 
+        public static void Buffer(string Name, out int Buf)
+        {
+            GL.CreateBuffers(1, out Buf);
+            LabelObj(ObjectLabelIdentifier.Buffer, Buf, $"Buffer: {Name}");
+        }
+
+        public static void VertexBuffer(string Name, out int Buf) => Buffer($"VBO: {Name}", out Buf);
+        public static void ElementBuffer(string Name, out int Buf) => Buffer($"EBO: {Name}", out Buf);
+
+
         public static float DegRad(float deg)
         {
             return deg * (float)(Math.PI / 180);

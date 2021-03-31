@@ -15,7 +15,7 @@ namespace Luminal.Core
 {
     public enum LuminalFlags
     {
-        ENABLE_DEAR_IMGUI = 1<<0
+        ENABLE_USER_OPENGL = 1<<0
     }
 
     public class Engine
@@ -113,7 +113,7 @@ namespace Luminal.Core
 
             //GlContext = SDL.SDL_GL_CreateContext(Window);
 
-            if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+            if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
             {
                 Log.Info("Enabling Dear IMGUI.");
                 OpenGLManager.Initialise();
@@ -144,7 +144,7 @@ namespace Luminal.Core
 
                 GUIManager.Begin();
 
-                if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
                 {
                     OpenGLManager.BeforeFrame();
                 }
@@ -192,6 +192,13 @@ namespace Luminal.Core
                 if (OnUpdate != null)
                     OnUpdate(this, t.AsSeconds());
 
+                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
+                {
+                    OpenGLManager.Update(t.AsSeconds());
+
+                    OpenGLManager.Gui();
+                }
+
                 if (OnDraw != null)
                     OnDraw(this);
 
@@ -200,7 +207,7 @@ namespace Luminal.Core
 
                 GUIManager.RenderAll();
 
-                if ((Flags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
                 {
                     OpenGLManager.Draw();
                 }
@@ -237,7 +244,7 @@ namespace Luminal.Core
             if (sceneManager.ActiveScene != null)
                 sceneManager.ActiveScene.OnKeyDown(this, scancode);
 
-            if ((EngineFlags | LuminalFlags.ENABLE_DEAR_IMGUI) > 0)
+            if ((EngineFlags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
             {
                 OpenGLManager.KeyPress(scancode);
             }

@@ -14,7 +14,7 @@ namespace Luminal.TestApplication
             e.OnDraw += Draw;
             e.OnGUI += GUI;
 
-            e.StartRenderer(1280, 720, "Luminal Engine Test Application", typeof(Main), LuminalFlags.ENABLE_DEAR_IMGUI);
+            e.StartRenderer(1280, 720, "Luminal Engine Test Application", typeof(Main), LuminalFlags.ENABLE_USER_OPENGL);
         }
 
         public void Draw(Engine _)
