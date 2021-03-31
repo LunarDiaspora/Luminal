@@ -30,14 +30,18 @@ namespace Luminal.OpenGL
         static GLShader FS;
 
         static string VertexSource = "#version 330 core\n" +
-            "layout (location=0) in vec3 aPos;\n"+
+            "layout (location=0) in vec3 aPos;\n" +
+            "layout (location=1) in vec4 aColour;\n" +
+            "out vec4 Colour;\n"+
             "void main() {\n"+
-            "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"+
+            "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n" +
+            "Colour = aColour;\n"+
             "}";
         static string FragSource = "#version 330 core\n" +
-            "out vec4 FragColor;\n" +
+            "out vec4 FragColor;" +
+            "in vec4 Colour;\n" +
             "void main() {\n" +
-            "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n" +
+            "FragColor = Colour;\n" +
             "}";
 
         static GLShaderProgram Program;
@@ -80,11 +84,11 @@ namespace Luminal.OpenGL
 
             //ImGui.GetIO().Fonts.ClearTexData();
 
-            float[] vertices =
+            float[] vertices = // X Y Z R G B A
             {
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-                0.0f, 0.5f, 0.0f
+                -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+                0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+                -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
             };
 
             VAO.Bind();
@@ -92,8 +96,11 @@ namespace Luminal.OpenGL
             VBO.Bind(BufferTarget.ArrayBuffer);
             VBO.Data(vertices, BufferUsageHint.DynamicDraw);
 
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 7 * sizeof(float), 0);
+            GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 7 * sizeof(float), 3 * sizeof(float));
+
             GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(1);
 
             Initialised = true;
         }
