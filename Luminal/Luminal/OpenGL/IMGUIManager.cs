@@ -66,13 +66,13 @@ namespace Luminal.OpenGL
 
             Program = new GLShaderProgram().Attach(VS).Attach(FS).Link();
 
-            //Context = ImGui.CreateContext();
+            Context = ImGui.CreateContext();
 
-            //ImGui.SetCurrentContext(Context);
-            //ImGui.GetIO().Fonts.AddFontDefault();
+            ImGui.SetCurrentContext(Context);
+            ImGui.GetIO().Fonts.AddFontDefault();
 
-            //ImGui.GetIO().DisplaySize.X = Engine.Width;
-            //ImGui.GetIO().DisplaySize.Y = Engine.Height;
+            ImGui.GetIO().DisplaySize.X = Engine.Width;
+            ImGui.GetIO().DisplaySize.Y = Engine.Height;
 
             //ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
 
