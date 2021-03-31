@@ -32,22 +32,30 @@ namespace Luminal.OpenGL
         static string VertexSource = "#version 330 core\n" +
             "layout (location=0) in vec3 aPos;\n" +
             "layout (location=1) in vec4 aColour;\n" +
-            "out vec4 Colour;\n"+
+            "layout (location=2) in vec2 aUV;\n" +
+            "out vec4 Colour;\n" +
+            "out vec2 UV;\n"+
             "void main() {\n"+
             "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n" +
-            "Colour = aColour;\n"+
+            "Colour = aColour;\n" +
+            "UV = aUV;\n"+
             "}";
         static string FragSource = "#version 330 core\n" +
             "out vec4 FragColor;" +
             "in vec4 Colour;\n" +
+            "in vec2 UV;\n" +
+            "uniform sampler2D Texture;\n" +
             "void main() {\n" +
-            "FragColor = Colour;\n" +
+            "FragColor = texture(Texture, UV);\n" +
             "}";
 
         static GLShaderProgram Program;
 
         static GLVertexArrayObject VAO = new();
         static GLFloatBuffer VBO = new();
+        static GLUIntBuffer EBO = new();
+
+        static GLTexture Texture;
 
         public static unsafe void Initialise()
         {
@@ -84,23 +92,41 @@ namespace Luminal.OpenGL
 
             //ImGui.GetIO().Fonts.ClearTexData();
 
-            float[] vertices = // X Y Z R G B A
+            float[] vertices = // X Y Z R G B A U V
             {
-                -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-                0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-                -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f
+                -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // BL
+                0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 1.0f, // BR
+                -0.5f, 0.5f, 0.0f,   0.0f, 0.0f, 1.0f, 1.0f,  0.0f, 0.0f, // TL
+                0.5f, 0.5f, 0.0f,    0.0f, 1.0f, 0.0f, 1.0f,  1.0f, 0.0f  // TR
             };
 
+            GL.Disable(EnableCap.CullFace);
+
+            uint[] indices =
+            {
+                0, 1, 3,
+                3, 2, 0
+            };
+
+            Texture = new GLTexture("boris", "boris.jpg");
+
+            Texture.ActiveBind(TextureUnit.Texture0);
+
             VAO.Bind();
+
+            EBO.Bind(BufferTarget.ElementArrayBuffer);
+            EBO.Data(indices, BufferUsageHint.DynamicDraw);
 
             VBO.Bind(BufferTarget.ArrayBuffer);
             VBO.Data(vertices, BufferUsageHint.DynamicDraw);
 
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 7 * sizeof(float), 0);
-            GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 7 * sizeof(float), 3 * sizeof(float));
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 9 * sizeof(float), 0);
+            GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 9 * sizeof(float), 3 * sizeof(float));
+            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 9 * sizeof(float), 7 * sizeof(float));
 
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);
+            GL.EnableVertexAttribArray(2);
 
             Initialised = true;
         }
@@ -121,9 +147,14 @@ namespace Luminal.OpenGL
             //GL.Clear(ClearBufferMask.ColorBufferBit);
 
             Program.Use();
+
+            Texture.ActiveBind(TextureUnit.Texture0);
+
             VAO.Bind();
 
-            GL.DrawArrays(BeginMode.Triangles, 0, 3);
+            EBO.Bind(BufferTarget.ElementArrayBuffer);
+
+            GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 3);
         }
 
         //public static unsafe void Draw()
