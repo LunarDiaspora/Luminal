@@ -207,8 +207,6 @@ namespace Luminal.OpenGL
                     int newSize = (int)Math.Max(VtxBufSize * 1.5f, vertexSize);
                     GL.NamedBufferData(VertexBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
                     VtxBufSize = newSize;
-
-                    Log.Debug($"Resized dear imgui vertex buffer to new size {VtxBufSize}");
                 }
 
                 int indexSize = cmd_list.IdxBuffer.Size * sizeof(ushort);
@@ -217,8 +215,6 @@ namespace Luminal.OpenGL
                     int newSize = (int)Math.Max(IdxBufSize * 1.5f, indexSize);
                     GL.NamedBufferData(IndexBuffer, newSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
                     IdxBufSize = newSize;
-
-                    Log.Debug($"Resized dear imgui index buffer to new size {IdxBufSize}");
                 }
             }
 
