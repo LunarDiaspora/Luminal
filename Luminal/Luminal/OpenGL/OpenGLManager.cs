@@ -370,13 +370,6 @@ namespace Luminal.OpenGL
             MMB_Down = false;
             RMB_Down = false;
         }
-
-        public static void Gui()
-        {
-            ImGui.Begin("yay!");
-            ImGui.Text("woo");
-            ImGui.End();
-        }
         
         public static unsafe void Draw()
         {

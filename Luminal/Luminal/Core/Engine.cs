@@ -41,6 +41,8 @@ namespace Luminal.Core
 
         public delegate void DrawCallback(Engine main);
         public event DrawCallback OnDraw;
+        public event DrawCallback OnLateDraw;
+        public event DrawCallback OnEarlyDraw;
 
         public delegate void GUICallback(Engine main);
         public event GUICallback OnGUI;
@@ -200,15 +202,19 @@ namespace Luminal.Core
                 if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
                 {
                     OpenGLManager.Update(t.AsSeconds());
-
-                    OpenGLManager.Gui();
                 }
+
+                if (OnEarlyDraw != null)
+                    OnEarlyDraw(this);
 
                 if (OnDraw != null)
                     OnDraw(this);
 
                 if (sceneManager.ActiveScene != null) 
                     sceneManager.ActiveScene.Draw(this);
+
+                if (OnLateDraw != null)
+                    OnLateDraw(this);
 
                 GUIManager.RenderAll();
 
