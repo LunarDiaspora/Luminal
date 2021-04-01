@@ -75,5 +75,10 @@ namespace LuminalFMODCoreEngine
 
             return h;
         }
+
+        public void Dispose()
+        {
+            snd.Dispose();
+        }
     }
 }

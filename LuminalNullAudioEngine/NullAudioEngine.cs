@@ -30,5 +30,10 @@ namespace LuminalNullAudioEngine
         {
             return;
         }
+
+        public override void DisposeOfFile(GenericAudioFile f)
+        {
+            return;
+        }
     }
 }

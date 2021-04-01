@@ -43,6 +43,12 @@ namespace LuminalFMODCoreEngine
             return f;
         }
 
+        public override void DisposeOfFile(GenericAudioFile f)
+        {
+            var g = (FMODCoreFile)f;
+            g.Dispose();
+        }
+
         public override void Update(float dt)
         {
             if (closing) return;

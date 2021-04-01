@@ -16,6 +16,8 @@ namespace Luminal.Audio
 
         public abstract GenericAudioFile LoadFileFromPath(string p);
 
+        public abstract void DisposeOfFile(GenericAudioFile f);
+
         public virtual void Update(float dt)
         {
         }
