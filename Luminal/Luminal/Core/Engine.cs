@@ -207,6 +207,9 @@ namespace Luminal.Core
                     }
                 }
 
+
+                SDL_GPU.GPU_ResetRendererState();
+
                 var t = sfClock.Restart();
 
                 AudioEngineManager.Engine.Update(t.AsSeconds());
@@ -229,6 +232,8 @@ namespace Luminal.Core
                 {
                     OpenGLManager.EarlyDraw();
                 }
+
+                SDL_GPU.GPU_ResetRendererState();
 
                 if (OnDraw != null)
                     OnDraw(this);
