@@ -128,7 +128,8 @@ namespace Luminal.Core
                 Log.Info("Enabling user-defined OpenGL and Dear IMGUI.");
                 OpenGLManager.Initialise();
                 theme ??= new LuminalTheme();
-                theme.InitTheme(ImGui.GetStyle());
+                theme.InitTheme(ImGui.GetStyle(), ImGui.GetIO());
+                OpenGLManager.ImGuiCreateFontAtlas();
             }
 
             if (OnLoading != null) OnLoading(this);
