@@ -2,6 +2,7 @@
 using Luminal.Core;
 using Luminal.Graphics;
 using Luminal.OpenGL;
+using Luminal.OpenGL.Models;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.IO;
@@ -43,90 +44,45 @@ namespace Luminal.TestApplication
             ImGui.End();
         }
 
-        private static GLTexture Texture;
-        private static GLVertexArrayObject VAO = new("My VAO");
-        private static GLUIntBuffer EBO = new();
-        private static GLFloatBuffer VBO = new();
-
         private static GLShader VS;
         private static GLShader FS;
 
         private static GLShaderProgram Program;
 
-        private static Camera camera = new(new Vector3(0f, 0f, -3.0f), Vector3.Zero);
+        private static Camera camera = new(new Vector3(0f, 0f, -5.0f), Vector3.Zero);
+
+        private static Model testModel;
 
         private void InitGL()
         {
-            var vsSource = File.ReadAllText("EngineResources/standard.vert");
-            var fsSource = File.ReadAllText("EngineResources/standard.frag");
+            var vsSource = File.ReadAllText("EngineResources/mesh.vert");
+            var fsSource = File.ReadAllText("EngineResources/untextured.frag");
 
             VS = new GLShader(vsSource, GLShaderType.VERTEX);
             FS = new GLShader(fsSource, GLShaderType.FRAGMENT);
 
-            VAO.Bind();
-
             Program = new GLShaderProgram().Attach(VS).Attach(FS).Link();
 
-            GL.Disable(EnableCap.CullFace);
-
-            Texture = new GLTexture("Texture", "file.jpg");
-
-            Texture.ActiveBind(TextureUnit.Texture0);
+            testModel = new("test.obj");
         }
 
         private void GLDraw()
         {
             // GL calls go here.
             // This is your draw loop.
+            GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            float[] vertices = // X Y Z R G B A U V
-            {
-                -0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, // BL
-                0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // BR
-                -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // TL
-                0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f // TR
-            };
-
-            uint[] indices =
-            {
-                0, 1, 3,
-                3, 2, 0
-            };
-
-            VAO.Bind();
-
-            EBO.Bind(BufferTarget.ElementArrayBuffer);
-            EBO.Data(indices, BufferUsageHint.DynamicDraw);
-
-            VBO.Bind(BufferTarget.ArrayBuffer);
-            VBO.Data(vertices, BufferUsageHint.DynamicDraw);
-
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 9 * sizeof(float), 0);
-            GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, 9 * sizeof(float), 3 * sizeof(float));
-            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 9 * sizeof(float), 7 * sizeof(float));
-
-            GL.EnableVertexAttribArray(0);
-            GL.EnableVertexAttribArray(1);
-            GL.EnableVertexAttribArray(2);
-
-            VAO.Bind();
             Program.Use();
 
-            Texture.ActiveBind(TextureUnit.Texture0);
+            var model = Matrix4.CreateRotationY(0.0f);
+            var view = camera.View();
+            var proj = camera.Projection();
 
-            Program.Uniform2("ScreenSize", Engine.Width, Engine.Height);
+            Program.UniformMatrix4("Model", ref model);
+            Program.UniformMatrix4("View", ref view);
+            Program.UniformMatrix4("Projection", ref proj);
 
-            var Model = Matrix4.CreateRotationY(0.0f);
-            var View = camera.View();
-            var Projection = camera.Projection();
-
-            Program.UniformMatrix4("Model", ref Model);
-            Program.UniformMatrix4("View", ref View);
-            Program.UniformMatrix4("Projection", ref Projection);
-
-            EBO.Bind(BufferTarget.ElementArrayBuffer);
-
-            GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 3);
+            testModel.Draw();
         }
 
         private void KeyDown(Engine _, SC s)
