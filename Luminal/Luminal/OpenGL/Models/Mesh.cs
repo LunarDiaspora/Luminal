@@ -80,6 +80,8 @@ namespace Luminal.OpenGL.Models
             VBO.Bind(BufferTarget.ArrayBuffer);
             EBO.Bind(BufferTarget.ElementArrayBuffer);
 
+            GL.Enable(EnableCap.DepthTest);
+
             GL.DrawElements(BeginMode.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
         }
     }

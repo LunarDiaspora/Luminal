@@ -61,7 +61,7 @@ namespace Luminal.TestApplication
             VS = new GLShader(vsSource, GLShaderType.VERTEX);
             FS = new GLShader(fsSource, GLShaderType.FRAGMENT);
 
-            Program = new GLShaderProgram().Attach(VS).Attach(FS).Link();
+            Program = new GLShaderProgram().Label("Scene").Attach(VS).Attach(FS).Link();
 
             testModel = new("test.obj");
         }
@@ -70,7 +70,7 @@ namespace Luminal.TestApplication
         {
             // GL calls go here.
             // This is your draw loop.
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            //GL.BindTexture(TextureTarget.Texture2D, 0);
 
             Program.Use();
 

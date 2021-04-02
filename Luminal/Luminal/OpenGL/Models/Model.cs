@@ -99,7 +99,7 @@ namespace Luminal.OpenGL.Models
                     v.UV = new Vector2(0.0f, 0.0f); // No UVs, make sure nothing breaks
                 }
 
-                v.Colour = new Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+                v.Colour = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
                 verts.Add(v);
             }

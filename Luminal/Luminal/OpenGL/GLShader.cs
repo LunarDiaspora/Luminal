@@ -18,7 +18,9 @@ namespace Luminal.OpenGL
 
         public int GLObject;
 
-        public GLShader(string code, GLShaderType type = GLShaderType.FRAGMENT)
+        public bool Compiled = false;
+
+        public GLShader(string code, GLShaderType type = GLShaderType.FRAGMENT, bool compileOnCreate = true)
         {
             SourceCode = code;
             Type = type;
@@ -37,10 +39,15 @@ namespace Luminal.OpenGL
             GLObject = GL.CreateShader(TKType);
 
             GL.ShaderSource(GLObject, code);
+
+            if (compileOnCreate) Compile();
         }
 
         public void Compile()
         {
+            if (Compiled) return;
+            Compiled = true;
+
             GL.CompileShader(GLObject);
 
             GL.GetShader(GLObject, ShaderParameter.CompileStatus, out int ok);

@@ -42,6 +42,12 @@ namespace Luminal.OpenGL
             GL.UseProgram(GLObject);
         }
 
+        public GLShaderProgram Label(string name)
+        {
+            GLHelper.LabelObj(ObjectLabelIdentifier.Program, GLObject, name);
+            return this;
+        }
+
         public int UniformLocation(string uni)
         {
             return GL.GetUniformLocation(GLObject, uni);
