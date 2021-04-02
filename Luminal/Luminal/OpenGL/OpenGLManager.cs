@@ -72,8 +72,6 @@ namespace Luminal.OpenGL
 
             var io = ImGui.GetIO();
 
-            io.Fonts.AddFontDefault();
-
             io.DisplaySize.X = Engine.Width;
             io.DisplaySize.Y = Engine.Height;
 
@@ -129,8 +127,6 @@ namespace Luminal.OpenGL
             GL.NamedBufferData(VertexBuffer, VtxBufSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
             GL.NamedBufferData(IndexBuffer, IdxBufSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
 
-            ImGuiCreateFontAtlas();
-
             var va = IG_VAO.GLObject;
 
             GL.VertexArrayVertexBuffer(va, 0, VertexBuffer, IntPtr.Zero, Unsafe.SizeOf<ImDrawVert>());
@@ -161,7 +157,7 @@ namespace Luminal.OpenGL
             NewFrame = true;
         }
 
-        private static void ImGuiCreateFontAtlas()
+        internal static void ImGuiCreateFontAtlas()
         {
             ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
 

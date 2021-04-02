@@ -1,12 +1,14 @@
-﻿using ImGuiNET;
+﻿using System.IO;
+using ImGuiNET;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Luminal.OpenGL.ImGuiTheme
 {
     // Adapted from doukutsu-rs: https://github.com/doukutsu-rs/doukutsu-rs/blob/master/src/framework/ui.rs#L31-L104
     public class LuminalTheme : IImGuiTheme
     {
-        public void InitTheme(ImGuiStylePtr style)
+        public void InitTheme(ImGuiStylePtr style, ImGuiIOPtr io)
         {
             style.Colors[(int)ImGuiCol.Text] = new Vector4(0.90f, 0.90f, 0.90f, 1.00f);
             style.Colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.50f, 0.50f, 0.50f, 1.00f);
@@ -82,6 +84,8 @@ namespace Luminal.OpenGL.ImGuiTheme
             style.WindowTitleAlign = new Vector2(0.5f, 0.5f);
             style.WindowRounding = 0f;
             style.WindowMenuButtonPosition = ImGuiDir.Right;
+
+            io.Fonts.AddFontFromFileTTF("./EngineResources/SourceCodePro.ttf", 15);
         }
     }
 }

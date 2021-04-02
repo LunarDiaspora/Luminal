@@ -6,7 +6,7 @@ namespace Luminal.OpenGL.ImGuiTheme
     // Based on a VGUI theme from the ImGUI issues and some modifications by Lewis.
     public class SteamGreenTheme : IImGuiTheme
     {
-        public void InitTheme(ImGuiStylePtr style)
+        public void InitTheme(ImGuiStylePtr style, ImGuiIOPtr io)
         {
             style.Colors[(int)ImGuiCol.Text] = new Vector4(0.82f, 0.81f, 0.80f, 1.00f);
             style.Colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.40f, 0.39f, 0.38f, 1.00f);
@@ -69,6 +69,8 @@ namespace Luminal.OpenGL.ImGuiTheme
             style.TabRounding = 0f;
 
             style.WindowMenuButtonPosition = ImGuiDir.Right;
+
+            io.Fonts.AddFontDefault();
         }
     }
 }
