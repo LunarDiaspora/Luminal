@@ -34,6 +34,9 @@ namespace Luminal.OpenGL.Models
             }
 
             DoNode(scene.RootNode, scene);
+
+            // okay we're done, we can throw this away now
+            importer.Dispose();
         }
 
         private void DoNode(Node node, Scene sc)
@@ -120,8 +123,27 @@ namespace Luminal.OpenGL.Models
                 }
             }
 
+            if (inp.MaterialIndex >= 0)
+            {
+                var mat = sc.Materials[inp.MaterialIndex];
+                DoTextures(mat, inp, sc);
+            }
+
             var outputMesh = new Mesh(verts, inds, texes);
             return outputMesh;
+        }
+
+        private void DoTextures(Material mat, Assimp.Mesh mesh, Scene sc)
+        {
+            var diffuse = new List<GLTexture>();
+            var texes = mat.GetAllMaterialTextures();
+            Log.Debug($"{texes.Length}");
+
+            for (int i=0; i<mat.GetMaterialTextureCount(TextureType.Diffuse); i++)
+            {
+                mat.GetMaterialTexture(TextureType.Diffuse, i, out TextureSlot tex);
+                Log.Debug(tex.FilePath);
+            }
         }
 
         public void Draw()

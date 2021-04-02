@@ -6,6 +6,8 @@ namespace Luminal.OpenGL
     public class Camera : SceneObject
     {
         public float FieldOfView = 90.0f;
+        public float Near = 0.1f;
+        public float Far = 1000f;
 
         public Camera(Vector3 position, Vector3 angle)
         {
@@ -21,7 +23,7 @@ namespace Luminal.OpenGL
 
         public Matrix4 Projection()
         {
-            return Matrix4.CreatePerspectiveFieldOfView(GLHelper.DegRad(FieldOfView), Engine.Width / Engine.Height, 0.1f, 1000f);
+            return Matrix4.CreatePerspectiveFieldOfView(GLHelper.DegRad(FieldOfView), (float)Engine.Width / Engine.Height, Near, Far);
         }
     }
 }

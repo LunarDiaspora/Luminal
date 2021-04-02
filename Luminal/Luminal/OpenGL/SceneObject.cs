@@ -25,7 +25,7 @@ namespace Luminal.OpenGL
             get
             {
                 var rot = Matrix4.CreateFromQuaternion(Quat.Inverted());
-                return Vector3.TransformPosition(GLHelper.Right, rot);
+                return -Vector3.TransformPosition(GLHelper.Right, rot);
             }
         }
 
@@ -34,7 +34,7 @@ namespace Luminal.OpenGL
             get
             {
                 var rot = Matrix4.CreateFromQuaternion(Quat.Inverted());
-                return Vector3.TransformPosition(GLHelper.Up, rot);
+                return -Vector3.TransformPosition(GLHelper.Up, rot);
             }
         }
 

@@ -77,6 +77,16 @@ namespace Luminal.OpenGL
             GL.Uniform4(loc, x, y, z, w);
         }
 
+        public void Uniform3(string uni, System.Numerics.Vector3 vec)
+        {
+            Uniform3(uni, vec.X, vec.Y, vec.Z);
+        }
+
+        public void Uniform4(string uni, System.Numerics.Vector4 vec)
+        {
+            Uniform4(uni, vec.X, vec.Y, vec.Z, vec.W);
+        }
+
         public void UniformMatrix4(string uni, ref Matrix4 mat)
         {
             var loc = UniformLocation(uni);
