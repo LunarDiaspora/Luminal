@@ -18,7 +18,14 @@ namespace Luminal.OpenGL
      *
      */
 
-    public class OpenGLManager
+    public struct GLVersion
+    {
+        public int Major;
+        public int Minor;
+        public string VersionString;
+    }
+
+    public unsafe class OpenGLManager
     {
         private static bool Initialised = false;
 
@@ -62,6 +69,25 @@ namespace Luminal.OpenGL
 
         public static bool DontPassKeyPresses = false;
 
+        public static GLVersion Version;
+
+        private unsafe delegate void SetClipboardDelegate(void* a, char* b);
+
+        private static unsafe void SetClipboard(void* _, char* text)
+        {
+            var str = Marshal.PtrToStringUTF8(new IntPtr(text));
+            SDL.SDL_SetClipboardText(str);
+        }
+
+        private unsafe delegate char* GetClipboardDelegate(void* a);
+
+        private static unsafe char* GetClipboard(void* _)
+        {
+            var ct = SDL.SDL_GetClipboardText();
+            var ptr = Marshal.StringToHGlobalAnsi(ct);
+            return (char*)ptr.ToPointer();
+        }
+
         public static unsafe void Initialise()
         {
             GL.LoadBindings(new SDLBindingsContext());
@@ -103,6 +129,15 @@ namespace Luminal.OpenGL
 
             Log.Info($"OpenGLManager: This appears to be OpenGL {maj}.{min}.");
 
+            var t = new GLVersion()
+            {
+                Major = maj,
+                Minor = min,
+                VersionString = $"{maj}.{min}"
+            };
+
+            Version = t;
+
             VtxBufSize = 10000;
             IdxBufSize = 2000;
 
@@ -143,6 +178,13 @@ namespace Luminal.OpenGL
             GL.EnableVertexArrayAttrib(va, 2);
             GL.VertexArrayAttribBinding(va, 2, 0);
             GL.VertexArrayAttribFormat(va, 2, 4, VertexAttribType.UnsignedByte, true, 16);
+
+            var sctd = (SetClipboardDelegate)SetClipboard;
+            io.SetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(sctd);
+
+            var gtcd = (GetClipboardDelegate)GetClipboard;
+            io.GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(gtcd);
+
 
             Initialised = true;
 

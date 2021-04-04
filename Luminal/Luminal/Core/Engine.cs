@@ -212,18 +212,19 @@ namespace Luminal.Core
                 SDL_GPU.GPU_ResetRendererState();
 
                 var t = sfClock.Restart();
+                var seconds = t.AsSeconds(); // Should probably calculate this less often.
 
-                AudioEngineManager.Engine.Update(t.AsSeconds());
+                AudioEngineManager.Engine.Update(seconds);
 
                 if (sceneManager.ActiveScene != null)
-                    sceneManager.ActiveScene.Update(this, t.AsSeconds());
+                    sceneManager.ActiveScene.Update(this, seconds);
 
                 if (OnUpdate != null)
-                    OnUpdate(this, t.AsSeconds());
+                    OnUpdate(this, seconds);
 
                 if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
                 {
-                    OpenGLManager.Update(t.AsSeconds());
+                    OpenGLManager.Update(seconds);
                 }
 
                 if (OnEarlyDraw != null)

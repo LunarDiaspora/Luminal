@@ -24,20 +24,27 @@ namespace Luminal.TestApplication
             OpenGLManager.OnInitGL += InitGL;
             OpenGLManager.OnEarlyOpenGL += GLDraw;
 
-            e.StartRenderer(1920, 1080, "Luminal Engine", typeof(Main), LuminalFlags.ENABLE_USER_OPENGL);
+            e.StartRenderer(1920, 1080, "Luminal Engine 3D Demonstration", typeof(Main), LuminalFlags.ENABLE_USER_OPENGL);
         }
 
         public void Draw(Engine _)
         {
-            Context.SetColour(255, 0, 0, 255);
-            Render.Rectangle(100, 100, 100, 100, RenderMode.FILL);
+            //Context.SetColour(255, 0, 0, 255);
+            //Render.Rectangle(100, 100, 100, 100, RenderMode.FILL);
         }
 
         private static System.Numerics.Vector3 AmbientColour = new(1, 1, 1);
         private static System.Numerics.Vector3 DiffuseColour = new(1, 1, 1);
-        private static System.Numerics.Vector3 ObjectColour = new(1, 0, 0);
+        private static System.Numerics.Vector3 ObjectColour = new(0.7f, 0.7f, 0.7f);
 
         private static string FilePath = "";
+
+        private static System.Numerics.Vector3 PlayerPos = new();
+        private static System.Numerics.Vector3 LightPos = new();
+
+        private static bool CoupleLightToCamera = true;
+
+        private static float shininess = 32.0f;
 
         public void GUI(Engine _)
         {
@@ -47,7 +54,15 @@ namespace Luminal.TestApplication
             ImGui.ColorEdit3("Diffuse colour", ref DiffuseColour);
             ImGui.ColorEdit3("Object colour", ref ObjectColour);
 
-            ImGui.SliderFloat("Field of view", ref camera.FieldOfView, 1f, 180f);
+            ImGui.SliderFloat("Field of view", ref camera.FieldOfView, 1f, 179.9f);
+            ImGui.SliderFloat("Model angle", ref worldAngle, 0f, 360f);
+
+            ImGui.DragFloat3("Player position", ref PlayerPos, 0.25f);
+            ImGui.DragFloat3("Light position", ref LightPos, 0.25f);
+
+            ImGui.SliderFloat("Shininess", ref shininess, 1f, 128f);
+
+            ImGui.Checkbox("Couple light position to camera position", ref CoupleLightToCamera);
 
             if (ImGui.CollapsingHeader("Load new model:", ImGuiTreeNodeFlags.DefaultOpen))
             {
@@ -87,6 +102,17 @@ namespace Luminal.TestApplication
 
         static float worldAngle = 0.0f;
 
+        static System.Numerics.Vector3 TKToSysNum3(Vector3 tk)
+        {
+            return new(tk.X, tk.Y, tk.Z);
+        }
+
+        static Vector3 SysNumToTK3(System.Numerics.Vector3 tk)
+        {
+            return new(tk.X, tk.Y, tk.Z);
+        }
+
+
         private void GLDraw()
         {
             // GL calls go here.
@@ -95,7 +121,14 @@ namespace Luminal.TestApplication
 
             Program.Use();
 
-            var model = Matrix4.CreateRotationY(worldAngle);
+            camera.Position = SysNumToTK3(PlayerPos);
+
+            if (CoupleLightToCamera)
+            {
+                LightPos = PlayerPos;
+            }
+
+            var model = Matrix4.CreateRotationY(GLHelper.DegRad(worldAngle));
             var view = camera.View();
             var proj = camera.Projection();
 
@@ -106,7 +139,10 @@ namespace Luminal.TestApplication
             Program.Uniform3("AmbientColour", AmbientColour);
             Program.Uniform3("DiffuseColour", DiffuseColour);
             Program.Uniform3("ObjectColour", ObjectColour);
-            Program.Uniform3("LightPosition", camera.Position.X, camera.Position.Y, camera.Position.Z);
+            Program.Uniform3("LightPosition", LightPos);
+            Program.Uniform3("ViewPosition", PlayerPos);
+
+            Program.Uniform1("Shininess", shininess);
 
             testModel.Draw();
         }
@@ -119,19 +155,19 @@ namespace Luminal.TestApplication
             switch (s)
             {
                 case SC.SDL_SCANCODE_S:
-                    camera.Translate(camera.Forward * -speed);
+                    PlayerPos += TKToSysNum3(camera.Forward * -speed);
                     break;
 
                 case SC.SDL_SCANCODE_W:
-                    camera.Translate(camera.Forward * speed);
+                    PlayerPos += TKToSysNum3(camera.Forward * speed);
                     break;
 
                 case SC.SDL_SCANCODE_A:
-                    camera.Translate(camera.Right * -speed);
+                    PlayerPos += TKToSysNum3(camera.Right * -speed);
                     break;
 
                 case SC.SDL_SCANCODE_D:
-                    camera.Translate(camera.Right * speed);
+                    PlayerPos += TKToSysNum3(camera.Right * speed);
                     break;
 
                 case SC.SDL_SCANCODE_LEFT:
@@ -143,19 +179,19 @@ namespace Luminal.TestApplication
                     break;
 
                 case SC.SDL_SCANCODE_Q:
-                    worldAngle -= GLHelper.DegRad(turnSpeed);
+                    worldAngle -= turnSpeed;
                     break;
 
                 case SC.SDL_SCANCODE_E:
-                    worldAngle += GLHelper.DegRad(turnSpeed);
+                    worldAngle += turnSpeed;
                     break;
 
                 case SC.SDL_SCANCODE_R:
-                    camera.Translate(camera.Up * speed);
+                    PlayerPos += TKToSysNum3(camera.Up * speed);
                     break;
 
                 case SC.SDL_SCANCODE_F:
-                    camera.Translate(-camera.Up * speed);
+                    PlayerPos += TKToSysNum3(-camera.Up * speed);
                     break;
 
                 case SC.SDL_SCANCODE_UP:
