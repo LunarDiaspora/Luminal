@@ -75,7 +75,7 @@ namespace Luminal.OpenGL
 
         private static unsafe void SetClipboard(void* _, char* text)
         {
-            var str = Marshal.PtrToStringUTF8(new IntPtr(text));
+            var str = Marshal.PtrToStringAnsi(new IntPtr(text));
             SDL.SDL_SetClipboardText(str);
         }
 
@@ -87,6 +87,10 @@ namespace Luminal.OpenGL
             var ptr = Marshal.StringToHGlobalAnsi(ct);
             return (char*)ptr.ToPointer();
         }
+
+        // Define these delegates to make sure the GC doesn't destroy them, which will crash the program
+        private static GetClipboardDelegate _GetClipboard;
+        private static SetClipboardDelegate _SetClipboard;
 
         public static unsafe void Initialise()
         {
@@ -179,11 +183,11 @@ namespace Luminal.OpenGL
             GL.VertexArrayAttribBinding(va, 2, 0);
             GL.VertexArrayAttribFormat(va, 2, 4, VertexAttribType.UnsignedByte, true, 16);
 
-            var sctd = (SetClipboardDelegate)SetClipboard;
-            io.SetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(sctd);
+            _SetClipboard = SetClipboard;
+            io.SetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_SetClipboard);
 
-            var gtcd = (GetClipboardDelegate)GetClipboard;
-            io.GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(gtcd);
+            _GetClipboard = GetClipboard;
+            io.GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_GetClipboard);
 
 
             Initialised = true;
