@@ -14,7 +14,8 @@ namespace Luminal.Core
 {
     public enum LuminalFlags
     {
-        ENABLE_USER_OPENGL = 1 << 0
+        ENABLE_USER_OPENGL = 1 << 0,
+        ENABLE_KEY_REPEAT = 1 << 1
     }
 
     public class Engine
@@ -175,6 +176,8 @@ namespace Luminal.Core
                         OpenGLManager.ImGuiHandleEvent(evt);
                     }
 
+                    var noRepeat = ((EngineFlags & LuminalFlags.ENABLE_KEY_REPEAT) <= 0);
+
                     switch (evt.type)
                     {
                         case SDL.SDL_EventType.SDL_QUIT:
@@ -182,11 +185,13 @@ namespace Luminal.Core
                             break;
 
                         case SDL.SDL_EventType.SDL_KEYDOWN:
+                            if (noRepeat & evt.key.repeat > 0) break;
                             var e = evt.key.keysym.scancode;
                             WinKeyDown(e);
                             break;
 
                         case SDL.SDL_EventType.SDL_KEYUP:
+                            if (noRepeat & evt.key.repeat > 0) break;
                             var k = evt.key.keysym.scancode;
                             WinKeyUp(k);
                             break;

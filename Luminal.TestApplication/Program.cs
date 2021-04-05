@@ -24,7 +24,8 @@ namespace Luminal.TestApplication
             OpenGLManager.OnInitGL += InitGL;
             OpenGLManager.OnEarlyOpenGL += GLDraw;
 
-            e.StartRenderer(1920, 1080, "Luminal Engine 3D Demonstration", typeof(Main), LuminalFlags.ENABLE_USER_OPENGL);
+            e.StartRenderer(1920, 1080, "Luminal Engine 3D Demonstration", typeof(Main),
+                LuminalFlags.ENABLE_USER_OPENGL | LuminalFlags.ENABLE_KEY_REPEAT);
         }
 
         public void Draw(Engine _)
