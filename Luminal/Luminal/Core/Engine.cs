@@ -270,7 +270,7 @@ namespace Luminal.Core
             }
         }
 
-        public void Quit()
+        public static void Quit(int exitCode = 0)
         {
             AudioEngineManager.Engine.Dispose(); // Clean up after ourselves
 
@@ -281,6 +281,8 @@ namespace Luminal.Core
             SDL_GPU.GPU_Quit();
 
             Context.FreeAllImages();
+
+            Environment.Exit(exitCode);
         }
 
         private void WinKeyDown(SDL.SDL_Scancode scancode)

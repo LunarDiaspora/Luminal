@@ -142,6 +142,18 @@ namespace Luminal.OpenGL
 
             Version = t;
 
+            if (Version.Major < 4 || (Version.Major == 4 && Version.Minor < 5))
+            {
+                // This is not OpenGL 4.5 or higher.
+                Log.Fatal("This version of OpenGL is too old! Luminal applications require at least GL 4.5.");
+                Log.Fatal("Showing message box and exiting.");
+                MessageBox.Error("Sorry, applications built with Luminal cannot run on your graphics card.\n" +
+                    $"Your graphics card only supports OpenGL {Version.VersionString}, and at least OpenGL 4.5 is required.",
+                    "Engine incompatible: OpenGL version too old");
+
+                Engine.Quit(1);
+            }
+
             VtxBufSize = 10000;
             IdxBufSize = 2000;
 
