@@ -56,8 +56,13 @@ namespace Luminal.OpenGL
         public void Rotate(Vector3 eulers)
         {
             var eul = GLHelper.V3DegRad(eulers);
-            var q = Quaternion.FromEulerAngles(eul);
-            Quat *= q;
+            var qx = Quaternion.FromEulerAngles(eul.X, 0f, 0f);
+            var qy = Quaternion.FromEulerAngles(0f, eul.Y, 0f);
+            var qz = Quaternion.FromEulerAngles(0f, 0f, eul.Z);
+
+            Quat *= qz;
+            Quat *= qy;
+            Quat *= qx;
         }
 
         public void Translate(Vector3 delta)
