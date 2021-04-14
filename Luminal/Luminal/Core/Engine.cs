@@ -221,6 +221,8 @@ namespace Luminal.Core
 
                 AudioEngineManager.Engine.Update(seconds);
 
+                AnimationManager.Update(seconds);
+
                 if (sceneManager.ActiveScene != null)
                     sceneManager.ActiveScene.Update(this, seconds);
 

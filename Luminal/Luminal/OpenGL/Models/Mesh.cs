@@ -30,8 +30,8 @@ namespace Luminal.OpenGL.Models
         private unsafe void SetUp()
         {
             VAO = new("Mesh VAO");
-            VBO = new();
-            EBO = new();
+            VBO = new("Mesh VBO");
+            EBO = new("Mesh EBO");
 
             VAO.Bind();
             VBO.Bind(BufferTarget.ArrayBuffer);

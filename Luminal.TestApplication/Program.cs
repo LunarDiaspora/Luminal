@@ -3,7 +3,6 @@ using Luminal.Core;
 using Luminal.Graphics;
 using Luminal.OpenGL;
 using Luminal.OpenGL.Models;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.IO;
 using SC = SDL2.SDL.SDL_Scancode;
@@ -24,14 +23,23 @@ namespace Luminal.TestApplication
             OpenGLManager.OnInitGL += InitGL;
             OpenGLManager.OnEarlyOpenGL += GLDraw;
 
+            AnimationManager.AddPaused("test", new()
+            {
+                Length = 2.0f,
+                Loop = true,
+                Min = 0.0f,
+                Max = 500f,
+                Ease = Easing.Sinusoidal.InOut
+            });
+
             e.StartRenderer(1920, 1080, "Luminal Engine 3D Demonstration", typeof(Main),
                 LuminalFlags.ENABLE_USER_OPENGL | LuminalFlags.ENABLE_KEY_REPEAT);
         }
 
         public void Draw(Engine _)
         {
-            //Context.SetColour(255, 0, 0, 255);
-            //Render.Rectangle(100, 100, 100, 100, RenderMode.FILL);
+            Context.SetColour(255, 0, 0, 255);
+            Render.Rectangle(100 + AnimationManager.Get("test", 0.0f), 100, 100, 100, RenderMode.FILL);
         }
 
         private static System.Numerics.Vector3 AmbientColour = new(1, 1, 1);
@@ -65,16 +73,29 @@ namespace Luminal.TestApplication
 
             ImGui.Checkbox("Couple light position to camera position", ref CoupleLightToCamera);
 
-            if (ImGui.CollapsingHeader("Load new model:", ImGuiTreeNodeFlags.DefaultOpen))
-            {
-                ImGui.InputText("", ref FilePath, 65535);
-                ImGui.SameLine();
-                if (ImGui.Button("Load"))
-                {
+            //if (ImGui.CollapsingHeader("Load new model:", ImGuiTreeNodeFlags.DefaultOpen))
+            //{
+            //    ImGui.InputText("", ref FilePath, 65535);
+            //    ImGui.SameLine();
+            //    if (ImGui.Button("Load"))
+            //    {
 
+            //    }
+            //}
+
+            if (ImGui.CollapsingHeader("Animation controls", ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                if (ImGui.Button("Play"))
+                {
+                    AnimationManager.Play("test");
+                }
+
+                ImGui.SameLine();
+                if (ImGui.Button("Pause"))
+                {
+                    AnimationManager.Pause("test");
                 }
             }
-
 
             ImGui.End();
         }

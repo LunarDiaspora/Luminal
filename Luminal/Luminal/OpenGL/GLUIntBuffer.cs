@@ -12,6 +12,12 @@ namespace Luminal.OpenGL
             GLObject = GL.GenBuffer();
         }
 
+        public GLUIntBuffer(string name)
+        {
+            GLObject = GL.GenBuffer();
+            GLHelper.LabelObj(ObjectLabelIdentifier.Buffer, GLObject, $"UIntBuffer: {name}");
+        }
+
         public void Bind(BufferTarget t)
         {
             GL.BindBuffer(t, GLObject);
