@@ -155,6 +155,7 @@ namespace Luminal.Core
                 OpenGLManager.BeforeFrame();
 
                 if (OnGUI != null) OnGUI(this);
+                ECSScene.OnGUIAll();
 
                 OpenGLManager.AfterGUI();
 
@@ -232,6 +233,8 @@ namespace Luminal.Core
 
                 if (OnDraw != null)
                     OnDraw(this);
+
+                ECSScene.Render2DAll();
 
                 if (sceneManager.ActiveScene != null)
                     sceneManager.ActiveScene.Draw(this);

@@ -8,9 +8,48 @@ using OpenTK.Mathematics;
 using System.IO;
 using SC = SDL2.SDL.SDL_Scancode;
 using Luminal.Entities.Components;
+using Luminal.Entities;
 
 namespace Luminal.TestApplication
 {
+    internal class DebugTool : Component3D
+    {
+        public override void OnGUI()
+        {
+            ImGui.Begin("Debug Tool");
+
+            ImGui.ColorEdit3("Ambient colour", ref Main.AmbientColour);
+            ImGui.ColorEdit3("Diffuse colour", ref Main.DiffuseColour);
+            ImGui.ColorEdit3("Object colour", ref Main.ObjectColour);
+
+            ImGui.SliderFloat("Field of view", ref Main.camera.GetComponent<Camera3D>().FieldOfView, 1f, 179.9f);
+            ImGui.SliderFloat("Model angle", ref Main.modelAngle, 0f, 360f);
+
+            ImGui.DragFloat3("Player position", ref Main.PlayerPos, 0.25f);
+            ImGui.DragFloat3("Light position", ref Main.LightPos, 0.25f);
+
+            ImGui.SliderFloat("Shininess", ref Main.shininess, 1f, 128f);
+
+            ImGui.Checkbox("Couple light position to camera position", ref Main.CoupleLightToCamera);
+
+            if (ImGui.CollapsingHeader("Animation controls", ImGuiTreeNodeFlags.DefaultOpen))
+            {
+                if (ImGui.Button("Play"))
+                {
+                    AnimationManager.Play("test");
+                }
+
+                ImGui.SameLine();
+                if (ImGui.Button("Pause"))
+                {
+                    AnimationManager.Pause("test");
+                }
+            }
+
+            ImGui.End();
+        }
+    }
+
     internal class Main
     {
         public Main()
@@ -44,55 +83,24 @@ namespace Luminal.TestApplication
             Render.Rectangle(100 + AnimationManager.Get("test", 0.0f), 100, 100, 100, RenderMode.FILL);
         }
 
-        private static System.Numerics.Vector3 AmbientColour = new(1, 1, 1);
-        private static System.Numerics.Vector3 DiffuseColour = new(1, 1, 1);
-        private static System.Numerics.Vector3 ObjectColour = new(0.7f, 0.7f, 0.7f);
+        internal static System.Numerics.Vector3 AmbientColour = new(1, 1, 1);
+        internal static System.Numerics.Vector3 DiffuseColour = new(1, 1, 1);
+        internal static System.Numerics.Vector3 ObjectColour = new(0.7f, 0.7f, 0.7f);
 
-        private static System.Numerics.Vector3 PlayerPos = new();
-        private static System.Numerics.Vector3 LightPos = new();
+        internal static System.Numerics.Vector3 PlayerPos = new();
+        internal static System.Numerics.Vector3 LightPos = new();
 
-        private static bool CoupleLightToCamera = true;
+        internal static bool CoupleLightToCamera = true;
 
-        private static float shininess = 32.0f;
+        internal static float shininess = 32.0f;
 
         public void GUI(Engine _)
         {
-            ImGui.Begin("Debug Tool");
-
-            ImGui.ColorEdit3("Ambient colour", ref AmbientColour);
-            ImGui.ColorEdit3("Diffuse colour", ref DiffuseColour);
-            ImGui.ColorEdit3("Object colour", ref ObjectColour);
-
-            ImGui.SliderFloat("Field of view", ref camera.GetComponent<Camera3D>().FieldOfView, 1f, 179.9f);
-            ImGui.SliderFloat("Model angle", ref modelAngle, 0f, 360f);
-
-            ImGui.DragFloat3("Player position", ref PlayerPos, 0.25f);
-            ImGui.DragFloat3("Light position", ref LightPos, 0.25f);
-
-            ImGui.SliderFloat("Shininess", ref shininess, 1f, 128f);
-
-            ImGui.Checkbox("Couple light position to camera position", ref CoupleLightToCamera);
-
-            if (ImGui.CollapsingHeader("Animation controls", ImGuiTreeNodeFlags.DefaultOpen))
-            {
-                if (ImGui.Button("Play"))
-                {
-                    AnimationManager.Play("test");
-                }
-
-                ImGui.SameLine();
-                if (ImGui.Button("Pause"))
-                {
-                    AnimationManager.Pause("test");
-                }
-            }
-
-            ImGui.End();
         }
 
-        private static Object3D camera = new();
-        private static Object3D light = new();
-        private static Object3D model = new();
+        internal static Object3D camera = new();
+        internal static Object3D light = new();
+        internal static Object3D model = new();
 
         private static Model testModel;
 
@@ -102,6 +110,7 @@ namespace Luminal.TestApplication
             camera.Euler = Vector3.Zero;
 
             camera.CreateComponent<Camera3D>();
+            camera.CreateComponent<DebugTool>();
 
             light.Position = camera.Position;
             light.Euler = Vector3.Zero;
@@ -114,7 +123,7 @@ namespace Luminal.TestApplication
             mr.Model = testModel;
         }
 
-        static float modelAngle = 0.0f;
+        internal static float modelAngle = 0.0f;
 
         static System.Numerics.Vector3 TKToSysNum3(Vector3 tk)
         {

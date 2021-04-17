@@ -41,6 +41,17 @@ namespace Luminal.Entities
             }
         }
 
+        public static void OnGUIAll()
+        {
+            foreach (var o in objects)
+            {
+                foreach (var c in o.components)
+                {
+                    c.OnGUI();
+                }
+            }
+        }
+
         public static void Render3DAll()
         {
             L3D_BeforeFrame();
