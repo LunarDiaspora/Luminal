@@ -61,6 +61,14 @@ namespace Luminal.Entities
 
             return c;
         }
+
+        public T GetOrCreateComponent<T>() where T : Component, new()
+        {
+            var comp = GetComponent<T>();
+            if (comp != null)
+                return comp;
+            return CreateComponent<T>();
+        }
     }
 }
 
