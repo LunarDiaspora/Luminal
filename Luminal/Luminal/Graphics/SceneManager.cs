@@ -1,4 +1,5 @@
-﻿using Luminal.Logging;
+﻿using Luminal.Entities;
+using Luminal.Logging;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -47,6 +48,8 @@ namespace Luminal.Graphics
             {
                 throw new ArgumentException($"Tried to switch to scene {NewScene}, but it does not exist.");
             }
+
+            ECSScene.objects.Clear();
 
             Scene sc = Scenes[NewScene];
             ActiveScene = sc;

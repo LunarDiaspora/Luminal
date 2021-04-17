@@ -3,9 +3,11 @@ using Luminal.Core;
 using Luminal.Graphics;
 using Luminal.OpenGL;
 using Luminal.OpenGL.Models;
+using Luminal.Entities.World;
 using OpenTK.Mathematics;
 using System.IO;
 using SC = SDL2.SDL.SDL_Scancode;
+using Luminal.Entities.Components;
 
 namespace Luminal.TestApplication
 {
@@ -20,8 +22,8 @@ namespace Luminal.TestApplication
 
             e.KeyDown += KeyDown;
 
-            OpenGLManager.OnInitGL += InitGL;
-            OpenGLManager.OnEarlyOpenGL += GLDraw;
+            e.OnFinishedLoad += Init;
+            e.OnUpdate += Update;
 
             AnimationManager.AddPaused("test", new()
             {
@@ -29,11 +31,11 @@ namespace Luminal.TestApplication
                 Loop = true,
                 Min = 0.0f,
                 Max = 500f,
-                Ease = Easing.Sinusoidal.InOut
+                Ease = Easing.Exponential.InOut
             });
 
             e.StartRenderer(1920, 1080, "Luminal Engine 3D Demonstration", typeof(Main),
-                LuminalFlags.ENABLE_USER_OPENGL | LuminalFlags.ENABLE_KEY_REPEAT);
+                LuminalFlags.ENABLE_KEY_REPEAT);
         }
 
         public void Draw(Engine _)
@@ -45,8 +47,6 @@ namespace Luminal.TestApplication
         private static System.Numerics.Vector3 AmbientColour = new(1, 1, 1);
         private static System.Numerics.Vector3 DiffuseColour = new(1, 1, 1);
         private static System.Numerics.Vector3 ObjectColour = new(0.7f, 0.7f, 0.7f);
-
-        private static string FilePath = "";
 
         private static System.Numerics.Vector3 PlayerPos = new();
         private static System.Numerics.Vector3 LightPos = new();
@@ -63,8 +63,8 @@ namespace Luminal.TestApplication
             ImGui.ColorEdit3("Diffuse colour", ref DiffuseColour);
             ImGui.ColorEdit3("Object colour", ref ObjectColour);
 
-            ImGui.SliderFloat("Field of view", ref camera.FieldOfView, 1f, 179.9f);
-            ImGui.SliderFloat("Model angle", ref worldAngle, 0f, 360f);
+            ImGui.SliderFloat("Field of view", ref camera.GetComponent<Camera3D>().FieldOfView, 1f, 179.9f);
+            ImGui.SliderFloat("Model angle", ref modelAngle, 0f, 360f);
 
             ImGui.DragFloat3("Player position", ref PlayerPos, 0.25f);
             ImGui.DragFloat3("Light position", ref LightPos, 0.25f);
@@ -72,16 +72,6 @@ namespace Luminal.TestApplication
             ImGui.SliderFloat("Shininess", ref shininess, 1f, 128f);
 
             ImGui.Checkbox("Couple light position to camera position", ref CoupleLightToCamera);
-
-            //if (ImGui.CollapsingHeader("Load new model:", ImGuiTreeNodeFlags.DefaultOpen))
-            //{
-            //    ImGui.InputText("", ref FilePath, 65535);
-            //    ImGui.SameLine();
-            //    if (ImGui.Button("Load"))
-            //    {
-
-            //    }
-            //}
 
             if (ImGui.CollapsingHeader("Animation controls", ImGuiTreeNodeFlags.DefaultOpen))
             {
@@ -100,29 +90,31 @@ namespace Luminal.TestApplication
             ImGui.End();
         }
 
-        private static GLShader VS;
-        private static GLShader FS;
-
-        private static GLShaderProgram Program;
-
-        private static Camera camera = new(new Vector3(0f, 0f, -5.0f), Vector3.Zero);
+        private static Object3D camera = new();
+        private static Object3D light = new();
+        private static Object3D model = new();
 
         private static Model testModel;
 
-        private void InitGL()
+        private void Init(Engine _)
         {
-            var vsSource = File.ReadAllText("EngineResources/mesh.vert");
-            var fsSource = File.ReadAllText("EngineResources/one_light.frag");
+            camera.Position = new Vector3(0f, 0f, -5.0f);
+            camera.Euler = Vector3.Zero;
 
-            VS = new GLShader(vsSource, GLShaderType.VERTEX);
-            FS = new GLShader(fsSource, GLShaderType.FRAGMENT);
+            camera.CreateComponent<Camera3D>();
 
-            Program = new GLShaderProgram().Label("Scene").Attach(VS).Attach(FS).Link();
+            light.Position = camera.Position;
+            light.Euler = Vector3.Zero;
+
+            light.CreateComponent<PointLight3D>();
+
+            var mr = model.CreateComponent<ModelRenderer>();
 
             testModel = new("teapot.obj");
+            mr.Model = testModel;
         }
 
-        static float worldAngle = 0.0f;
+        static float modelAngle = 0.0f;
 
         static System.Numerics.Vector3 TKToSysNum3(Vector3 tk)
         {
@@ -134,40 +126,21 @@ namespace Luminal.TestApplication
             return new(tk.X, tk.Y, tk.Z);
         }
 
-
-        private void GLDraw()
+        private void Update(Engine _, float __)
         {
-            // GL calls go here.
-            // This is your draw loop.
-            //GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            Program.Use();
-
             camera.Position = SysNumToTK3(PlayerPos);
 
             if (CoupleLightToCamera)
             {
-                LightPos = PlayerPos;
+                light.Position = camera.Position;
             }
 
-            var model = Matrix4.CreateRotationY(GLHelper.DegRad(worldAngle));
-            var view = camera.View();
-            var proj = camera.Projection();
+            model.Euler = new(0.0f, modelAngle, 0.0f);
 
-            Program.UniformMatrix4("Model", ref model);
-            Program.UniformMatrix4("View", ref view);
-            Program.UniformMatrix4("Projection", ref proj);
-
-            Program.Uniform3("AmbientColour", AmbientColour);
-            Program.Uniform3("DiffuseColour", DiffuseColour);
-            Program.Uniform3("ObjectColour", ObjectColour);
-            Program.Uniform3("LightPosition", LightPos);
-            Program.Uniform3("ViewPosition", PlayerPos);
-
-            Program.Uniform1("Shininess", shininess);
-
-            testModel.Draw();
+            light.GetComponent<PointLight3D>().Shininess = shininess;
+            light.GetComponent<PointLight3D>().Colour = DiffuseColour;
         }
+
 
         private void KeyDown(Engine _, SC s)
         {
@@ -201,11 +174,11 @@ namespace Luminal.TestApplication
                     break;
 
                 case SC.SDL_SCANCODE_Q:
-                    worldAngle -= turnSpeed;
+                    modelAngle -= turnSpeed;
                     break;
 
                 case SC.SDL_SCANCODE_E:
-                    worldAngle += turnSpeed;
+                    modelAngle += turnSpeed;
                     break;
 
                 case SC.SDL_SCANCODE_R:

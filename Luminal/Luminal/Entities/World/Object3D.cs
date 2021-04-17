@@ -1,8 +1,9 @@
 ﻿using OpenTK.Mathematics;
+using Luminal.OpenGL;
 
-namespace Luminal.OpenGL
+namespace Luminal.Entities.World
 {
-    public class SceneObject
+    public class Object3D : BaseObject
     {
         public Vector3 Position;
 
@@ -18,7 +19,7 @@ namespace Luminal.OpenGL
             }
         }
 
-        public Quaternion Quat;
+        public Quaternion Quat = Quaternion.Identity;
 
         public Vector3 Right
         {

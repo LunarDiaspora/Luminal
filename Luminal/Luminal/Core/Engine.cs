@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using Luminal.Audio;
 using Luminal.Configuration;
+using Luminal.Entities;
 using Luminal.Graphics;
 using Luminal.LGUI;
 using Luminal.Logging;
@@ -14,8 +15,7 @@ namespace Luminal.Core
 {
     public enum LuminalFlags
     {
-        ENABLE_USER_OPENGL = 1 << 0,
-        ENABLE_KEY_REPEAT = 1 << 1
+        ENABLE_KEY_REPEAT = 1 << 0
     }
 
     public class Engine
@@ -122,16 +122,10 @@ namespace Luminal.Core
             Screen = SDL_GPU.GPU_InitRenderer(GPU_RendererEnum.GPU_RENDERER_OPENGL_3, (uint)Width, (uint)Height, (uint)winflags);
             SDL_GPU.GPU_SetDefaultAnchor(0, 0);
 
-            //GlContext = SDL.SDL_GL_CreateContext(Window);
-
-            if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-            {
-                Log.Info("Enabling user-defined OpenGL and Dear IMGUI.");
-                OpenGLManager.Initialise();
-                theme ??= new LuminalTheme();
-                theme.InitTheme(ImGui.GetStyle(), ImGui.GetIO());
-                OpenGLManager.ImGuiCreateFontAtlas();
-            }
+            OpenGLManager.Initialise();
+            theme ??= new LuminalTheme();
+            theme.InitTheme(ImGui.GetStyle(), ImGui.GetIO());
+            OpenGLManager.ImGuiCreateFontAtlas();
 
             if (OnLoading != null) OnLoading(this);
 
@@ -140,6 +134,8 @@ namespace Luminal.Core
             //SDL.SDL_SetWindowTitle(Window, WindowTitle);
 
             //Window.SetFramerateLimit(500);
+
+            ECSScene.L3D_SetUp();
 
             if (OnFinishedLoad != null) OnFinishedLoad(this);
             WindowOpen = true;
@@ -156,25 +152,16 @@ namespace Luminal.Core
 
                 GUIManager.Begin();
 
-                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-                {
-                    OpenGLManager.BeforeFrame();
-                }
+                OpenGLManager.BeforeFrame();
 
                 if (OnGUI != null) OnGUI(this);
 
-                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-                {
-                    OpenGLManager.AfterGUI();
-                }
+                OpenGLManager.AfterGUI();
 
                 SDL.SDL_Event evt;
                 while (SDL.SDL_PollEvent(out evt) == 1)
                 {
-                    if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-                    {
-                        OpenGLManager.ImGuiHandleEvent(evt);
-                    }
+                    OpenGLManager.ImGuiHandleEvent(evt);
 
                     var noRepeat = ((EngineFlags & LuminalFlags.ENABLE_KEY_REPEAT) <= 0);
 
@@ -218,6 +205,7 @@ namespace Luminal.Core
 
                 var t = sfClock.Restart();
                 var seconds = t.AsSeconds(); // Should probably calculate this less often.
+                Timing.DeltaTime = seconds;
 
                 AudioEngineManager.Engine.Update(seconds);
 
@@ -226,23 +214,21 @@ namespace Luminal.Core
                 if (sceneManager.ActiveScene != null)
                     sceneManager.ActiveScene.Update(this, seconds);
 
+                ECSScene.UpdateAll();
+
                 if (OnUpdate != null)
                     OnUpdate(this, seconds);
 
-                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-                {
-                    OpenGLManager.Update(seconds);
-                }
+                OpenGLManager.Update(seconds);
 
                 if (OnEarlyDraw != null)
                     OnEarlyDraw(this);
 
-                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-                {
-                    OpenGLManager.EarlyDraw();
-                }
+                OpenGLManager.EarlyDraw();
 
                 SDL_GPU.GPU_ResetRendererState();
+
+                ECSScene.Render3DAll();
 
                 if (OnDraw != null)
                     OnDraw(this);
@@ -257,18 +243,12 @@ namespace Luminal.Core
 
                 SDL_GPU.GPU_ResetRendererState();
 
-                //SDL.SDL_RenderPresent(Renderer);
-
-                if ((Flags | LuminalFlags.ENABLE_USER_OPENGL) > 0)
-                {
-                    OpenGLManager.Draw();
-                }
+                // This next line draws IMGUI. It's important that this comes after everything else, else debug UI won't be drawn!
+                OpenGLManager.Draw();
 
                 SDL_GPU.GPU_Flip(Screen);
 
                 GUIManager.End();
-
-                //SDL.SDL_Delay(1);
             }
         }
 
