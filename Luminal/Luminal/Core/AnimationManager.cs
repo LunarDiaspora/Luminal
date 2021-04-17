@@ -25,7 +25,7 @@ namespace Luminal.Core
                         value.Time = 0.0f;
                     } else
                     {
-                        Values.Remove(key);
+                        value.Playing = false;
                     }
                 }
             }
