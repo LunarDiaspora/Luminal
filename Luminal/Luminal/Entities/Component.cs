@@ -11,6 +11,8 @@ namespace Luminal.Entities
 
         protected internal BaseObject _parent;
 
+        public bool Enabled = true;
+
         public virtual void Create()
         {
         }

@@ -2,6 +2,7 @@
 using Luminal.OpenGL;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Luminal.Entities
 {
@@ -19,7 +20,7 @@ namespace Luminal.Entities
         {
             foreach (var o in objects)
             {
-                foreach (var c in o.components)
+                foreach (var c in o.components.Where(a => a.Enabled))
                 {
                     c.Update();
                 }
@@ -30,7 +31,7 @@ namespace Luminal.Entities
         {
             foreach (var o in objects)
             {
-                foreach (var c in o.components)
+                foreach (var c in o.components.Where(a => a.Enabled))
                 {
                     c.Render2D();
                 }
@@ -41,7 +42,7 @@ namespace Luminal.Entities
         {
             foreach (var o in objects)
             {
-                foreach (var c in o.components)
+                foreach (var c in o.components.Where(a => a.Enabled))
                 {
                     c.OnGUI();
                 }
@@ -54,7 +55,7 @@ namespace Luminal.Entities
 
             foreach (var o in objects)
             {
-                foreach (var c in o.components)
+                foreach (var c in o.components.Where(a => a.Enabled))
                 {
                     c.Render3D();
                 }

@@ -11,6 +11,14 @@ using SC = SDL2.SDL.SDL_Scancode;
 
 namespace Luminal.TestApplication
 {
+    internal class DemoWindowComponent : Component3D
+    {
+        public override void OnGUI()
+        {
+            ImGui.ShowDemoWindow(ref Enabled);
+        }
+    }
+
     internal class DebugTool : Component3D
     {
         public override void OnGUI()
@@ -44,6 +52,8 @@ namespace Luminal.TestApplication
                     AnimationManager.Pause("test");
                 }
             }
+
+            ImGui.Checkbox("Demo window visible", ref Main.camera.GetComponent<DemoWindowComponent>().Enabled);
 
             ImGui.End();
         }
@@ -112,6 +122,7 @@ namespace Luminal.TestApplication
 
             camera.CreateComponent<Camera3D>();
             camera.CreateComponent<DebugTool>();
+            camera.CreateComponent<DemoWindowComponent>();
 
             light.Position = camera.Position;
             light.Euler = Vector3.Zero;
