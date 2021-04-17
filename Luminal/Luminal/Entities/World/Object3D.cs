@@ -1,5 +1,5 @@
-﻿using OpenTK.Mathematics;
-using Luminal.OpenGL;
+﻿using Luminal.OpenGL;
+using OpenTK.Mathematics;
 
 namespace Luminal.Entities.World
 {

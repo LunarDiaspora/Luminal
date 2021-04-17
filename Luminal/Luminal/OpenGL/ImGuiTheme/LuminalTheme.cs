@@ -1,7 +1,5 @@
-﻿using System.IO;
-using ImGuiNET;
+﻿using ImGuiNET;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace Luminal.OpenGL.ImGuiTheme
 {

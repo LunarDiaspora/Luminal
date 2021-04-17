@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Assimp;
+﻿using Assimp;
 using Luminal.Logging;
 using OpenTK.Mathematics;
+using System;
+using System.Collections.Generic;
 
 namespace Luminal.OpenGL.Models
 {
@@ -41,7 +38,7 @@ namespace Luminal.OpenGL.Models
 
         private void DoNode(Node node, Scene sc)
         {
-            for (int i=0; i<node.MeshCount; i++)
+            for (int i = 0; i < node.MeshCount; i++)
             {
                 var mi = node.MeshIndices[i];
                 var m = sc.Meshes[mi];
@@ -49,7 +46,7 @@ namespace Luminal.OpenGL.Models
                 Meshes.Add(DoMesh(m, sc));
             }
 
-            for (int j=0; j<node.ChildCount; j++)
+            for (int j = 0; j < node.ChildCount; j++)
             {
                 var child = node.Children[j];
                 DoNode(child, sc);
@@ -72,7 +69,7 @@ namespace Luminal.OpenGL.Models
             List<uint> inds = new();
             List<GLTexture> texes = new();
 
-            for (int i=0; i<inp.VertexCount; i++)
+            for (int i = 0; i < inp.VertexCount; i++)
             {
                 Vertex v = new();
                 // vertex^2
@@ -89,15 +86,17 @@ namespace Luminal.OpenGL.Models
                     var vc = inp.VertexCount;
                     if (uvc != vc)
                     {
-                        Log.Wtf($"Luminal 3D: (Model.cs) Irregular UV channel length!?\nVertex {i}, {uvc} UVs, {vc} vertices.\n"+
+                        Log.Wtf($"Luminal 3D: (Model.cs) Irregular UV channel length!?\nVertex {i}, {uvc} UVs, {vc} vertices.\n" +
                                 "Refusing to load this vertex's texture data!");
-                    } else
+                    }
+                    else
                     {
                         var auv = chan[i];
                         var uv = ThreeToTwo(AssimpV3ToOTK(auv));
                         v.UV = uv;
                     }
-                } else
+                }
+                else
                 {
                     v.UV = new Vector2(0.0f, 0.0f); // No UVs, make sure nothing breaks
                 }
@@ -107,7 +106,7 @@ namespace Luminal.OpenGL.Models
                 verts.Add(v);
             }
 
-            for (int j=0; j<inp.FaceCount; j++)
+            for (int j = 0; j < inp.FaceCount; j++)
             {
                 var face = inp.Faces[j];
                 if (!face.HasIndices)
@@ -116,7 +115,7 @@ namespace Luminal.OpenGL.Models
                     throw new Exception("Face.HasIndices returned false. What.");
                 }
 
-                for (int k=0; k<face.IndexCount; k++)
+                for (int k = 0; k < face.IndexCount; k++)
                 {
                     var index = face.Indices[k];
                     inds.Add((uint)index);
@@ -139,7 +138,7 @@ namespace Luminal.OpenGL.Models
             var texes = mat.GetAllMaterialTextures();
             Log.Debug($"{texes.Length}");
 
-            for (int i=0; i<mat.GetMaterialTextureCount(TextureType.Diffuse); i++)
+            for (int i = 0; i < mat.GetMaterialTextureCount(TextureType.Diffuse); i++)
             {
                 mat.GetMaterialTexture(TextureType.Diffuse, i, out TextureSlot tex);
                 Log.Debug(tex.FilePath);

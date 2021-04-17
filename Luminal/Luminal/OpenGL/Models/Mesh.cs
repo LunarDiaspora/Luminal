@@ -1,9 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
 
 namespace Luminal.OpenGL.Models
@@ -54,7 +50,7 @@ namespace Luminal.OpenGL.Models
         private unsafe void SetupPointers()
         {
             // Defining our attributes for memory-mapping.
-            // 
+            //
             // float float float float float float float float float float float float
             // ----------------- ----------------- ----------- -----------------------
             //     position            normal          UV               colour

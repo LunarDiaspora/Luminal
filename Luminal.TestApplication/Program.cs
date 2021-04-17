@@ -1,15 +1,13 @@
 ﻿using ImGuiNET;
 using Luminal.Core;
-using Luminal.Graphics;
-using Luminal.OpenGL;
-using Luminal.OpenGL.Models;
-using Luminal.Entities.World;
-using OpenTK.Mathematics;
-using System.IO;
-using SC = SDL2.SDL.SDL_Scancode;
-using Luminal.Entities.Components;
 using Luminal.Entities;
+using Luminal.Entities.Components;
 using Luminal.Entities.Screen;
+using Luminal.Entities.World;
+using Luminal.Graphics;
+using Luminal.OpenGL.Models;
+using OpenTK.Mathematics;
+using SC = SDL2.SDL.SDL_Scancode;
 
 namespace Luminal.TestApplication
 {
@@ -134,12 +132,12 @@ namespace Luminal.TestApplication
 
         internal static float modelAngle = 0.0f;
 
-        static System.Numerics.Vector3 TKToSysNum3(Vector3 tk)
+        private static System.Numerics.Vector3 TKToSysNum3(Vector3 tk)
         {
             return new(tk.X, tk.Y, tk.Z);
         }
 
-        static Vector3 SysNumToTK3(System.Numerics.Vector3 tk)
+        private static Vector3 SysNumToTK3(System.Numerics.Vector3 tk)
         {
             return new(tk.X, tk.Y, tk.Z);
         }
@@ -151,7 +149,8 @@ namespace Luminal.TestApplication
             if (CoupleLightToCamera)
             {
                 light.Position = camera.Position;
-            } else
+            }
+            else
             {
                 light.Position = SysNumToTK3(LightPos);
             }
@@ -161,7 +160,6 @@ namespace Luminal.TestApplication
             light.GetComponent<PointLight3D>().Shininess = shininess;
             light.GetComponent<PointLight3D>().Colour = DiffuseColour;
         }
-
 
         private void KeyDown(Engine _, SC s)
         {

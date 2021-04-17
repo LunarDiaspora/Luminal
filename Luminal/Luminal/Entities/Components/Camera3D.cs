@@ -1,8 +1,6 @@
 ﻿using Luminal.Core;
-using OpenTK.Mathematics;
 using Luminal.OpenGL;
-using Luminal.Entities.World;
-using Luminal.Logging;
+using OpenTK.Mathematics;
 
 namespace Luminal.Entities.Components
 {

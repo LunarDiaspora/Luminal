@@ -1,11 +1,7 @@
 ﻿using Luminal.Entities.Components;
 using Luminal.OpenGL;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Luminal.Entities
 {
@@ -65,7 +61,7 @@ namespace Luminal.Entities
             }
         }
 
-        static System.Numerics.Vector3 TKToSysNum3(OpenTK.Mathematics.Vector3 tk)
+        private static System.Numerics.Vector3 TKToSysNum3(OpenTK.Mathematics.Vector3 tk)
         {
             return new(tk.X, tk.Y, tk.Z);
         }
@@ -73,7 +69,6 @@ namespace Luminal.Entities
         public static GLShaderProgram Program;
         public static System.Numerics.Vector3 AmbientColour = new(0.7f, 0.7f, 0.7f);
         public static System.Numerics.Vector3 ObjectColour = new(1f, 1f, 1f);
-
 
         public static void L3D_SetUp()
         {

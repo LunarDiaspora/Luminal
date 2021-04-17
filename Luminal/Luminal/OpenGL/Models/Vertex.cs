@@ -1,16 +1,11 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Luminal.OpenGL.Models
 {
     /*
      * Each VectorX contains X many floats.
-     * 
+     *
      * 3 + 3 + 2 + 4 = 12, so there are 8 floats. Therefore the stride is (how big a float is) x 8.
      */
 

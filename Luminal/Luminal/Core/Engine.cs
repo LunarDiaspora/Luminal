@@ -201,7 +201,6 @@ namespace Luminal.Core
                     }
                 }
 
-
                 SDL_GPU.GPU_ResetRendererState();
 
                 var t = sfClock.Restart();

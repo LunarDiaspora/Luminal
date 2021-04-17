@@ -90,6 +90,7 @@ namespace Luminal.OpenGL
 
         // Define these delegates to make sure the GC doesn't destroy them, which will crash the program
         private static GetClipboardDelegate _GetClipboard;
+
         private static SetClipboardDelegate _SetClipboard;
 
         public static unsafe void Initialise()
@@ -200,7 +201,6 @@ namespace Luminal.OpenGL
 
             _GetClipboard = GetClipboard;
             io.GetClipboardTextFn = Marshal.GetFunctionPointerForDelegate(_GetClipboard);
-
 
             Initialised = true;
 

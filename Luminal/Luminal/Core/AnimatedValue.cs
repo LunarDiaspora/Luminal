@@ -18,5 +18,11 @@
             var value = LMath.Mix(Ease(t), Min, Max);
             return value;
         }
+
+        public void Repeat()
+        {
+            Time = 0.0f;
+            Playing = true;
+        }
     }
 }

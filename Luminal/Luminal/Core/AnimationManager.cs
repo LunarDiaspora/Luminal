@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Luminal.Core
 {
@@ -23,7 +19,8 @@ namespace Luminal.Core
                     if (value.Loop)
                     {
                         value.Time = 0.0f;
-                    } else
+                    }
+                    else
                     {
                         value.Playing = false;
                     }
