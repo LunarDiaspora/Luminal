@@ -133,6 +133,9 @@ namespace Luminal.TestApplication
             if (CoupleLightToCamera)
             {
                 light.Position = camera.Position;
+            } else
+            {
+                light.Position = SysNumToTK3(LightPos);
             }
 
             model.Euler = new(0.0f, modelAngle, 0.0f);
