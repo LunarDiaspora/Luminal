@@ -33,19 +33,24 @@ namespace Luminal.Core
             CurrentTime += Delta;
         }
 
-        public static float Get(string name)
+        public static float Value(string name)
         {
             var t = Values[name];
             return t.Calculate();
         }
 
-        public static float Get(string name, float def)
+        public static float Value(string name, float def)
         {
             if (!Values.ContainsKey(name))
             {
                 return def;
             }
-            return Get(name);
+            return Value(name);
+        }
+
+        public static AnimatedValue Get(string name)
+        {
+            return Values[name];
         }
 
         public static void AddPlaying(string name, AnimatedValue v)

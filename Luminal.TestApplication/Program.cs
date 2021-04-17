@@ -9,6 +9,7 @@ using System.IO;
 using SC = SDL2.SDL.SDL_Scancode;
 using Luminal.Entities.Components;
 using Luminal.Entities;
+using Luminal.Entities.Screen;
 
 namespace Luminal.TestApplication
 {
@@ -80,7 +81,7 @@ namespace Luminal.TestApplication
         public void Draw(Engine _)
         {
             Context.SetColour(255, 0, 0, 255);
-            Render.Rectangle(100 + AnimationManager.Get("test", 0.0f), 100, 100, 100, RenderMode.FILL);
+            Render.Rectangle(100 + AnimationManager.Value("test", 0.0f), 100, 100, 100, RenderMode.FILL);
         }
 
         internal static System.Numerics.Vector3 AmbientColour = new(1, 1, 1);
@@ -102,6 +103,8 @@ namespace Luminal.TestApplication
         internal static Object3D light = new();
         internal static Object3D model = new();
 
+        internal static Object2D test2d = new();
+
         private static Model testModel;
 
         private void Init(Engine _)
@@ -121,6 +124,12 @@ namespace Luminal.TestApplication
 
             testModel = new("teapot.obj");
             mr.Model = testModel;
+
+            var ir = test2d.CreateComponent<ImageRenderer>();
+            ir.LoadImage("file.jpg");
+
+            test2d.Position.X = 300f;
+            test2d.Position.Y = 300f;
         }
 
         internal static float modelAngle = 0.0f;
