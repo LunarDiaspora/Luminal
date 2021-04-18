@@ -91,14 +91,12 @@ namespace Luminal.Core
             AudioEngineManager.LoadEngine(config.AudioPlugin);
 
             sceneManager = new SceneManager(executingType);
-            //sceneManager.SwitchScene("Dummy");
 
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 2);
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
             Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, WindowWidth, WindowHeight,
                                           SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
-            //Renderer = SDL.SDL_CreateRenderer(Window, 0, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
 
             var winid = SDL.SDL_GetWindowID(Window);
 
@@ -115,8 +113,6 @@ namespace Luminal.Core
 
             SDL_GPU.GPU_SetPreInitFlags(GPU_InitFlagEnum.GPU_INIT_DISABLE_VSYNC);
 
-            //Screen = SDL_GPU.GPU_Init((uint)Width, (uint)Height, (uint)(SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL));
-
             var winflags = SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL;
 
             Screen = SDL_GPU.GPU_InitRenderer(GPU_RendererEnum.GPU_RENDERER_OPENGL_3, (uint)Width, (uint)Height, (uint)winflags);
@@ -129,12 +125,6 @@ namespace Luminal.Core
 
             if (OnLoading != null) OnLoading(this);
 
-            //var sdlResult = SDL.SDL_CreateWindowAndRenderer(WindowWidth, WindowHeight, 0, out Renderer, out Window);
-            //Console.WriteLine($"{sdlResult}");
-            //SDL.SDL_SetWindowTitle(Window, WindowTitle);
-
-            //Window.SetFramerateLimit(500);
-
             ECSScene.L3D_SetUp();
 
             if (OnFinishedLoad != null) OnFinishedLoad(this);
@@ -144,10 +134,6 @@ namespace Luminal.Core
 
             while (WindowOpen)
             {
-                //SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
-                //SDL.SDL_RenderClear(Renderer);
-                //SDL.SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
-
                 SDL_GPU.GPU_ClearColor(Screen, Context.MakeColourFromRGBA(0, 0, 0, 255));
 
                 GUIManager.Begin();
@@ -256,13 +242,13 @@ namespace Luminal.Core
 
         public static void Quit(int exitCode = 0)
         {
-            AudioEngineManager.Engine.Dispose(); // Clean up after ourselves
+            AudioEngineManager.Engine.Dispose();
 
             WindowOpen = false;
-            //SDL.SDL_DestroyWindow(Window);
-            //SDL.SDL_DestroyRenderer(Renderer);
 
             SDL_GPU.GPU_Quit();
+
+            SDL.SDL_DestroyWindow(Window);
 
             Context.FreeAllImages();
 
