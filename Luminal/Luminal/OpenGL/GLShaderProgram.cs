@@ -59,6 +59,12 @@ namespace Luminal.OpenGL
             GL.Uniform1(loc, x);
         }
 
+        public void Uniform1i(string uni, int x)
+        {
+            var loc = UniformLocation(uni);
+            GL.Uniform1(loc, x);
+        }
+
         public void Uniform2(string uni, float x, float y)
         {
             var loc = UniformLocation(uni);

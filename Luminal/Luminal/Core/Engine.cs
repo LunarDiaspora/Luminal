@@ -229,6 +229,14 @@ namespace Luminal.Core
 
                 GUIManager.RenderAll();
 
+                // This moves deferred objects into the main object list.
+                //
+                // It's important we do this late in the frame, because
+                // moving deferred objects in the middle of the frame can
+                // cause inconsistent behaviour with some methods seeing objects
+                // that other methods do not.
+                ECSScene.MoveDeferred();
+
                 SDL_GPU.GPU_ResetRendererState();
 
                 // This next line draws IMGUI. It's important that this comes after everything else, else debug UI won't be drawn!

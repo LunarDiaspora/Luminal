@@ -6,8 +6,9 @@ using Luminal.Entities.Screen;
 using Luminal.Entities.World;
 using Luminal.Graphics;
 using Luminal.OpenGL.Models;
-using OpenTK.Mathematics;
+using System.Collections.Generic;
 using SC = SDL2.SDL.SDL_Scancode;
+using Vector3 = System.Numerics.Vector3;
 
 namespace Luminal.TestApplication
 {
@@ -25,19 +26,18 @@ namespace Luminal.TestApplication
         {
             ImGui.Begin("Debug Tool");
 
+            var material = Main.model.GetComponent<ModelRenderer>().Material;
+
             ImGui.ColorEdit3("Ambient colour", ref Main.AmbientColour);
-            ImGui.ColorEdit3("Diffuse colour", ref Main.DiffuseColour);
-            ImGui.ColorEdit3("Object colour", ref Main.ObjectColour);
+            ImGui.ColorEdit3("Albedo colour", ref material.Albedo);
+            ImGui.ColorEdit3("Specular colour", ref material.Specular);
 
             ImGui.SliderFloat("Field of view", ref Main.camera.GetComponent<Camera3D>().FieldOfView, 1f, 179.9f);
             ImGui.SliderFloat("Model angle", ref Main.modelAngle, 0f, 360f);
 
             ImGui.DragFloat3("Player position", ref Main.PlayerPos, 0.25f);
-            ImGui.DragFloat3("Light position", ref Main.LightPos, 0.25f);
 
-            ImGui.SliderFloat("Shininess", ref Main.shininess, 1f, 128f);
-
-            ImGui.Checkbox("Couple light position to camera position", ref Main.CoupleLightToCamera);
+            ImGui.SliderFloat("Shininess", ref material.Shininess, 1f, 128f);
 
             if (ImGui.CollapsingHeader("Animation controls", ImGuiTreeNodeFlags.DefaultOpen))
             {
@@ -56,6 +56,55 @@ namespace Luminal.TestApplication
             ImGui.Checkbox("Demo window visible", ref Main.camera.GetComponent<DemoWindowComponent>().Enabled);
 
             ImGui.End();
+        }
+    }
+
+    internal class LightControlPanel : Component3D
+    {
+        public Vector3 newColour = new(1.0f, 1.0f, 1.0f);
+
+        public override void OnGUI()
+        {
+            ImGui.Begin("Light Controls");
+
+            for (int index=0; index<Main.PointLights.Count; index++)
+            {
+                var light = Main.PointLights[index];
+
+                if (ImGui.TreeNode($"Light #{index} - point"))
+                {
+                    var coupler = light.GetComponent<CoupleToCameraController>();
+                    var lightComponent = light.GetComponent<PointLight3D>();
+
+                    ImGui.Checkbox("Couple to camera", ref coupler.Enabled);
+
+                    ImGui.ColorEdit3("Colour", ref lightComponent.Colour);
+
+                    ImGui.DragFloat("Intensity", ref lightComponent.Intensity);
+
+                    ImGui.DragFloat3("Position", ref light.Position, 0.25f);
+
+                    ImGui.TreePop();
+                }
+            }
+
+            ImGui.Separator();
+
+            ImGui.ColorEdit3("New light colour", ref newColour);
+            if (ImGui.Button("Add new light"))
+            {
+                Main.MakeNewLight(Main.camera.Position, newColour);
+            }
+
+            ImGui.End();
+        }
+    }
+
+    internal class CoupleToCameraController : Component3D
+    {
+        public override void Update()
+        {
+            Parent.Position = Main.camera.Position;
         }
     }
 
@@ -89,31 +138,47 @@ namespace Luminal.TestApplication
         public void Draw(Engine _)
         {
             Context.SetColour(255, 0, 0, 255);
-            Render.Rectangle(100 + AnimationManager.Value("test", 0.0f), 100, 100, 100, RenderMode.FILL);
+            //Render.Rectangle(100 + AnimationManager.Value("test", 0.0f), 100, 100, 100, RenderMode.FILL);
         }
 
-        internal static System.Numerics.Vector3 AmbientColour = new(1, 1, 1);
-        internal static System.Numerics.Vector3 DiffuseColour = new(1, 1, 1);
-        internal static System.Numerics.Vector3 ObjectColour = new(0.7f, 0.7f, 0.7f);
+        internal static Vector3 AmbientColour = new(1, 1, 1);
+        internal static Vector3 DiffuseColour = new(1, 1, 1);
+        internal static Vector3 ObjectColour = new(0.7f, 0.7f, 0.7f);
 
-        internal static System.Numerics.Vector3 PlayerPos = new();
-        internal static System.Numerics.Vector3 LightPos = new();
-
-        internal static bool CoupleLightToCamera = true;
+        internal static Vector3 PlayerPos = new();
+        internal static Vector3 LightPos = new();
 
         internal static float shininess = 32.0f;
+
+        internal static List<Object3D> PointLights = new();
 
         public void GUI(Engine _)
         {
         }
 
         internal static Object3D camera = new();
-        internal static Object3D light = new();
         internal static Object3D model = new();
 
         internal static Object2D test2d = new();
 
         private static Model testModel;
+
+        internal static PointLight3D MakeNewLight(Vector3 where, Vector3 colour)
+        {
+            var obj = new Object3D();
+
+            var light = obj.CreateComponent<PointLight3D>();
+
+            obj.Position = where;
+
+            light.Colour = colour;
+
+            obj.CreateComponent<CoupleToCameraController>();
+
+            PointLights.Add(obj);
+
+            return light;
+        }
 
         private void Init(Engine _)
         {
@@ -121,21 +186,22 @@ namespace Luminal.TestApplication
             camera.Euler = Vector3.Zero;
 
             camera.CreateComponent<Camera3D>();
+
+            // These do not have to be on the camera! These can be anywhere.
+            // I just put them here because I don't want to make another object for imgui.
             camera.CreateComponent<DebugTool>();
             camera.CreateComponent<DemoWindowComponent>();
+            camera.CreateComponent<LightControlPanel>();
 
-            light.Position = camera.Position;
-            light.Euler = Vector3.Zero;
-
-            light.CreateComponent<PointLight3D>();
+            MakeNewLight(new Vector3(0f, 0f, -10.0f), new Vector3(1.0f, 1.0f, 1.0f));
 
             var mr = model.CreateComponent<ModelRenderer>();
 
             testModel = new("teapot.obj");
             mr.Model = testModel;
 
-            var ir = test2d.CreateComponent<ImageRenderer>();
-            ir.LoadImage("file.jpg");
+            //var ir = test2d.CreateComponent<ImageRenderer>();
+            //ir.LoadImage("file.jpg");
 
             test2d.Position.X = 300f;
             test2d.Position.Y = 300f;
@@ -143,33 +209,11 @@ namespace Luminal.TestApplication
 
         internal static float modelAngle = 0.0f;
 
-        private static System.Numerics.Vector3 TKToSysNum3(Vector3 tk)
-        {
-            return new(tk.X, tk.Y, tk.Z);
-        }
-
-        private static Vector3 SysNumToTK3(System.Numerics.Vector3 tk)
-        {
-            return new(tk.X, tk.Y, tk.Z);
-        }
-
         private void Update(Engine _, float __)
         {
-            camera.Position = SysNumToTK3(PlayerPos);
-
-            if (CoupleLightToCamera)
-            {
-                light.Position = camera.Position;
-            }
-            else
-            {
-                light.Position = SysNumToTK3(LightPos);
-            }
+            camera.Position = PlayerPos;
 
             model.Euler = new(0.0f, modelAngle, 0.0f);
-
-            light.GetComponent<PointLight3D>().Shininess = shininess;
-            light.GetComponent<PointLight3D>().Colour = DiffuseColour;
         }
 
         private void KeyDown(Engine _, SC s)
@@ -180,19 +224,19 @@ namespace Luminal.TestApplication
             switch (s)
             {
                 case SC.SDL_SCANCODE_S:
-                    PlayerPos += TKToSysNum3(camera.Forward * -speed);
+                    PlayerPos += (camera.Forward * -speed);
                     break;
 
                 case SC.SDL_SCANCODE_W:
-                    PlayerPos += TKToSysNum3(camera.Forward * speed);
+                    PlayerPos += (camera.Forward * speed);
                     break;
 
                 case SC.SDL_SCANCODE_A:
-                    PlayerPos += TKToSysNum3(camera.Right * -speed);
+                    PlayerPos += (camera.Right * -speed);
                     break;
 
                 case SC.SDL_SCANCODE_D:
-                    PlayerPos += TKToSysNum3(camera.Right * speed);
+                    PlayerPos += (camera.Right * speed);
                     break;
 
                 case SC.SDL_SCANCODE_LEFT:
@@ -212,11 +256,11 @@ namespace Luminal.TestApplication
                     break;
 
                 case SC.SDL_SCANCODE_R:
-                    PlayerPos += TKToSysNum3(camera.Up * speed);
+                    PlayerPos += (camera.Up * speed);
                     break;
 
                 case SC.SDL_SCANCODE_F:
-                    PlayerPos += TKToSysNum3(-camera.Up * speed);
+                    PlayerPos += (-camera.Up * speed);
                     break;
 
                 case SC.SDL_SCANCODE_UP:

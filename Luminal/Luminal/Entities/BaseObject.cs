@@ -14,7 +14,7 @@ namespace Luminal.Entities
 
         public BaseObject()
         {
-            ECSScene.objects.Add(this);
+            ECSScene.PushObject(this);
         }
 
         public T? GetComponent<T>() where T : Component

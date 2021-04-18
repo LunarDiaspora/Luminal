@@ -1,5 +1,7 @@
 ﻿using Luminal.OpenGL;
 using OpenTK.Mathematics;
+using Vector3 = System.Numerics.Vector3;
+using Quaternion = OpenTK.Mathematics.Quaternion;
 
 namespace Luminal.Entities.World
 {
@@ -11,22 +13,28 @@ namespace Luminal.Entities.World
         {
             set
             {
-                Quat = Quaternion.FromEulerAngles(GLHelper.V3DegRad(value));
+                Quat = Quaternion.FromEulerAngles(GLHelper.V3DegRad(value.ToOpenTK()));
             }
             get
             {
-                return GLHelper.V3RadDeg(Quat.ToEulerAngles());
+                return GLHelper.V3RadDeg(Quat.ToEulerAngles()).ToSystemNumerics();
             }
         }
 
         public Quaternion Quat = Quaternion.Identity;
 
+        private Vector3 RotateVector(OpenTK.Mathematics.Vector3 axis)
+        {
+            var rot = Matrix4.CreateFromQuaternion(Quat.Inverted());
+            var tk = -OpenTK.Mathematics.Vector3.TransformPosition(axis, rot);
+            return tk.ToSystemNumerics();
+        }
+
         public Vector3 Right
         {
             get
             {
-                var rot = Matrix4.CreateFromQuaternion(Quat.Inverted());
-                return -Vector3.TransformPosition(GLHelper.Right, rot);
+                return RotateVector(GLHelper.Right);
             }
         }
 
@@ -34,8 +42,7 @@ namespace Luminal.Entities.World
         {
             get
             {
-                var rot = Matrix4.CreateFromQuaternion(Quat.Inverted());
-                return -Vector3.TransformPosition(GLHelper.Up, rot);
+                return RotateVector(GLHelper.Up);
             }
         }
 
@@ -43,20 +50,19 @@ namespace Luminal.Entities.World
         {
             get
             {
-                var rot = Matrix4.CreateFromQuaternion(Quat.Inverted());
-                return Vector3.TransformPosition(GLHelper.Forward, rot);
+                return -RotateVector(GLHelper.Forward);
             }
         }
 
         public void RotateAbout(Vector3 axis, float angle)
         {
-            var q = Quaternion.FromAxisAngle(axis, angle);
+            var q = Quaternion.FromAxisAngle(axis.ToOpenTK(), angle);
             Quat *= q;
         }
 
         public void Rotate(Vector3 eulers)
         {
-            var eul = GLHelper.V3DegRad(eulers);
+            var eul = GLHelper.V3DegRad(eulers.ToOpenTK());
             var qx = Quaternion.FromEulerAngles(eul.X, 0f, 0f);
             var qy = Quaternion.FromEulerAngles(0f, eul.Y, 0f);
             var qz = Quaternion.FromEulerAngles(0f, 0f, eul.Z);

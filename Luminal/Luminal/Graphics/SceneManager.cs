@@ -49,7 +49,7 @@ namespace Luminal.Graphics
                 throw new ArgumentException($"Tried to switch to scene {NewScene}, but it does not exist.");
             }
 
-            ECSScene.objects.Clear();
+            ECSScene.L3D_SceneEnding();
 
             Scene sc = Scenes[NewScene];
             ActiveScene = sc;

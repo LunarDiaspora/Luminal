@@ -10,11 +10,13 @@ namespace Luminal.Entities
     {
         public static List<BaseObject> objects = new();
 
+        // Defer adding new objects until the frame ends.
+        // This prevents an exception from being thrown.
+        public static List<BaseObject> deferred = new();
+
         public static Camera3D Camera;
 
-        // TEMPORARY
-        // TODO: Make a better lighting system
-        public static PointLight3D Light;
+        public static List<PointLight3D> PointLights = new();
 
         public static void UpdateAll()
         {
@@ -62,9 +64,19 @@ namespace Luminal.Entities
             }
         }
 
-        private static System.Numerics.Vector3 TKToSysNum3(OpenTK.Mathematics.Vector3 tk)
+        public static void MoveDeferred()
         {
-            return new(tk.X, tk.Y, tk.Z);
+            foreach (var o in deferred)
+            {
+                objects.Add(o);
+            }
+
+            deferred.Clear();
+        }
+
+        public static void PushObject(BaseObject o)
+        {
+            deferred.Add(o);
         }
 
         public static GLShaderProgram Program;
@@ -76,7 +88,7 @@ namespace Luminal.Entities
             var vsSource = File.ReadAllText("EngineResources/mesh.vert");
 
             // TODO: write a better light shader
-            var fsSource = File.ReadAllText("EngineResources/one_light.frag");
+            var fsSource = File.ReadAllText("EngineResources/lit.frag");
 
             var VS = new GLShader(vsSource, GLShaderType.VERTEX);
             var FS = new GLShader(fsSource, GLShaderType.FRAGMENT);
@@ -99,12 +111,28 @@ namespace Luminal.Entities
             Program.UniformMatrix4("Projection", ref proj);
 
             Program.Uniform3("AmbientColour", AmbientColour);
-            Program.Uniform3("DiffuseColour", Light.Colour);
             Program.Uniform3("ObjectColour", ObjectColour);
-            Program.Uniform3("LightPosition", TKToSysNum3(Light.Parent.Position));
-            Program.Uniform3("ViewPosition", TKToSysNum3(Camera.Parent.Position));
+            Program.Uniform3("ViewPosition", Camera.Parent.Position);
 
-            Program.Uniform1("Shininess", Light.Shininess);
+            // We actually -do- need the index here
+            for (int i=0; i<PointLights.Count; i++)
+            {
+                var light = PointLights[i];
+                Program.Uniform3($"Points[{i}].Position", light.Parent.Position);
+                Program.Uniform3($"Points[{i}].Colour", light.Colour);
+                Program.Uniform1($"Points[{i}].Intensity", light.Intensity);
+                Program.Uniform1($"Points[{i}].Linear", light.Linear);
+                Program.Uniform1($"Points[{i}].Quadratic", light.Quadratic);
+            }
+
+            Program.Uniform1i("PointCount", PointLights.Count);
+        }
+
+        public static void L3D_SceneEnding()
+        {
+            PointLights.Clear();
+
+            objects.Clear();
         }
     }
 }
