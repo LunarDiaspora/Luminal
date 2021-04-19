@@ -10,6 +10,8 @@ namespace Luminal.Entities
     {
         public static List<BaseObject> objects = new();
 
+        public static IEnumerable<BaseObject> enabled = objects.Where(e => !e.Destroying && e.Active);
+
         // Defer adding new objects until the frame ends.
         // This prevents an exception from being thrown.
         public static List<BaseObject> deferred = new();
@@ -20,7 +22,7 @@ namespace Luminal.Entities
 
         public static void UpdateAll()
         {
-            foreach (var o in objects)
+            foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
@@ -31,7 +33,7 @@ namespace Luminal.Entities
 
         public static void Render2DAll()
         {
-            foreach (var o in objects)
+            foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
@@ -42,7 +44,7 @@ namespace Luminal.Entities
 
         public static void OnGUIAll()
         {
-            foreach (var o in objects)
+            foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
@@ -55,7 +57,7 @@ namespace Luminal.Entities
         {
             L3D_BeforeFrame();
 
-            foreach (var o in objects)
+            foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
@@ -64,11 +66,25 @@ namespace Luminal.Entities
             }
         }
 
-        public static void MoveDeferred()
+        public static void ProcessChangesToObjects()
         {
             foreach (var o in deferred)
             {
+                if (o.Destroying) continue;
                 objects.Add(o);
+            }
+
+            enabled = objects.Where(e => !e.Destroying && e.Active);
+
+            var dead = objects.Where(e => e.Destroying).ToList();
+
+            foreach (var o in dead)
+            {
+                foreach (var c in o.components.Where(a => a.Enabled))
+                {
+                    c.Destroy();
+                }
+                objects.Remove(o);
             }
 
             deferred.Clear();

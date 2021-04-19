@@ -3,5 +3,7 @@
     public static class Timing
     {
         public static float DeltaTime = 0.0f;
+
+        public static float TotalElapsedTime = 0.0f;
     }
 }

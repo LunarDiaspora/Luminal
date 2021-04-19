@@ -83,6 +83,11 @@ namespace Luminal.TestApplication
 
                     ImGui.DragFloat3("Position", ref light.Position, 0.25f);
 
+                    if (ImGui.Button("Remove"))
+                    {
+                        Main.DeleteLight(lightComponent);
+                    }
+
                     ImGui.TreePop();
                 }
             }
@@ -179,6 +184,13 @@ namespace Luminal.TestApplication
             return light;
         }
 
+        internal static void DeleteLight(PointLight3D light)
+        {
+            light.Parent.Destroy();
+
+            PointLights.Remove(light.Parent);
+        }
+
         private void Init(Engine _)
         {
             camera.Position = new Vector3(0f, 0f, -5.0f);
@@ -196,10 +208,10 @@ namespace Luminal.TestApplication
 
             var mr = model.CreateComponent<ModelRenderer>();
 
-            testModel = new("teapot.obj");
+            testModel = new("cube.obj");
             mr.Model = testModel;
 
-            mr.Material.AlbedoMap = new("Boris", "file.jpg");
+            mr.Material.AlbedoMap = new("Boris", "boris.jpg");
 
             //var ir = test2d.CreateComponent<ImageRenderer>();
             //ir.LoadImage("file.jpg");

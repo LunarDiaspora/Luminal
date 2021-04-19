@@ -12,9 +12,18 @@ namespace Luminal.Entities
     {
         internal readonly List<Component> components = new();
 
+        public bool Active = true;
+
+        internal bool Destroying = false;
+
         public BaseObject()
         {
             ECSScene.PushObject(this);
+        }
+
+        public void Destroy()
+        {
+            Destroying = true;
         }
 
         public T? GetComponent<T>() where T : Component

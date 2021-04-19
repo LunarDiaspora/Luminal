@@ -193,6 +193,8 @@ namespace Luminal.Core
                 var seconds = t.AsSeconds(); // Should probably calculate this less often.
                 Timing.DeltaTime = seconds;
 
+                Timing.TotalElapsedTime += seconds;
+
                 AudioEngineManager.Engine.Update(seconds);
 
                 AnimationManager.Update(seconds);
@@ -230,12 +232,13 @@ namespace Luminal.Core
                 GUIManager.RenderAll();
 
                 // This moves deferred objects into the main object list.
+                // This also cleans up objects that have been destroyed.
                 //
                 // It's important we do this late in the frame, because
                 // moving deferred objects in the middle of the frame can
                 // cause inconsistent behaviour with some methods seeing objects
                 // that other methods do not.
-                ECSScene.MoveDeferred();
+                ECSScene.ProcessChangesToObjects();
 
                 SDL_GPU.GPU_ResetRendererState();
 

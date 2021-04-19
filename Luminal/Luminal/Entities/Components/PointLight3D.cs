@@ -14,5 +14,10 @@ namespace Luminal.Entities.Components
         {
             ECSScene.PointLights.Add(this);
         }
+
+        public override void Destroy()
+        {
+            ECSScene.PointLights.Remove(this);
+        }
     }
 }

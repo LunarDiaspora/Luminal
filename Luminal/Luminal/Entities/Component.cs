@@ -32,6 +32,10 @@ namespace Luminal.Entities
         public virtual void OnGUI()
         {
         }
+
+        public virtual void Destroy()
+        {
+        }
     }
 
     // Like a Component except it can only go on Object3Ds.
