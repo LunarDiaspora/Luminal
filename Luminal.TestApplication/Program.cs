@@ -4,7 +4,6 @@ using Luminal.Entities;
 using Luminal.Entities.Components;
 using Luminal.Entities.Screen;
 using Luminal.Entities.World;
-using Luminal.Graphics;
 using Luminal.OpenGL.Models;
 using System.Collections.Generic;
 using SC = SDL2.SDL.SDL_Scancode;
@@ -199,6 +198,8 @@ namespace Luminal.TestApplication
 
             testModel = new("teapot.obj");
             mr.Model = testModel;
+
+            mr.Material.AlbedoMap = new("Boris", "file.jpg");
 
             //var ir = test2d.CreateComponent<ImageRenderer>();
             //ir.LoadImage("file.jpg");

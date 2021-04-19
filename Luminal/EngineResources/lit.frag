@@ -23,6 +23,14 @@ struct Material
 
 	float Shininess;
 
+	bool UseAlbedoMap;
+
+	sampler2D Albedo_Map;
+
+	bool UseSpecularMap;
+
+	sampler2D Specular_Map;
+
 };
 
 struct PointLight
@@ -52,7 +60,23 @@ uniform int PointCount;
 
 uniform Material Mat;
 
-vec3 CalculatePointLight(PointLight light, vec3 viewDirection, Material mat)
+float Brightness(vec3 v)
+{
+	return (v.x + v.y + v.z) / 3f;
+}
+
+vec3 GetTextureOrAlbedo(vec2 uv)
+{
+	if (Mat.UseAlbedoMap)
+	{
+		return vec3(texture(Mat.Albedo_Map, uv));
+	} else
+	{
+		return Mat.Albedo;
+	}
+}
+
+vec3 CalculatePointLight(PointLight light, vec3 viewDirection)
 {
 
 	vec3 normal = normalize(-Normal);
@@ -65,18 +89,25 @@ vec3 CalculatePointLight(PointLight light, vec3 viewDirection, Material mat)
 
 	vec3 reflectionDirection = reflect(-lightDirection, normal);
 
-	float specular = pow(max(dot(viewDirection, reflectionDirection), 0.0), mat.Shininess);
+	float specular = pow(max(dot(viewDirection, reflectionDirection), 0.0), Mat.Shininess);
 
 	float distanceFromCamera = length(light.Position - FragPosition);
 
 	float attenuation = 1.0f / (LIGHT_CONSTANT + light.Linear * distanceFromCamera +
 								light.Quadratic * (distanceFromCamera * distanceFromCamera));
 
-	vec3 specularColour = Mat.Specular * specular;
+	float specularWeight = 1.0f;
+
+	if (Mat.UseSpecularMap)
+	{
+		specularWeight = Brightness(vec3(texture(Mat.Specular_Map, UV)));
+	}
+
+	vec3 specularColour = Mat.Specular * (specular * specularWeight);
 
 	vec3 result = (diffuse + (specularColour * SPECULAR_STRENGTH));
 
-	result += Mat.Albedo;
+	result += GetTextureOrAlbedo(UV);
 
 	result *= attenuation;
 
@@ -91,12 +122,12 @@ void main()
 
 	vec3 viewDirection = normalize(ViewPosition - FragPosition);
 
-	vec3 result = ambient * Mat.Albedo;
+	vec3 result = ambient * GetTextureOrAlbedo(UV);
 
 	for (int i=0; i<PointCount; i++)
 	{
 		PointLight light = Points[i];
-		result += CalculatePointLight(light, viewDirection, Mat);
+		result += CalculatePointLight(light, viewDirection);
 	}
 
 	FragColour = vec4(result, 1.0f);
