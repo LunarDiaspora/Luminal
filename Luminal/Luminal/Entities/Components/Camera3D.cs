@@ -24,7 +24,12 @@ namespace Luminal.Entities.Components
 
         public Matrix4 Projection()
         {
-            return Matrix4.CreatePerspectiveFieldOfView(GLHelper.DegRad(FieldOfView), (float)Engine.Width / Engine.Height, Near, Far);
+            float aspect = (float)Viewport.Width / Viewport.Height;
+            if (float.IsInfinity(aspect) || aspect < 0)
+            {
+                aspect = 1f;
+            }
+            return Matrix4.CreatePerspectiveFieldOfView(GLHelper.DegRad(FieldOfView), aspect, Near, Far);
         }
     }
 }

@@ -83,7 +83,8 @@ namespace Luminal.OpenGL.ImGuiTheme
             style.WindowRounding = 0f;
             style.WindowMenuButtonPosition = ImGuiDir.Right;
 
-            io.Fonts.AddFontFromFileTTF("./EngineResources/SourceCodePro.ttf", 18);
+            io.Fonts.AddFontDefault();
+            //io.Fonts.AddFontFromFileTTF("./EngineResources/SourceCodePro.ttf", 18);
         }
     }
 }

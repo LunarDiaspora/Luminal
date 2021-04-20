@@ -29,10 +29,11 @@ namespace Luminal.Audio
 
         public static void LoadEngine(string Path)
         {
+            if (Path == null) return;
             Engine = LoadEngineAndReturn(Path);
             Engine.Initialise();
         }
 
-        public static GenericAudioEngine Engine;
+        public static GenericAudioEngine Engine = new NoAudioEngine(0);
     }
 }

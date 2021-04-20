@@ -18,6 +18,24 @@ namespace Luminal.Core
         ENABLE_KEY_REPEAT = 1 << 0
     }
 
+    public class EngineVersion
+    {
+        public float Major;
+        public float Minor;
+        public float Patch;
+
+        public override string ToString() => $"{Major}.{Minor}.{Patch}";
+
+        public EngineVersion(float maj, float min, float pat)
+        {
+            Major = maj;
+            Minor = min;
+            Patch = pat;
+        }
+
+        public static readonly EngineVersion Current = new(0, 1, 0);
+    }
+
     public class Engine
     {
         public static IntPtr Renderer; // SDL_Renderer*
@@ -83,6 +101,8 @@ namespace Luminal.Core
 
             Width = WindowWidth;
             Height = WindowHeight;
+
+            Viewport.Size = new(Width, Height);
 
             EngineFlags = Flags;
 
@@ -248,6 +268,17 @@ namespace Luminal.Core
                 SDL_GPU.GPU_Flip(Screen);
 
                 GUIManager.End();
+
+                Timing.FrameNumber++;
+                Timing.frameCount++;
+
+                Timing.fpsCounter += seconds;
+                if (Timing.fpsCounter >= 1.0f)
+                {
+                    Timing.fpsCounter = 0;
+                    Timing.FrameRate = (float)Timing.frameCount;
+                    Timing.frameCount = 0;
+                }
             }
         }
 

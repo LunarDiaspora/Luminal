@@ -1,14 +1,17 @@
-﻿using Luminal.Entities.Components;
+﻿using Luminal.Core;
+using Luminal.Entities.Components;
 using Luminal.OpenGL;
+using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 
 namespace Luminal.Entities
 {
-    internal class ECSScene
+    public class ECSScene
     {
-        public static List<BaseObject> objects = new();
+        internal static List<BaseObject> objects = new();
 
         public static IEnumerable<BaseObject> enabled = objects.Where(e => !e.Destroying && e.Active);
 
@@ -19,6 +22,8 @@ namespace Luminal.Entities
         public static Camera3D Camera;
 
         public static List<PointLight3D> PointLights = new();
+
+        public static GLRenderTexture RenderTexture;
 
         public static void UpdateAll()
         {
@@ -64,6 +69,8 @@ namespace Luminal.Entities
                     c.Render3D();
                 }
             }
+
+            L3D_AfterFrame();
         }
 
         public static void ProcessChangesToObjects()
@@ -120,6 +127,17 @@ namespace Luminal.Entities
         {
             Program.Use();
 
+            if (RenderTexture != null)
+            {
+                RenderTexture.Use();
+                GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+                GL.Viewport(0, 0, Viewport.Width, Viewport.Height);
+            }
+
+            GL.Enable(EnableCap.DepthTest);
+
             var proj = Camera.Projection();
             var view = Camera.View();
 
@@ -142,6 +160,11 @@ namespace Luminal.Entities
             }
 
             Program.Uniform1i("PointCount", PointLights.Count);
+        }
+
+        public static void L3D_AfterFrame()
+        {
+            GLRenderTexture.Reset();
         }
 
         public static void L3D_SceneEnding()

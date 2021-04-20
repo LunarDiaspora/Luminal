@@ -242,6 +242,8 @@ namespace Luminal.OpenGL
 
         private static void IGRender2(ImDrawDataPtr dd)
         {
+            GLRenderTexture.Reset();
+
             if (dd.CmdListsCount == 0)
             {
                 return;

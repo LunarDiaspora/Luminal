@@ -7,9 +7,15 @@ namespace Luminal.Configuration
     {
         public static LuminalConfig LoadConfig(string Path)
         {
-            var f = File.ReadAllText(Path);
-            var js = JsonSerializer.Deserialize<LuminalConfig>(f);
-            return js;
+            try
+            {
+                var f = File.ReadAllText(Path);
+                var js = JsonSerializer.Deserialize<LuminalConfig>(f);
+                return js;
+            } catch
+            {
+                return new DefaultConfig();
+            }
         }
     }
 }
