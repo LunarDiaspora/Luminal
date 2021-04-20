@@ -62,7 +62,7 @@ namespace Luminal.Editor.Components
 
                         var treeflag = ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
 
-                        ImGui.TreeNodeEx($"{c.GetType()}##Component{j} - {c.GetType()}", treeflag);
+                        ImGui.TreeNodeEx($"{c.GetType().Name}##Component{j} - {c.GetType()}", treeflag);
                         if (ImGui.IsItemClicked())
                         {
                             Editor.CurrentlySelected = c;

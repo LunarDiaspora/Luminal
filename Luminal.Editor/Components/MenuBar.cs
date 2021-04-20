@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 using ImGuiNET;
 using Luminal.Core;
 using Luminal.Logging;
+using Luminal.Entities.World;
 
 namespace Luminal.Editor.Components
 {
     public class MenuBar : Component3D
     {
+        private string objName = "";
+
         public override void Create()
         {
             var _ = Parent.GetOrCreateComponent<InternalComponent>();
@@ -19,23 +22,71 @@ namespace Luminal.Editor.Components
 
         public override void OnGUI()
         {
-            ImGui.BeginMainMenuBar();
-
+            bool open = false;
             bool _ = true;
 
-            if (ImGui.BeginMenu("File"))
+
+            if (ImGui.BeginMainMenuBar())
             {
-                if (ImGui.MenuItem("About Luminal"))
+
+                if (ImGui.BeginMenu("File"))
                 {
-                    
+                    if (ImGui.MenuItem("About Luminal"))
+                    {
+
+                    }
+
+                    ImGui.EndMenu();
                 }
 
-                ImGui.EndMenu();
+                if (ImGui.BeginMenu("Object"))
+                {
+                    if (ImGui.MenuItem("Create New Object"))
+                    {
+                        open = true;
+                    }
+
+                    ImGui.EndMenu();
+                }
+
+                ImGuiUtil.RightAlignText($"Luminal v{EngineVersion.Current} - {Timing.FrameRate} fps");
+
+                ImGui.EndMainMenuBar();
+
             }
 
-            ImGuiUtil.RightAlignText($"Luminal v{EngineVersion.Current} - {Timing.FrameRate} fps");
+            if (open)
+            {
+                ImGui.OpenPopup("Create new object");
+            }
 
-            ImGui.EndMainMenuBar();
+            var sc = ImGui.GetWindowViewport().GetCenter();
+            ImGui.SetNextWindowPos(sc, ImGuiCond.Appearing, new(0.5f, 0.5f));
+
+            if (ImGui.BeginPopupModal("Create new object", ref _, ImGuiWindowFlags.AlwaysAutoResize))
+            {
+                ImGui.Text("You are creating an object.\nEnter its name:");
+                var h = ImGui.InputText("Name", ref objName, 65536, ImGuiInputTextFlags.EnterReturnsTrue);
+
+                if (ImGui.Button("No, don't", new(180, 0)))
+                {
+                    objName = "";
+                    ImGui.CloseCurrentPopup();
+                }
+
+                ImGui.SameLine();
+
+                if (ImGui.Button("Create!", new(180, 0)) || h)
+                {
+                    if (objName != "")
+                        new Object3D(objName);
+                    objName = "";
+                    ImGui.CloseCurrentPopup();
+                }
+
+                ImGui.EndPopup();
+            }
+
         }
     }
 }
