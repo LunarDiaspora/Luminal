@@ -25,8 +25,9 @@ namespace Luminal.Editor
             Camera.CreateComponent<Camera3D>();
 
             GUI = new Object3D();
-            GUI.CreateComponent<EditorWindow>();
+            GUI.CreateComponent<ViewportWindow>();
             GUI.CreateComponent<MenuBar>();
+            GUI.CreateComponent<SceneWindow>();
 
             TestModel = new();
             var m = TestModel.CreateComponent<ModelRenderer>();
@@ -37,6 +38,10 @@ namespace Luminal.Editor
             l.CreateComponent<PointLight3D>();
 
             ECSScene.RenderTexture = new();
+
+            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+
+            Engine.VSync = VSyncMode.SYNC;
         }
     }
 }

@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Luminal\Luminal.csproj" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo D | xcopy /E /Y &quot;$(SolutionDir)Luminal\EngineResources&quot; &quot;$(TargetDir)EngineResources&quot;" />
+  </Target>
+
 </Project>

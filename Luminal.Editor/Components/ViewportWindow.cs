@@ -8,8 +8,13 @@ using Luminal.Entities;
 
 namespace Luminal.Editor.Components
 {
-    class EditorWindow : Component3D
+    class ViewportWindow : Component3D
     {
+        public override void Create()
+        {
+            var _ = Parent.GetOrCreateComponent<InternalComponent>();
+        }
+
         public override void OnGUI()
         {
             ImGui.Begin("Viewport");

@@ -10,7 +10,7 @@ namespace Luminal.Entities
 {
     public class BaseObject
     {
-        internal readonly List<Component> components = new();
+        public readonly List<Component> components = new();
 
         public bool Active = true;
 

@@ -9,19 +9,39 @@ namespace Luminal.Entities.World
     {
         public Vector3 Position;
 
+        private Vector3 _Euler;
+        private Quaternion _Quat = Quaternion.Identity;
+
         public Vector3 Euler
         {
             set
             {
-                Quat = Quaternion.FromEulerAngles(GLHelper.V3DegRad(value.ToOpenTK()));
+                _Euler = GLHelper.V3DegRad(value.ToOpenTK()).ToSystemNumerics();
+                var q = Quaternion.Identity;
+                q *= Quaternion.FromAxisAngle(Vector3.UnitX.ToOpenTK(), _Euler.X);
+                q *= Quaternion.FromAxisAngle(Vector3.UnitY.ToOpenTK(), _Euler.Y);
+                q *= Quaternion.FromAxisAngle(Vector3.UnitZ.ToOpenTK(), _Euler.Z);
+                _Quat = q;
             }
             get
             {
-                return GLHelper.V3RadDeg(Quat.ToEulerAngles()).ToSystemNumerics();
+                return GLHelper.V3RadDeg(_Euler.ToOpenTK()).ToSystemNumerics();
             }
         }
 
-        public Quaternion Quat = Quaternion.Identity;
+        public Quaternion Quat
+        {
+            set
+            {
+                _Quat = value;
+                Quaternion.ToEulerAngles(in value, out OpenTK.Mathematics.Vector3 t);
+                _Euler = t.ToSystemNumerics();
+            }
+            get
+            {
+                return _Quat;
+            }
+        }
 
         private Vector3 RotateVector(OpenTK.Mathematics.Vector3 axis)
         {

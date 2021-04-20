@@ -11,8 +11,9 @@ namespace Luminal.Entities.Components
 
         public override void Render3D()
         {
-            var model = Matrix4.CreateTranslation(Parent.Position.ToOpenTK());
+            var model = Matrix4.Identity;
             model *= Matrix4.CreateFromQuaternion(Parent.Quat);
+            model *= Matrix4.CreateTranslation(Parent.Position.ToOpenTK());
             ECSScene.Program.UniformMatrix4("Model", ref model);
 
             Material.SetShaderVariables();

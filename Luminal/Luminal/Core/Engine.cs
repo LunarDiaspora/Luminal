@@ -36,6 +36,13 @@ namespace Luminal.Core
         public static readonly EngineVersion Current = new(0, 1, 0);
     }
 
+    public enum VSyncMode
+    {
+        OFF,
+        SYNC,
+        ADAPTIVE
+    }
+
     public class Engine
     {
         public static IntPtr Renderer; // SDL_Renderer*
@@ -86,6 +93,8 @@ namespace Luminal.Core
         public static IntPtr GlContext;
 
         public static LuminalFlags EngineFlags;
+
+        public static VSyncMode VSync;
 
         public Engine(int logLevel = 0)
         {
@@ -208,6 +217,14 @@ namespace Luminal.Core
                 }
 
                 SDL_GPU.GPU_ResetRendererState();
+
+                SDL.SDL_GL_SetSwapInterval(VSync switch
+                {
+                    VSyncMode.OFF => 0,
+                    VSyncMode.ADAPTIVE => -1,
+                    VSyncMode.SYNC => 1,
+                    _ => 0
+                });
 
                 var t = sfClock.Restart();
                 var seconds = t.AsSeconds(); // Should probably calculate this less often.

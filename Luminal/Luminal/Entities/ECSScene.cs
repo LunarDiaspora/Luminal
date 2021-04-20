@@ -3,7 +3,6 @@ using Luminal.Entities.Components;
 using Luminal.OpenGL;
 using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -11,7 +10,7 @@ namespace Luminal.Entities
 {
     public class ECSScene
     {
-        internal static List<BaseObject> objects = new();
+        public static List<BaseObject> objects = new();
 
         public static IEnumerable<BaseObject> enabled = objects.Where(e => !e.Destroying && e.Active);
 

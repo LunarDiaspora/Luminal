@@ -17,7 +17,7 @@ namespace Luminal.Editor
 
         public static void RightAlignSetup(string text)
         {
-            var c = ImGui.GetContentRegionAvail().X;
+            var c = ImGui.GetContentRegionMax().X;
             var w = ImGui.CalcTextSize(text).X;
             ImGui.SetCursorPosX(c - w);
         }

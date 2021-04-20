@@ -18,7 +18,8 @@ namespace Luminal.Entities.Components
 
         public Matrix4 View()
         {
-            Matrix4.CreateFromQuaternion(in Parent.Quat, out Matrix4 rotate);
+            var q = Parent.Quat;
+            Matrix4.CreateFromQuaternion(in q, out Matrix4 rotate);
             return Matrix4.CreateTranslation(Parent.Position.ToOpenTK()) * rotate;
         }
 
