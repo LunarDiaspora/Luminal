@@ -30,7 +30,7 @@ namespace Luminal.Editor.Components
 
                 i++;
 
-                bool h = ImGui.TreeNodeEx($"Object #{i}", ImGuiTreeNodeFlags.AllowItemOverlap);
+                bool h = ImGui.TreeNodeEx($"{obj.Name} (#{i})", ImGuiTreeNodeFlags.AllowItemOverlap);
 
                 if (ImGui.BeginPopupContextItem())
                 {
@@ -60,16 +60,21 @@ namespace Luminal.Editor.Components
                     {
                         j++;
 
-                        if (ImGui.TreeNode($"{c.GetType()}##Component{j} - {c.GetType()}"))
-                        {
-                            ImGui.Checkbox("Enable", ref c.Enabled);
+                        var treeflag = ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
 
-                            ImGui.TreePop();
+                        ImGui.TreeNodeEx($"{c.GetType()}##Component{j} - {c.GetType()}", treeflag);
+                        if (ImGui.IsItemClicked())
+                        {
+                            Editor.CurrentlySelected = c;
                         }
+                        ImGui.Separator();
                     }
 
                     ImGui.TreePop();
+
                 }
+
+                ImGui.NewLine();
             }
 
             ImGui.End();

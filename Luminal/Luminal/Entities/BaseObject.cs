@@ -12,12 +12,20 @@ namespace Luminal.Entities
     {
         public readonly List<Component> components = new();
 
+        public string Name = "Object";
+
         public bool Active = true;
 
         internal bool Destroying = false;
 
         public BaseObject()
         {
+            ECSScene.PushObject(this);
+        }
+
+        public BaseObject(string n)
+        {
+            Name = n;
             ECSScene.PushObject(this);
         }
 

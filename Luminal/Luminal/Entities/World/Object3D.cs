@@ -12,6 +12,9 @@ namespace Luminal.Entities.World
         private Vector3 _Euler;
         private Quaternion _Quat = Quaternion.Identity;
 
+        public Object3D() { }
+        public Object3D(string n) : base(n) { }
+
         public Vector3 Euler
         {
             set
