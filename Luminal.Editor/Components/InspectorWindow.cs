@@ -30,6 +30,8 @@ namespace Luminal.Editor.Components
                 var props = c.GetType().GetFields();
                 foreach (var p in props)
                 {
+                    if (p.Name == "Type") continue; // hidden.
+
                     var v = p.GetValue(c);
                     if (p.FieldType == typeof(float))
                     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using Luminal.Core;
 using Luminal.OpenGL.ImGuiTheme;
+using Luminal.Player.Core;
 
 namespace Luminal.Editor
 {
@@ -8,11 +9,9 @@ namespace Luminal.Editor
     {
         static void Main(string[] args)
         {
-            var engine = new Engine();
+            EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
 
-            engine.OnFinishedLoad += _ => Editor.Init();
-
-            engine.StartRenderer(1920, 1080, "Luminal Editor", typeof(Editor),
+            EnginePlayer.Instance.Start(1920, 1080, "Luminal Editor",
                 LuminalFlags.ENABLE_KEY_REPEAT, new LuminalTheme());
         }
     }

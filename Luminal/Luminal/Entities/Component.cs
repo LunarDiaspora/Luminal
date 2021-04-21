@@ -1,5 +1,7 @@
 ﻿using Luminal.Entities.Screen;
 using Luminal.Entities.World;
+using System;
+using Newtonsoft.Json;
 
 namespace Luminal.Entities
 {
@@ -7,11 +9,15 @@ namespace Luminal.Entities
     {
         public Component()
         {
+            Type = GetType().Name;
         }
 
+        [JsonIgnore]
         protected internal BaseObject _parent;
 
         public bool Enabled = true;
+
+        public string Type;
 
         public virtual void Create()
         {
@@ -41,12 +47,14 @@ namespace Luminal.Entities
     // Like a Component except it can only go on Object3Ds.
     public class Component3D : Component
     {
+        [JsonIgnore]
         public Object3D Parent => (Object3D)_parent;
     }
 
     // Like a Component except it can only go on Object2Ds.
     public class Component2D : Component
     {
+        [JsonIgnore]
         public Object2D Parent => (Object2D)_parent;
     }
 }

@@ -8,6 +8,7 @@ using ImGuiNET;
 using Luminal.Core;
 using Luminal.Logging;
 using Luminal.Entities.World;
+using Luminal.Player.Core;
 
 namespace Luminal.Editor.Components
 {
@@ -31,9 +32,10 @@ namespace Luminal.Editor.Components
 
                 if (ImGui.BeginMenu("File"))
                 {
-                    if (ImGui.MenuItem("About Luminal"))
+                    if (ImGui.MenuItem("Save scene..."))
                     {
-
+                        var s = SceneSerialiser.Serialise();
+                        Log.Debug(s);
                     }
 
                     ImGui.EndMenu();
@@ -41,7 +43,7 @@ namespace Luminal.Editor.Components
 
                 if (ImGui.BeginMenu("Object"))
                 {
-                    if (ImGui.MenuItem("Create New Object"))
+                    if (ImGui.MenuItem("Create new object..."))
                     {
                         open = true;
                     }

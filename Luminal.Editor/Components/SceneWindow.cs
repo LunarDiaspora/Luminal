@@ -65,7 +65,7 @@ namespace Luminal.Editor.Components
                         ImGui.TreeNodeEx($"{c.GetType().Name}##Component{j} - {c.GetType()}", treeflag);
                         if (ImGui.IsItemClicked())
                         {
-                            Editor.CurrentlySelected = c;
+                            Editor.CurrentlySelected = (Component)c;
                         }
                         ImGui.Separator();
                     }

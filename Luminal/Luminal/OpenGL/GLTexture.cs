@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using Newtonsoft.Json;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -13,6 +14,8 @@ namespace Luminal.OpenGL
         public int Height;
 
         public int GLObject;
+
+        public string Path = null;
 
         public GLTexture(string name, int w, int h, IntPtr data)
         {

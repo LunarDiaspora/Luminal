@@ -9,5 +9,9 @@ namespace Luminal.Editor.Components
 {
     class InternalComponent : Component3D
     {
+        public override void Create()
+        {
+            Parent.Internal = true;
+        }
     }
 }

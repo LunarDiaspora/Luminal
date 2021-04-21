@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LuminalNullAudioEngine\LuminalNullAudioEngine.csproj" />
     <ProjectReference Include="..\Luminal\Luminal.csproj" />
   </ItemGroup>
 

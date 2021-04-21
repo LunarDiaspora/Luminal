@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Luminal.Player.Core\Luminal.Player.Core.csproj" />
     <ProjectReference Include="..\LuminalFMODCoreEngine\LuminalFMODCoreEngine.csproj" />
     <ProjectReference Include="..\Luminal\Luminal.csproj" />
   </ItemGroup>

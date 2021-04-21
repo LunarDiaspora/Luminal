@@ -7,7 +7,7 @@ namespace Luminal.Entities.Components
     public class ModelRenderer : Component3D
     {
         public Model Model;
-        public Material Material = new();
+        public Material Material = new("ModelMaterial");
 
         public override void Render3D()
         {

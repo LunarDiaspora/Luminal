@@ -9,14 +9,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuminalFMODCoreEngine", "Lu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal.TestApplication", "Luminal.TestApplication\Luminal.TestApplication.csproj", "{B270083C-523C-4EF8-80E1-B23DE46E802D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuminalNullAudioEngine", "LuminalNullAudioEngine\LuminalNullAudioEngine.csproj", "{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{66D90BE2-7421-4854-8D52-36B3D2AA0428}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luminal.Editor", "Luminal.Editor\Luminal.Editor.csproj", "{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal.Editor", "Luminal.Editor\Luminal.Editor.csproj", "{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luminal.Player.Core", "Luminal.Player.Core\Luminal.Player.Core.csproj", "{6783FBD0-6253-4B5B-8393-32DB454144D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,14 +50,6 @@ Global
 		{B270083C-523C-4EF8-80E1-B23DE46E802D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B270083C-523C-4EF8-80E1-B23DE46E802D}.Release|x64.ActiveCfg = Release|Any CPU
 		{B270083C-523C-4EF8-80E1-B23DE46E802D}.Release|x64.Build.0 = Release|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Debug|x64.Build.0 = Debug|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Release|x64.ActiveCfg = Release|Any CPU
-		{DFBE89DD-DEBA-4A4D-8009-0B8EFA26BFFD}.Release|x64.Build.0 = Release|Any CPU
 		{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -66,6 +58,14 @@ Global
 		{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}.Release|x64.ActiveCfg = Release|Any CPU
 		{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}.Release|x64.Build.0 = Release|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Debug|x64.Build.0 = Debug|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Release|x64.ActiveCfg = Release|Any CPU
+		{6783FBD0-6253-4B5B-8393-32DB454144D5}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

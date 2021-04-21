@@ -9,6 +9,7 @@ using ImGuiNET;
 using Luminal.Entities.World;
 using Luminal.Editor.Components;
 using Luminal.Entities;
+using OpenTK.Mathematics;
 
 namespace Luminal.Editor
 {
@@ -43,6 +44,15 @@ namespace Luminal.Editor
             ECSScene.RenderTexture = new();
 
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+
+            var o = new Newtonsoft.Json.JsonSerializerSettings
+            {
+                Converters =
+                {
+                    new Luminal.Player.Core.QuatSerializer()
+                }
+            };
+            var q = Newtonsoft.Json.JsonConvert.DeserializeObject<Quaternion>("{\"X\":1.0}", o);
 
             Engine.VSync = VSyncMode.SYNC;
         }

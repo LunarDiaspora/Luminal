@@ -3,6 +3,7 @@ using Luminal.Entities.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 #nullable enable
 
@@ -15,6 +16,9 @@ namespace Luminal.Entities
         public string Name = "Object";
 
         public bool Active = true;
+
+        [JsonIgnore]
+        public bool Internal = false;
 
         internal bool Destroying = false;
 
