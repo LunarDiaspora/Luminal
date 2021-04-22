@@ -151,7 +151,7 @@ namespace Luminal.Core
 
             var config = LuminalConfigLoader.LoadConfig("Luminal.json");
 
-            AudioEngineManager.LoadEngine(config.AudioPlugin);
+            AudioEngine.Instance.Initialise();
 
             sceneManager = new SceneManager(executingType);
 
@@ -266,8 +266,6 @@ namespace Luminal.Core
 
                 Timing.TotalElapsedTime += seconds;
 
-                AudioEngineManager.Engine.Update(seconds);
-
                 AnimationManager.Update(seconds);
 
                 if (sceneManager.ActiveScene != null)
@@ -335,7 +333,7 @@ namespace Luminal.Core
 
         public static void Quit(int exitCode = 0)
         {
-            AudioEngineManager.Engine.Dispose();
+            AudioEngine.Instance.Dispose();
 
             WindowOpen = false;
 

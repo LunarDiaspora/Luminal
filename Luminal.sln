@@ -5,8 +5,6 @@ VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal", "Luminal\Luminal.csproj", "{20B15A2B-2320-4E9E-8CE1-7F27DB8B2D01}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuminalFMODCoreEngine", "LuminalFMODCoreEngine\LuminalFMODCoreEngine.csproj", "{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal.TestApplication", "Luminal.TestApplication\Luminal.TestApplication.csproj", "{B270083C-523C-4EF8-80E1-B23DE46E802D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{66D90BE2-7421-4854-8D52-36B3D2AA0428}"
@@ -16,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal.Editor", "Luminal.Editor\Luminal.Editor.csproj", "{BEB928B0-6D31-4FFD-8200-E8CCBC6159F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luminal.Player.Core", "Luminal.Player.Core\Luminal.Player.Core.csproj", "{6783FBD0-6253-4B5B-8393-32DB454144D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Luminal.Player.Core", "Luminal.Player.Core\Luminal.Player.Core.csproj", "{6783FBD0-6253-4B5B-8393-32DB454144D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,14 +32,6 @@ Global
 		{20B15A2B-2320-4E9E-8CE1-7F27DB8B2D01}.Release|Any CPU.Build.0 = Release|Any CPU
 		{20B15A2B-2320-4E9E-8CE1-7F27DB8B2D01}.Release|x64.ActiveCfg = Release|Any CPU
 		{20B15A2B-2320-4E9E-8CE1-7F27DB8B2D01}.Release|x64.Build.0 = Release|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Debug|x64.Build.0 = Debug|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Release|x64.ActiveCfg = Release|Any CPU
-		{EF0A08F9-7A07-4CA2-A319-908AAD9C5173}.Release|x64.Build.0 = Release|Any CPU
 		{B270083C-523C-4EF8-80E1-B23DE46E802D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B270083C-523C-4EF8-80E1-B23DE46E802D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B270083C-523C-4EF8-80E1-B23DE46E802D}.Debug|x64.ActiveCfg = Debug|Any CPU
