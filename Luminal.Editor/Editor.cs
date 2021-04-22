@@ -27,6 +27,7 @@ namespace Luminal.Editor
     {
         public LogLevel level;
         public string data;
+        public bool raw = false;
     }
 
     public class EditorLogger : ILogger
