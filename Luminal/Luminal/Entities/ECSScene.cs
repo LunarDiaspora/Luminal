@@ -24,6 +24,8 @@ namespace Luminal.Entities
 
         public static GLRenderTexture RenderTexture;
 
+        public static bool Disable3D = false;
+
         public static void UpdateAll()
         {
             foreach (var o in enabled)
@@ -59,6 +61,8 @@ namespace Luminal.Entities
 
         public static void Render3DAll()
         {
+            if (Disable3D) return; // Don't bother
+
             L3D_BeforeFrame();
 
             foreach (var o in enabled)

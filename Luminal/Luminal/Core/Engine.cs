@@ -10,12 +10,36 @@ using Luminal.OpenGL.ImGuiTheme;
 using SDL2;
 using SFML.System;
 using System;
+using System.Collections.Generic;
 
 namespace Luminal.Core
 {
     public enum LuminalFlags
     {
         ENABLE_KEY_REPEAT = 1 << 0
+    }
+
+    public static class LuminalFlagsExtension
+    {
+        public static string GetFlagString(this LuminalFlags t)
+        {
+            var features = new List<string>();
+
+            foreach (var e in Enum.GetNames(typeof(LuminalFlags)))
+            {
+                var val = Enum.Parse(typeof(LuminalFlags), e);
+                var present = t.Has((LuminalFlags)val);
+                if (present)
+                    features.Add(e);
+            }
+
+            return string.Join(" | ", features);
+        }
+
+        public static bool Has(this LuminalFlags a, LuminalFlags b)
+        {
+            return (a & b) > 0;
+        }
     }
 
     public class EngineVersion
@@ -106,7 +130,17 @@ namespace Luminal.Core
         public void StartRenderer(int WindowWidth, int WindowHeight, string WindowTitle, Type executingType,
                                   LuminalFlags Flags = 0, IImGuiTheme theme = null)
         {
-            Log.Info($"--- Luminal Engine ---\nStarting at {WindowWidth} x {WindowHeight} (\"{WindowTitle}\")\nExecuting application: {executingType.Name}\n");
+            var fs = Flags.GetFlagString();
+            var themename = "none";
+            if (theme != null)
+                themename = theme.GetType().Name;
+
+            Log.Info($"-== [[ Luminal Engine v{EngineVersion.Current} ]] ==-");
+            Log.Info($"Starting at {WindowWidth}x{WindowHeight} (\"{WindowTitle}\")");
+            Log.Info($"Host program (passed to StartRenderer): {executingType.Name}");
+            Log.Info($"Engine flags present: {(fs == "" ? "none" : fs)}");
+            Log.Info($"ImGui theme present: {themename}");
+            Log.Info("");
 
             Width = WindowWidth;
             Height = WindowHeight;

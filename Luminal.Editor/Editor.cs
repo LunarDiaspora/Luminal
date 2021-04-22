@@ -10,9 +10,43 @@ using Luminal.Entities.World;
 using Luminal.Editor.Components;
 using Luminal.Entities;
 using OpenTK.Mathematics;
+using Luminal.Logging;
+using System.Windows.Forms;
+using System.Threading;
 
 namespace Luminal.Editor
 {
+    internal enum EditorPhase
+    {
+        WELCOME,
+        EDIT,
+        PLAY
+    }
+
+    internal class ConsoleLine
+    {
+        public LogLevel level;
+        public string data;
+    }
+
+    public class EditorLogger : ILogger
+    {
+        public void Log(string message, LogLevel level)
+        {
+            foreach (var s in message.Split("\n"))
+            {
+                var v = new ConsoleLine()
+                {
+                    data = s,
+                    level = level
+                };
+                Editor.ConsoleOutput.Add(v);
+            }
+
+            DebugConsole.ScrollDown();
+        }
+    }
+
     internal class Editor
     {
         public static Object3D Camera;
@@ -22,8 +56,44 @@ namespace Luminal.Editor
 
         public static Component CurrentlySelected;
 
+        internal static List<ConsoleLine> ConsoleOutput = new();
+
         public static void Init()
         {
+            SwitchEditorPhase(EditorPhase.WELCOME);
+        }
+
+        public static void SwitchEditorPhase(EditorPhase n)
+        {
+            ECSScene.L3D_SceneEnding();
+
+            switch (n)
+            {
+                case EditorPhase.WELCOME:
+                    BeginWelcomePhase();
+                    break;
+                case EditorPhase.EDIT:
+                    BeginEditPhase();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static void BeginWelcomePhase()
+        {
+            ECSScene.Disable3D = true;
+
+            var o = new Object3D();
+            o.CreateComponent<WelcomeMenuBar>();
+            o.CreateComponent<WelcomeWindow>();
+            o.CreateComponent<DebugConsole>();
+        }
+
+        public static void BeginEditPhase()
+        {
+            ECSScene.Disable3D = false;
+
             Camera = new Object3D("Main Camera");
             Camera.CreateComponent<Camera3D>();
 
@@ -32,6 +102,7 @@ namespace Luminal.Editor
             GUI.CreateComponent<MenuBar>();
             GUI.CreateComponent<SceneWindow>();
             GUI.CreateComponent<InspectorWindow>();
+            GUI.CreateComponent<DebugConsole>();
 
             TestModel = new("Teapot");
             var m = TestModel.CreateComponent<ModelRenderer>();
@@ -45,16 +116,46 @@ namespace Luminal.Editor
 
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 
-            var o = new Newtonsoft.Json.JsonSerializerSettings
-            {
-                Converters =
-                {
-                    new Luminal.Player.Core.QuatSerializer()
-                }
-            };
-            var q = Newtonsoft.Json.JsonConvert.DeserializeObject<Quaternion>("{\"X\":1.0}", o);
-
             Engine.VSync = VSyncMode.SYNC;
+        }
+
+        class LoadThread : IDisposable
+        {
+            public delegate void File(string name);
+            public event File OnFileChosen;
+            private OpenFileDialog fod = new();
+
+            private void procedure()
+            {
+                if (fod.ShowDialog() == DialogResult.OK)
+                {
+                    OnFileChosen?.Invoke(fod.FileName);
+                }
+            }
+
+            public void Show(string filter)
+            {
+                fod.Filter = filter;
+                var t = new Thread(procedure);
+                t.SetApartmentState(ApartmentState.STA); // Necessary else winforms is not happy
+                t.Start();
+            }
+
+            public void Dispose()
+            {
+                fod.Dispose();
+            }
+        }
+
+        public static void DoLoadFlow()
+        {
+            using var fod = new LoadThread();
+            var fil = "Luminal Engine project files (.luminal)|*.luminal";
+            fod.OnFileChosen += d =>
+            {
+                Log.Debug(d);
+            };
+            fod.Show(fil);
         }
     }
 }
