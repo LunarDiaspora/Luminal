@@ -20,6 +20,7 @@ namespace Luminal.Editor
             Log.SetLogger(new EditorLogger());
 
             ConsoleManager.FindConCommands();
+            ConsoleManager.FindConVars();
 
             EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
 

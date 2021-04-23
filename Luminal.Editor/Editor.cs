@@ -105,6 +105,7 @@ namespace Luminal.Editor
             o.CreateComponent<WelcomeMenuBar>();
             o.CreateComponent<WelcomeWindow>();
             o.CreateComponent<DebugConsole>();
+            o.CreateComponent<ConvarTest>();
         }
 
         public static void BeginEditPhase()

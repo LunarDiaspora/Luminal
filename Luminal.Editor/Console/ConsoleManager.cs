@@ -62,7 +62,44 @@ namespace Luminal.Editor.Console
         public static void RunConsole(string commandName, List<string> inp)
         {
             if (!Commands.ContainsKey(commandName))
-                throw new ArgumentException($"No such command: \"{commandName}\"");
+            {
+                // Maybe this is a convar instead.
+                if (!ConVars.ContainsKey(commandName))
+                {
+                    // Nah.
+                    throw new ArgumentException($"No such command or variable: \"{commandName}\"");
+                }
+
+                // Oh, it is.
+                var cv = ConVars[commandName];
+                var type = cv.t;
+                var field = cv.fi;
+
+                if (inp.Count == 0 || field.IsInitOnly)
+                {
+                    // There is no actual argument, print the value.
+                    var val = field.GetValue(null);
+                    string h;
+                    if (val.GetType() == typeof(string))
+                    {
+                        h = '"' + (string)val + '"';
+                    } else
+                    {
+                        h = val.ToString();
+                    }
+                    Editor.LogRaw($"{commandName} = {h}");
+                    return;
+                }
+
+                // Okay, there's an input
+                var input = inp[0];
+
+                var value = ConVarAttribute.Parse(input, type);
+
+                field.SetValue(null, value);
+
+                return;
+            }
             var command = Commands[commandName];
             var a = BuildArgs(inp, command);
             command.Command.Run(a);
@@ -108,9 +145,35 @@ namespace Luminal.Editor.Console
                 ccc.Command = instance;
                 ccc.Name = j.Name;
                 ccc.Arguments = atg;
+                ccc.Description = j.Description;
 
                 // Register it
                 RegisterCommand(ccc);
+            }
+        }
+
+        public static Dictionary<string, (FieldInfo fi, ConVarType t)> ConVars = new();
+        public static Dictionary<string, ConVarAttribute> ConVarAttrs = new();
+
+        public static void FindConVars()
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            foreach (var t in asm.GetTypes())
+            {
+                foreach (var f in t.GetFields())
+                {
+                    var a = f.GetCustomAttribute<ConVarAttribute>();
+                    if (a == null)
+                        continue;
+
+                    (FieldInfo fi, ConVarType t) n = new();
+
+                    n.fi = f;
+                    n.t = ConVarAttribute.ToConVarType(f.FieldType);
+
+                    ConVars.Add(a.Name, n);
+                    ConVarAttrs.Add(a.Name, a);
+                }
             }
         }
     }

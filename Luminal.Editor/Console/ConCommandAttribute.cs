@@ -10,10 +10,12 @@ namespace Luminal.Editor.Console
     public class ConCommandAttribute : Attribute
     {
         public string Name;
+        public string Description = null;
 
-        public ConCommandAttribute(string name)
+        public ConCommandAttribute(string name, string description = null)
         {
             Name = name;
+            Description = description;
         }
     }
 
@@ -65,5 +67,6 @@ namespace Luminal.Editor.Console
         public IConCommand Command;
         public List<Argument> Arguments;
         public string Name;
+        public string Description = null;
     }
 }

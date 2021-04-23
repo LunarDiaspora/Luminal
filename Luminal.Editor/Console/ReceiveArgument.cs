@@ -29,7 +29,7 @@ namespace Luminal.Editor.Console
                     Value = int.Parse(a);
                     break;
                 case ArgumentType.BOOL:
-                    Value = (a == "true" || a == "yes");
+                    Value = (a == "true" || a == "yes" || a == "1");
                     break;
                 case ArgumentType.FLOAT:
                     Value = float.Parse(a);
