@@ -5,6 +5,7 @@ using Luminal.OpenGL.ImGuiTheme;
 using Luminal.Player.Core;
 using System.Runtime.InteropServices;
 using Luminal.Logging;
+using Luminal.Editor.Console;
 
 namespace Luminal.Editor
 {
@@ -17,6 +18,8 @@ namespace Luminal.Editor
             EnginePlayer.Instance.ConstructEngine();
 
             Log.SetLogger(new EditorLogger());
+
+            ConsoleManager.FindConCommands();
 
             EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
 

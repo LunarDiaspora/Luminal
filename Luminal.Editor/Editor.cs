@@ -59,6 +59,22 @@ namespace Luminal.Editor
 
         internal static List<ConsoleLine> ConsoleOutput = new();
 
+        public static void LogRaw(string o)
+        {
+            foreach (var s in o.Split("\n"))
+            {
+                var v = new ConsoleLine()
+                {
+                    data = s,
+                    level = LogLevel.DEBUG,
+                    raw = true
+                };
+                ConsoleOutput.Add(v);
+            }
+
+            DebugConsole.ScrollDown();
+        }
+
         public static void Init()
         {
             SwitchEditorPhase(EditorPhase.WELCOME);

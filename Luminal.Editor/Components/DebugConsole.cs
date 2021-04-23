@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using Luminal.Logging;
+using Luminal.Editor.Console;
 
 namespace Luminal.Editor.Components
 {
@@ -95,6 +96,8 @@ namespace Luminal.Editor.Components
 
             string commandData = "";
             var reclaimFocus = false;
+
+            ImGui.SetNextItemWidth(-1);
             if (ImGui.InputText("", ref commandData, 65536, ImGuiInputTextFlags.EnterReturnsTrue))
             {
                 Editor.ConsoleOutput.Add(new ConsoleLine
@@ -118,106 +121,69 @@ namespace Luminal.Editor.Components
             ImGui.End();
         }
 
-        private void HandleCommand(string command)
+        private List<string> SplitArgs(string command)
         {
-            var args = command.Split(' ');
-            var cmd = args[0];
+            var args = new List<string>();
+            var currentArgument = "";
+            var inQuotedArgument = false;
 
-            var characters = cmd.Length;
-            var currentQuotedArg = "";
-            var startedCurrentQuotedArg = 0;
-            var currentArg = 0;
-
-            var rebuiltArgs = new List<string>();
-            var rawArgs = args.Skip(1).ToArray();
-
-            foreach (var arg in rawArgs)
+            for (int i = 0; i < command.Length; i++)
             {
-                currentArg++;
-                characters += arg.Length;
+                var character = command[i];
 
-                if (arg.StartsWith('"'))
+                if (!inQuotedArgument && character == ' ')
                 {
-                    if (currentQuotedArg != "")
-                    {
-                        CommandLineErrorShowerThingy(command, startedCurrentQuotedArg, 1,
-                            "You cannot start a quoted argument inside of a quoted argument.");
-                        return;
-                    }
-
-                    currentQuotedArg = arg.Substring(1);
-                    startedCurrentQuotedArg = characters;
-
-                    if (arg.EndsWith('"'))
-                    {
-                        currentQuotedArg = arg.Substring(1, arg.Length - 1);
-
-                        rebuiltArgs.Add(currentQuotedArg);
-                        currentQuotedArg = "";
-                        startedCurrentQuotedArg = 0;
-                    }
-
+                    // This is a space break.
+                    if (currentArgument != "")
+                        args.Add(currentArgument);
+                    currentArgument = "";
                     continue;
                 }
 
-                if (arg.EndsWith('"'))
+                if (character == '"')
                 {
-                    if (currentQuotedArg != "")
+                    // This is a quote.
+                    if (inQuotedArgument)
                     {
-                        currentQuotedArg += " " + arg.Substring(0, arg.Length - 1);
-
-                        rebuiltArgs.Add(currentQuotedArg);
-                        currentQuotedArg = "";
-                        startedCurrentQuotedArg = 0;
-
+                        // This is a quote break.
+                        args.Add(currentArgument);
+                        currentArgument = "";
+                        inQuotedArgument = false;
                         continue;
                     }
-                }
-
-                if (currentQuotedArg != "")
-                {
-                    if (currentArg == rawArgs.Length)
-                    {
-                        CommandLineErrorShowerThingy(command, startedCurrentQuotedArg, currentQuotedArg.Length + arg.Length + 2,
-                            "Unbalanced quotes");
-
-                        return;
-                    }
-
-                    currentQuotedArg += " " + arg;
+                    // This is not a quote break; begin a quoted argument.
+                    inQuotedArgument = true;
                     continue;
                 }
 
-                rebuiltArgs.Add(arg);
+                currentArgument += character;
+
+                if (command.Length-1 == i)
+                {
+                    // At the end of the string.
+                    args.Add(currentArgument);
+                }
             }
 
-            Editor.ConsoleOutput.Add(new ConsoleLine
-            {
-                level = LogLevel.DEBUG,
-                data = "No such command: " + cmd,
-                raw = true
-            });
+            if (inQuotedArgument)
+                throw new ArgumentException("Syntax error: Unbalanced quotes.");
+
+            return args;
         }
 
-        private void CommandLineErrorShowerThingy(string commandLine, int position, int length, string error)
+        private void HandleCommand(string command)
         {
-            Editor.ConsoleOutput.Add(new ConsoleLine
+            try
             {
-                level = LogLevel.ERROR,
-                data = "Your command line has an error: " + error
-            });
+                var a = SplitArgs(command);
+                if (a.Count == 0) return;
 
-            Editor.ConsoleOutput.Add(new ConsoleLine
+                var cmdName = a[0];
+                ConsoleManager.RunConsole(cmdName, a.Skip(1).ToList());
+            } catch(ArgumentException e)
             {
-                level = LogLevel.ERROR,
-                data = commandLine
-            });
-
-            Editor.ConsoleOutput.Add(new ConsoleLine
-            {
-                level = LogLevel.ERROR,
-                data = new string(' ', position - 1) + new string('^', length)
-            }); ;
+                Editor.LogRaw(e.Message);
+            }
         }
     }
 }
