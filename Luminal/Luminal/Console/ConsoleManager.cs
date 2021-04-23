@@ -2,8 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Luminal.Entities.Components;
 
-namespace Luminal.Editor.Console
+namespace Luminal.Console
 {
     public static class ConsoleManager
     {
@@ -67,11 +68,12 @@ namespace Luminal.Editor.Console
                 if (!ConVars.ContainsKey(commandName))
                 {
                     // Nah.
-                    throw new ArgumentException($"No such command or variable: \"{commandName}\"");
+                    throw new ArgumentException($"Unknown command \"{commandName}\"");
                 }
 
                 // Oh, it is.
                 var cv = ConVars[commandName];
+                var attr = ConVarAttrs[commandName];
                 var type = cv.t;
                 var field = cv.fi;
 
@@ -79,24 +81,32 @@ namespace Luminal.Editor.Console
                 {
                     // There is no actual argument, print the value.
                     var val = field.GetValue(null);
-                    string h;
-                    if (val.GetType() == typeof(string))
+                    var h = val.ToString();
+                    DebugConsole.LogRaw($@"""{commandName}"" = ""{h}""");
+                    // also display flags + description
+                    if (attr.Flags != 0) // has flags!
                     {
-                        h = '"' + (string)val + '"';
-                    } else
-                    {
-                        h = val.ToString();
+                        DebugConsole.LogRaw($" {attr.Flags.GetFlagString()}");
                     }
-                    Editor.LogRaw($"{commandName} = {h}");
+                    DebugConsole.LogRaw($" - {attr.Description ?? "No description specified."}");
+
                     return;
                 }
 
-                // Okay, there's an input
-                var input = inp[0];
+                if (!attr.Flags.Has(ConVarFlags.READONLY))
+                {
+                    // Okay, there's an input
+                    var input = inp[0];
 
-                var value = ConVarAttribute.Parse(input, type);
+                    var value = ConVarAttribute.Parse(input, type);
 
-                field.SetValue(null, value);
+                    field.SetValue(null, value);
+                } else
+                {
+                    DebugConsole.LogRaw($"Convar {commandName} is read only.");
+                }
+
+                
 
                 return;
             }
@@ -105,9 +115,8 @@ namespace Luminal.Editor.Console
             command.Command.Run(a);
         }
         
-        public static void FindConCommands()
+        public static void FindConCommands(Assembly asm)
         {
-            var asm = Assembly.GetExecutingAssembly();
             foreach (var t in asm.GetTypes())
             {
                 // Make sure this is actually a console command
@@ -155,9 +164,8 @@ namespace Luminal.Editor.Console
         public static Dictionary<string, (FieldInfo fi, ConVarType t)> ConVars = new();
         public static Dictionary<string, ConVarAttribute> ConVarAttrs = new();
 
-        public static void FindConVars()
+        public static void FindConVars(Assembly asm)
         {
-            var asm = Assembly.GetExecutingAssembly();
             foreach (var t in asm.GetTypes())
             {
                 foreach (var f in t.GetFields())

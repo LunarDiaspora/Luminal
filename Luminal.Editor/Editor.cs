@@ -23,31 +23,6 @@ namespace Luminal.Editor
         PLAY
     }
 
-    internal class ConsoleLine
-    {
-        public LogLevel level;
-        public string data;
-        public bool raw = false;
-    }
-
-    public class EditorLogger : ILogger
-    {
-        public void Log(string message, LogLevel level)
-        {
-            foreach (var s in message.Split("\n"))
-            {
-                var v = new ConsoleLine()
-                {
-                    data = s,
-                    level = level
-                };
-                Editor.ConsoleOutput.Add(v);
-            }
-
-            DebugConsole.ScrollDown();
-        }
-    }
-
     internal class Editor
     {
         public static Object3D Camera;
@@ -57,22 +32,22 @@ namespace Luminal.Editor
 
         public static Component CurrentlySelected;
 
-        internal static List<ConsoleLine> ConsoleOutput = new();
-
-        public static void LogRaw(string o)
+        public class EditorLogger : ILogger
         {
-            foreach (var s in o.Split("\n"))
+            public void Log(string message, LogLevel level)
             {
-                var v = new ConsoleLine()
+                foreach (var s in message.Split("\n"))
                 {
-                    data = s,
-                    level = LogLevel.DEBUG,
-                    raw = true
-                };
-                ConsoleOutput.Add(v);
-            }
+                    var v = new DebugConsole.ConsoleLine()
+                    {
+                        data = s,
+                        level = level
+                    };
+                    DebugConsole.ConsoleOutput.Add(v);
+                }
 
-            DebugConsole.ScrollDown();
+                DebugConsole.ScrollDown();
+            }
         }
 
         public static void Init()

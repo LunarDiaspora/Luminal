@@ -11,6 +11,8 @@ using SDL2;
 using SFML.System;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Luminal.Console;
 
 namespace Luminal.Core
 {
@@ -141,6 +143,12 @@ namespace Luminal.Core
             Log.Info($"Engine flags present: {(fs == "" ? "none" : fs)}");
             Log.Info($"ImGui theme present: {themename}");
             Log.Info("");
+
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                ConsoleManager.FindConCommands(assembly);
+                ConsoleManager.FindConVars(assembly);
+            }
 
             Width = WindowWidth;
             Height = WindowHeight;

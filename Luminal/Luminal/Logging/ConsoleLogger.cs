@@ -73,11 +73,11 @@ namespace Luminal.Logging
             {
                 var s = msg.Split("\n");
                 foreach (var l in s)
-                    Console.WriteLine(string.Format(fmt, l));
+                    System.Console.WriteLine(string.Format(fmt, l));
             }
             else
             {
-                Console.WriteLine(string.Format(fmt, "null"));
+                System.Console.WriteLine(string.Format(fmt, "null"));
             }
         }
     }

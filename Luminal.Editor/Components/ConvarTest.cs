@@ -1,12 +1,12 @@
 ﻿using Luminal.Entities;
 using ImGuiNET;
-using Luminal.Editor.Console;
+using Luminal.Console;
 
 namespace Luminal.Editor.Components
 {
     public class ConvarTest : Component3D
     {
-        [ConVar("s_test")]
+        [ConVar("s_test", "A testing convar.")]
         public static string TestCV = "";
 
         public override void OnGUI()

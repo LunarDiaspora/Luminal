@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Luminal.Entities.Components;
 
-namespace Luminal.Editor.Console.Commands
+namespace Luminal.Console.Commands
 {
     [ConCommand("help", "Lists all console commands and variables, or gets info on one.")]
     [OptionalArgument("command or field", ArgumentType.STRING)]
@@ -22,7 +23,7 @@ namespace Luminal.Editor.Console.Commands
                 foreach (var attr in ConsoleManager.ConVarAttrs)
                     o += $"{attr.Key}: {attr.Value.Description ?? "No description specified."}\n";
 
-                Editor.LogRaw(o.Trim());
+                //Editor.LogRaw(o.Trim());
 
                 return;
             }
@@ -34,7 +35,7 @@ namespace Luminal.Editor.Console.Commands
 
                 var o = $"{cv.Name}: {cv.Description ?? "No description specified."}";
                 
-                Editor.LogRaw(o);
+                DebugConsole.LogRaw(o);
             }
 
             if (ConsoleManager.Commands.ContainsKey(thing))
@@ -44,7 +45,7 @@ namespace Luminal.Editor.Console.Commands
 
                 var o = $"{cmd.Name}: {cmd.Description ?? "No description specified."}";
 
-                Editor.LogRaw(o);
+                DebugConsole.LogRaw(o);
             }
 
 

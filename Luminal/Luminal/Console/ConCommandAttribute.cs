@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luminal.Editor.Console
+namespace Luminal.Console
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public class ConCommandAttribute : Attribute

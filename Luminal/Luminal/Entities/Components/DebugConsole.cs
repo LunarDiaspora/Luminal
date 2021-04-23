@@ -7,12 +7,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using Luminal.Logging;
-using Luminal.Editor.Console;
+using Luminal.Console;
 
-namespace Luminal.Editor.Components
+namespace Luminal.Entities.Components
 {
-    class DebugConsole : Component3D
+    public class DebugConsole : Component3D
     {
+        public class ConsoleLine
+        {
+            public LogLevel level;
+            public string data;
+            public bool raw = false;
+        }
+
+        public static List<ConsoleLine> ConsoleOutput = new();
+
         static Dictionary<LogLevel, string> levels = new()
         {
             { LogLevel.DEBUG, "DEBUG" },
@@ -59,7 +68,7 @@ namespace Luminal.Editor.Components
             ImGui.BeginChild("ConsoleScrollRegion", new(0, -reservedHeight), false, ImGuiWindowFlags.HorizontalScrollbar);
 
             ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(4, 1));
-            foreach (var item in Editor.ConsoleOutput)
+            foreach (var item in ConsoleOutput)
             {
                 if (item.raw)
                 {
@@ -100,12 +109,7 @@ namespace Luminal.Editor.Components
             ImGui.SetNextItemWidth(-1);
             if (ImGui.InputText("", ref commandData, 65536, ImGuiInputTextFlags.EnterReturnsTrue))
             {
-                Editor.ConsoleOutput.Add(new ConsoleLine
-                {
-                    data = "] " + commandData,
-                    level = LogLevel.DEBUG,
-                    raw = true
-                });
+                LogRaw("] " + commandData);
 
                 HandleCommand(commandData);
 
@@ -182,8 +186,24 @@ namespace Luminal.Editor.Components
                 ConsoleManager.RunConsole(cmdName, a.Skip(1).ToList());
             } catch(ArgumentException e)
             {
-                Editor.LogRaw(e.Message);
+                LogRaw(e.Message);
             }
+        }
+
+        public static void LogRaw(string o)
+        {
+            foreach (var s in o.Split("\n"))
+            {
+                var v = new ConsoleLine()
+                {
+                    data = s,
+                    level = LogLevel.DEBUG,
+                    raw = true
+                };
+                ConsoleOutput.Add(v);
+            }
+
+            ScrollDown();
         }
     }
 }

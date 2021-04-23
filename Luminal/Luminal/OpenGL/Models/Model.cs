@@ -77,8 +77,11 @@ namespace Luminal.OpenGL.Models
 
                 var position = inp.Vertices[i];
                 v.Position = AssimpV3ToOTK(position);
-                var normal = inp.Normals[i];
-                v.Normal = AssimpV3ToOTK(normal);
+                if (inp.HasNormals)
+                {
+                    var normal = inp.Normals[i];
+                    v.Normal = AssimpV3ToOTK(normal);
+                }
 
                 if (inp.HasTextureCoords(0))
                 {

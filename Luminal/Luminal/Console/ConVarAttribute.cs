@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luminal.Editor.Console
+namespace Luminal.Console
 {
     public enum ConVarType
     {
@@ -16,16 +16,42 @@ namespace Luminal.Editor.Console
         UNKNOWN
     }
 
+    [Flags]
+    public enum ConVarFlags
+    {
+        READONLY = 1 << 1
+    }
+
+    public static class ConVarFlagsExtensions
+    {
+        public static string GetFlagString(this ConVarFlags t)
+        {
+            var features = (from e in Enum.GetNames(typeof(ConVarFlags))
+                let val = Enum.Parse(typeof(ConVarFlags), e)
+                let present = t.Has((ConVarFlags) val)
+                where present select e.ToLower()).ToList();
+
+            return string.Join(" ", features);
+        }
+
+        public static bool Has(this ConVarFlags a, ConVarFlags b)
+        {
+            return (a & b) > 0;
+        }
+    }
+
     [AttributeUsage(AttributeTargets.Field)]
     public class ConVarAttribute : Attribute
     {
         public string Name;
         public string Description = null;
+        public ConVarFlags Flags = 0;
 
-        public ConVarAttribute(string name, string description = null)
+        public ConVarAttribute(string name, string description = null, ConVarFlags flags = 0)
         {
             Name = name;
             Description = description;
+            Flags = flags;
         }
 
         public static ConVarType ToConVarType(Type t)
