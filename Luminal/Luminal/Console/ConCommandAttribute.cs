@@ -62,6 +62,24 @@ namespace Luminal.Console
         }
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class OverflowArgumentAttribute : Attribute, ArgumentAttribute
+    {
+        readonly string Name;
+
+        public OverflowArgumentAttribute(string n)
+        {
+            Name = n;
+        }
+
+        public Argument ToArg()
+        {
+            var e = new Argument(ArgumentType.STRING, Name, true);
+            e.Overflow = true;
+            return e;
+        }
+    }
+
     public class ConCommandContainer
     {
         public IConCommand Command;

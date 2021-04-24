@@ -1,0 +1,71 @@
+﻿using Luminal.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Luminal.Console.Commands
+{
+    [ConCommand("toggleconsole", "Toggles the console.")]
+    public class ToggleConsoleCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            if (Engine.EnableConsole)
+                Engine.ConsoleOpen = !Engine.ConsoleOpen;
+        }
+    }
+
+    [ConCommand("quit", "Shuts down Luminal and exits.")]
+    [OptionalArgument("code", ArgumentType.INT)]
+    public class QuitCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            Engine.Quit(a.Get("code", 0));
+        }
+    }
+
+    [ConCommand("echo", "Prints what you type.")]
+    [OverflowArgument("text")]
+    public class EchoCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            DebugConsole.LogRaw(a.Get("text", ""));
+        }
+    }
+
+    [ConCommand("bind", "Binds an action to a key.")]
+    [RequiredArgument("key", ArgumentType.STRING)]
+    [OverflowArgument("command")]
+    public class BindCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            var c = ((string)a.Get("command")).Trim();
+            try
+            {
+                var kc = Engine.StringToScancode(a.Get("key"));
+
+                if (c.Length == 0)
+                {
+                    var has = ConsoleManager.Binds.TryGetValue(kc, out string bind);
+                    if (!has)
+                    {
+                        DebugConsole.LogRaw($@"Key ""{a.Get("key")}"" is not bound.");
+                        return;
+                    }
+                    DebugConsole.LogRaw($@"Key ""{a.Get("key")}"" is bound to ""{bind}"".");
+                    return;
+                }
+
+                ConsoleManager.BindKeyCode(kc, c);
+            } catch(ArgumentException)
+            {
+                DebugConsole.LogRaw($@"Failed to parse key ""{a.Get("key")}"".");
+            }
+        }
+    }
+}

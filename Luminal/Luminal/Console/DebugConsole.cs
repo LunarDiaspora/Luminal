@@ -125,65 +125,15 @@ namespace Luminal.Console
             ImGui.End();
         }
 
-        private static List<string> SplitArgs(string command)
-        {
-            var args = new List<string>();
-            var currentArgument = "";
-            var inQuotedArgument = false;
-
-            for (int i = 0; i < command.Length; i++)
-            {
-                var character = command[i];
-
-                if (!inQuotedArgument && character == ' ')
-                {
-                    // This is a space break.
-                    if (currentArgument != "")
-                        args.Add(currentArgument);
-                    currentArgument = "";
-                    continue;
-                }
-
-                if (character == '"')
-                {
-                    // This is a quote.
-                    if (inQuotedArgument)
-                    {
-                        // This is a quote break.
-                        args.Add(currentArgument);
-                        currentArgument = "";
-                        inQuotedArgument = false;
-                        continue;
-                    }
-                    // This is not a quote break; begin a quoted argument.
-                    inQuotedArgument = true;
-                    continue;
-                }
-
-                currentArgument += character;
-
-                if (command.Length-1 == i)
-                {
-                    // At the end of the string.
-                    args.Add(currentArgument);
-                }
-            }
-
-            if (inQuotedArgument)
-                throw new ArgumentException("Syntax error: Unbalanced quotes.");
-
-            return args;
-        }
-
         public static void HandleCommand(string command)
         {
             try
             {
-                var a = SplitArgs(command);
-                if (a.Count == 0) return;
+                var (raw, overflow) = ConsoleSplitter.SplitArgs(command);
+                if (raw.Count == 0) return;
 
-                var cmdName = a[0];
-                ConsoleManager.RunConsole(cmdName, a.Skip(1).ToList());
+                var cmdName = raw[0];
+                ConsoleManager.RunConsole(cmdName, raw.Skip(1).ToList(), command);
             } catch(ArgumentException e)
             {
                 LogRaw(e.Message);

@@ -19,6 +19,7 @@ namespace Luminal.Console
         public ArgumentType Type;
         public string Name;
         public bool Optional = false;
+        public bool Overflow = false;
 
         public Argument(ArgumentType t, string n, bool optional = false)
         {

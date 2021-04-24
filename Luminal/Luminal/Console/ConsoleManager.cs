@@ -3,12 +3,99 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Luminal.Entities.Components;
+using static SDL2.SDL;
+using Luminal.Core;
 
 namespace Luminal.Console
 {
+    internal static class ConsoleSplitter
+    {
+        internal static (List<string> raw, string overflow) SplitArgs(string command, int overflowAt = 99999)
+        {
+            var args = new List<string>();
+            var currentArgument = "";
+            var inQuotedArgument = false;
+            var argumentCount = 0;
+            var charsProcessed = 0;
+            var overflow = "";
+            var overflowed = false;
+
+            for (int i = 0; i < command.Length; i++)
+            {
+                var character = command[i];
+
+                if (!inQuotedArgument && character == ' ')
+                {
+                    // This is a space break.
+                    if (currentArgument != "")
+                        args.Add(currentArgument);
+                    currentArgument = "";
+                    charsProcessed++;
+                    if (argumentCount >= overflowAt)
+                    {
+                        // Overflow here.
+                        var s = command.Substring(charsProcessed);
+                        overflow = s;
+                        overflowed = true;
+                        break;
+                    }
+                    argumentCount++;
+                    continue;
+                }
+
+                if (character == '"')
+                {
+                    // This is a quote.
+                    if (inQuotedArgument)
+                    {
+                        // This is a quote break.
+                        args.Add(currentArgument);
+                        currentArgument = "";
+                        inQuotedArgument = false;
+                        charsProcessed++;
+                        if (argumentCount >= overflowAt)
+                        {
+                            // Overflow here.
+                            var s = command.Substring(charsProcessed);
+                            overflow = s;
+                            overflowed = true;
+                            break;
+                        }
+                        argumentCount++;
+                        continue;
+                    }
+                    // This is not a quote break; begin a quoted argument.
+                    inQuotedArgument = true;
+                    continue;
+                }
+
+                currentArgument += character;
+                charsProcessed++;
+
+                if (command.Length - 1 == i)
+                {
+                    // At the end of the string.
+                    args.Add(currentArgument);
+                }
+            }
+
+            if (inQuotedArgument && !overflowed)
+                throw new ArgumentException("Syntax error: Unbalanced quotes.");
+
+            var op = (args, overflow);
+            return op;
+        }
+    }
+
     public static class ConsoleManager
     {
         public static Dictionary<string, ConCommandContainer> Commands = new();
+        public static Dictionary<string, (FieldInfo fi, ConVarType t)> ConVars = new();
+        public static Dictionary<string, ConVarAttribute> ConVarAttrs = new();
+        public static Dictionary<SDL_Scancode, string> Binds = new()
+        {
+            { SDL_Scancode.SDL_SCANCODE_F10, "toggleconsole" } // Default console bind.
+        };
 
         public static void RegisterCommand(ConCommandContainer header)
         {
@@ -26,7 +113,7 @@ namespace Luminal.Console
             return string.Join(' ', j);
         }
 
-        public static Arguments BuildArgs(List<string> ina, List<Argument> desired)
+        public static Arguments BuildArgs(List<string> ina, List<Argument> desired, string raw)
         {
             var arg = new Arguments();
 
@@ -35,6 +122,15 @@ namespace Luminal.Console
                 var wanted = desired[i];
                 if ((ina.Count <= i) && !wanted.Optional)
                     throw new ArgumentOutOfRangeException();
+
+                if (wanted.Overflow)
+                {
+                    var j = new ReceiveArgument(wanted.Type, wanted.Name);
+                    var (_, overflow) = ConsoleSplitter.SplitArgs(raw, i);
+                    j.Parse(overflow);
+                    arg.values.Add(wanted.Name, j);
+                    continue;
+                }
 
                 if (ina.Count <= i)
                     break; // No more of them
@@ -48,19 +144,19 @@ namespace Luminal.Console
             return arg;
         }
 
-        public static Arguments BuildArgs(List<string> ina, ConCommandContainer ccc)
+        public static Arguments BuildArgs(List<string> ina, ConCommandContainer ccc, string raw)
         {
             var a = ccc.Arguments ?? new();
             try
             {
-                return BuildArgs(ina, a);
+                return BuildArgs(ina, a, raw);
             } catch (ArgumentOutOfRangeException)
             {
                 throw new ArgumentException($"Usage: {ccc.Name} {GetUsage(a)}");
             }
         }
 
-        public static void RunConsole(string commandName, List<string> inp)
+        public static void RunConsole(string commandName, List<string> inp, string raw)
         {
             if (!Commands.ContainsKey(commandName))
             {
@@ -105,13 +201,11 @@ namespace Luminal.Console
                 {
                     DebugConsole.LogRaw($"Convar {commandName} is read only.");
                 }
-
                 
-
                 return;
             }
             var command = Commands[commandName];
-            var a = BuildArgs(inp, command);
+            var a = BuildArgs(inp, command, raw);
             command.Command.Run(a);
         }
         
@@ -161,9 +255,6 @@ namespace Luminal.Console
             }
         }
 
-        public static Dictionary<string, (FieldInfo fi, ConVarType t)> ConVars = new();
-        public static Dictionary<string, ConVarAttribute> ConVarAttrs = new();
-
         public static void FindConVars(Assembly asm)
         {
             foreach (var t in asm.DefinedTypes)
@@ -194,6 +285,32 @@ namespace Luminal.Console
             {
                 FindConCommands(a);
                 FindConVars(a);
+            }
+        }
+
+        public static void BindKeyString(string key, string command)
+        {
+            try
+            {
+                var c = Engine.StringToScancode(key);
+                Binds[c] = command;
+            } catch(ArgumentException)
+            {
+                return;
+            }
+        }
+
+        public static void BindKeyCode(SDL_Scancode sc, string cmd)
+        {
+            Binds[sc] = cmd;
+        }
+
+        public static void RunBind(SDL_Scancode code)
+        {
+            if (Binds.ContainsKey(code))
+            {
+                var v = Binds[code];
+                DebugConsole.HandleCommand(v);
             }
         }
     }

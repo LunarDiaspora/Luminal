@@ -125,13 +125,18 @@ namespace Luminal.Core
         public static bool EnableConsole = true;
         public static bool ConsoleOpen = false;
 
-        public static SDL.SDL_Scancode ConsoleKey = SDL.SDL_Scancode.SDL_SCANCODE_F10;
-
         public Engine(int logLevel = 0)
         {
             var logger = new ConsoleLogger();
             Log.SetLogger(logger);
             Log.SetLogLevel(logLevel);
+        }
+
+        public static SDL.SDL_Scancode StringToScancode(string s)
+        {
+            var val = $"SDL_SCANCODE_{s.ToUpper()}";
+            var e = (SDL.SDL_Scancode)Enum.Parse(typeof(SDL.SDL_Scancode), val);
+            return e;
         }
 
         public void StartRenderer(int WindowWidth, int WindowHeight, string WindowTitle, Type executingType,
@@ -362,11 +367,7 @@ namespace Luminal.Core
         {
             if (OpenGLManager.DontPassKeyPresses) return;
 
-            if (scancode == ConsoleKey && EnableConsole)
-            {
-                ConsoleOpen = !ConsoleOpen;
-                return;
-            }
+            ConsoleManager.RunBind(scancode);
 
             if (KeyDown != null)
                 KeyDown(this, scancode);
