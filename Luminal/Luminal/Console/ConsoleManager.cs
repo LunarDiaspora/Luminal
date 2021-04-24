@@ -34,7 +34,8 @@ namespace Luminal.Console
     internal static class ConsoleSplitter
     {
 
-        internal static (List<ConsoleChunk> raw, string overflow) SplitArgs(string command, int overflowAt = 99999, bool handleAsMomentary = false,
+        internal static (List<ConsoleChunk> raw, string overflow, bool error)
+            SplitArgs(string command, int overflowAt = 99999, bool handleAsMomentary = false,
                             bool keyState = true)
         {
             var args = new List<ConsoleChunk>();
@@ -46,6 +47,7 @@ namespace Luminal.Console
             var overflowed = false;
             var momentary = false;
             var state = false;
+            var err = false;
 
             bool Push()
             {
@@ -57,15 +59,21 @@ namespace Luminal.Console
                     args.Add(c);
                 currentArgument = "";
                 charsProcessed++;
+                argumentCount++;
+                return CheckOverflow();
+            }
+
+            bool CheckOverflow()
+            {
                 if (argumentCount > overflowAt)
                 {
                     // Overflow here.
                     var s = command[charsProcessed..];
                     overflow = s;
                     overflowed = true;
+                    inQuotedArgument = false;
                     return true;
                 }
-                argumentCount++;
                 return false;
             }
 
@@ -100,6 +108,7 @@ namespace Luminal.Console
                     }
                     // This is not a quote break; begin a quoted argument.
                     inQuotedArgument = true;
+                    if (CheckOverflow()) break;
                     continue;
                 }
 
@@ -115,9 +124,9 @@ namespace Luminal.Console
             }
 
             if (inQuotedArgument && !overflowed)
-                throw new ArgumentException("Syntax error: Unbalanced quotes.");
+                err = true;
 
-            var op = (args, overflow);
+            var op = (args, overflow, err);
             return op;
         }
     }
@@ -162,7 +171,7 @@ namespace Luminal.Console
                 if (wanted.Overflow)
                 {
                     var j = new ReceiveArgument(wanted.Type, wanted.Name);
-                    var (_, overflow) = ConsoleSplitter.SplitArgs(raw, i);
+                    var (_, overflow, _) = ConsoleSplitter.SplitArgs(raw, i);
                     j.Parse(overflow);
                     arg.values.Add(wanted.Name, j);
                     continue;

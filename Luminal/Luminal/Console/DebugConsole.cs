@@ -145,7 +145,7 @@ namespace Luminal.Console
         {
             try
             {
-                var (raw, overflow) = ConsoleSplitter.SplitArgs(command, 99999, momentary, keyState);
+                var (raw, overflow, _) = ConsoleSplitter.SplitArgs(command, 99999, momentary, keyState);
                 if (raw.Count == 0) return;
 
                 var cmdName = raw[0];
@@ -160,7 +160,7 @@ namespace Luminal.Console
         {
             try
             {
-                var (raw, overflow) = ConsoleSplitter.SplitArgs(command, 99999, momentary, keyState);
+                var (raw, overflow, _) = ConsoleSplitter.SplitArgs(command, 99999, momentary, keyState);
                 if (raw.Count == 0) return;
 
                 var cmdName = raw[0];
