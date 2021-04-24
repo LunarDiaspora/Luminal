@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Luminal.Logging;
 using Luminal.Console;
+using Luminal.Core;
 
 namespace Luminal.Console
 {
@@ -62,12 +63,16 @@ namespace Luminal.Console
 
         public static void OnGUI()
         {
-            ImGui.Begin("Console");
+            ImGui.Begin("Console", ref Engine.ConsoleOpen, ImGuiWindowFlags.NoCollapse);
 
-            var reservedHeight = ImGui.GetStyle().ItemSpacing.Y + ImGui.GetFrameHeightWithSpacing();
+            var reservedHeight = ImGui.GetStyle().ItemSpacing.Y + ImGui.GetFrameHeightWithSpacing() + 1;
+
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 0);
+
             ImGui.BeginChild("ConsoleScrollRegion", new(0, -reservedHeight), false, ImGuiWindowFlags.HorizontalScrollbar);
 
             ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(4, 1));
+
             foreach (var item in ConsoleOutput)
             {
                 if (item.raw)
@@ -98,6 +103,17 @@ namespace Luminal.Console
             isScrollingDown = false;
 
             ImGui.PopStyleVar();
+
+            // I don't know why this works, I don't *want* to know why this works,
+            // but adding an invisible separator here fixes the problem where
+            // console output is cut off on the bottom by one pixel.
+
+            // God dammit ImGui.
+            
+            var sc = ImGui.GetColorU32(ImGuiCol.WindowBg);
+            ImGui.PushStyleColor(ImGuiCol.Separator, sc);
+            ImGui.Separator();
+            ImGui.PopStyleColor();
 
             ImGui.EndChild();
 

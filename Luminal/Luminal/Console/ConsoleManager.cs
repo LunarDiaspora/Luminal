@@ -57,7 +57,7 @@ namespace Luminal.Console
                     args.Add(c);
                 currentArgument = "";
                 charsProcessed++;
-                if (argumentCount >= overflowAt)
+                if (argumentCount > overflowAt)
                 {
                     // Overflow here.
                     var s = command[charsProcessed..];
@@ -81,7 +81,7 @@ namespace Luminal.Console
                 }
 
                 // Momentary variables: make sure they only count at the front of the string
-                if (!inQuotedArgument && (character == '-' || character == '+') && argumentCount == 0)
+                if (!inQuotedArgument && (character == '-' || character == '+') && i == 0)
                 {
                     // Momentary variable
                     momentary = true;
@@ -203,12 +203,13 @@ namespace Luminal.Console
                     // Nah.
                     // ...what if it's aliased?
 
+                    if (initial != null && initial.IsMomentary && isKeyEvent && !momentaryOnly)
+                        return;
+
                     var prefix = "";
                     if (initial != null && initial.IsMomentary)
                     {
                         prefix = initial.MomentaryState ? "+" : "-";
-
-                        if (isKeyEvent && !momentaryOnly) return;
                     }
 
                     var ok = Aliases.TryGetValue(prefix + commandName, out string alias);
@@ -228,10 +229,10 @@ namespace Luminal.Console
                 var cv = ConVars[commandName];
                 var attr = ConVarAttrs[commandName];
 
-                if (attr.Momentary && !attr.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary)
+                if (!attr.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary)
                 {
                     if (cv.t != ConVarType.BOOL)
-                        throw new Exception("Momentary variable is not a boolean!");
+                        return;
                     cv.fi.SetValue(null, initial.MomentaryState);
                     return;
                 }

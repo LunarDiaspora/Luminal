@@ -19,8 +19,7 @@ namespace Luminal.Console
     [Flags]
     public enum ConVarFlags
     {
-        READONLY = 1 << 1,
-        MOMENTARY = 1 << 2
+        READONLY = 1 << 1
     }
 
     public static class ConVarFlagsExtensions
@@ -54,8 +53,6 @@ namespace Luminal.Console
             Description = description;
             Flags = flags;
         }
-
-        public bool Momentary => Flags.Has(ConVarFlags.MOMENTARY);
 
         public static ConVarType ToConVarType(Type t)
         {

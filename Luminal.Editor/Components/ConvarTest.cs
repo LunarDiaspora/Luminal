@@ -7,9 +7,9 @@ namespace Luminal.Editor.Components
     public class ConvarTest : Component3D
     {
         [ConVar("s_test", "A testing convar.")]
-        public static string TestCV = "";
+        public static string TestCV = "default value";
 
-        [ConVar("b_test", "A testing momentary.", ConVarFlags.MOMENTARY)]
+        [ConVar("b_test", "A testing momentary.")]
         public static bool TestMomentary = false;
 
         public override void OnGUI()

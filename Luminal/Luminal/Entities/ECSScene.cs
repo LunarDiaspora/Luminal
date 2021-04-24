@@ -1,4 +1,5 @@
-﻿using Luminal.Core;
+﻿using Luminal.Console;
+using Luminal.Core;
 using Luminal.Entities.Components;
 using Luminal.OpenGL;
 using OpenTK.Graphics.OpenGL;
@@ -24,6 +25,7 @@ namespace Luminal.Entities
 
         public static GLRenderTexture RenderTexture;
 
+        [ConVar("r_disable3d", "Completely disables 3D rendering. Don't touch this unless you know what you're doing!")]
         public static bool Disable3D = false;
 
         public static void UpdateAll()
