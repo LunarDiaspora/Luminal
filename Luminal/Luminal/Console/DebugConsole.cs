@@ -9,9 +9,9 @@ using System.Numerics;
 using Luminal.Logging;
 using Luminal.Console;
 
-namespace Luminal.Entities.Components
+namespace Luminal.Console
 {
-    public class DebugConsole : Component3D
+    public class DebugConsole
     {
         public class ConsoleLine
         {
@@ -60,7 +60,7 @@ namespace Luminal.Entities.Components
             isScrollingDown = true;
         }
 
-        public override void OnGUI()
+        public static void OnGUI()
         {
             ImGui.Begin("Console");
 
@@ -125,7 +125,7 @@ namespace Luminal.Entities.Components
             ImGui.End();
         }
 
-        private List<string> SplitArgs(string command)
+        private static List<string> SplitArgs(string command)
         {
             var args = new List<string>();
             var currentArgument = "";
@@ -175,7 +175,7 @@ namespace Luminal.Entities.Components
             return args;
         }
 
-        private void HandleCommand(string command)
+        public static void HandleCommand(string command)
         {
             try
             {

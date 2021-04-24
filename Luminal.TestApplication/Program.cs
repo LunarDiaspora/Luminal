@@ -203,7 +203,6 @@ namespace Luminal.TestApplication
             camera.CreateComponent<DebugTool>();
             camera.CreateComponent<DemoWindowComponent>();
             camera.CreateComponent<LightControlPanel>();
-            camera.CreateComponent<DebugConsole>();
 
             MakeNewLight(new Vector3(0f, 0f, -10.0f), new Vector3(1.0f, 1.0f, 1.0f));
 

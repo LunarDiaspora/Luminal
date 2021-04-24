@@ -122,6 +122,11 @@ namespace Luminal.Core
 
         public static VSyncMode VSync;
 
+        public static bool EnableConsole = true;
+        public static bool ConsoleOpen = false;
+
+        public static SDL.SDL_Scancode ConsoleKey = SDL.SDL_Scancode.SDL_SCANCODE_F10;
+
         public Engine(int logLevel = 0)
         {
             var logger = new ConsoleLogger();
@@ -144,11 +149,7 @@ namespace Luminal.Core
             Log.Info($"ImGui theme present: {themename}");
             Log.Info("");
 
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                ConsoleManager.FindConCommands(assembly);
-                ConsoleManager.FindConVars(assembly);
-            }
+            ConsoleManager.FindAllEverywhere();
 
             Width = WindowWidth;
             Height = WindowHeight;
@@ -213,6 +214,9 @@ namespace Luminal.Core
 
                 if (OnGUI != null) OnGUI(this);
                 ECSScene.OnGUIAll();
+
+                if (ConsoleOpen)
+                    DebugConsole.OnGUI();
 
                 OpenGLManager.AfterGUI();
 
@@ -357,6 +361,12 @@ namespace Luminal.Core
         private void WinKeyDown(SDL.SDL_Scancode scancode)
         {
             if (OpenGLManager.DontPassKeyPresses) return;
+
+            if (scancode == ConsoleKey && EnableConsole)
+            {
+                ConsoleOpen = !ConsoleOpen;
+                return;
+            }
 
             if (KeyDown != null)
                 KeyDown(this, scancode);

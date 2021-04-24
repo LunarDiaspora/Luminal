@@ -17,8 +17,6 @@ namespace Luminal.Editor
 
             EnginePlayer.Instance.ConstructEngine();
 
-            Log.SetLogger(new Editor.EditorLogger());
-
             EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
 
             EnginePlayer.Instance.Start(1920, 1080, "Luminal Editor",

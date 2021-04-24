@@ -32,24 +32,6 @@ namespace Luminal.Editor
 
         public static Component CurrentlySelected;
 
-        public class EditorLogger : ILogger
-        {
-            public void Log(string message, LogLevel level)
-            {
-                foreach (var s in message.Split("\n"))
-                {
-                    var v = new DebugConsole.ConsoleLine()
-                    {
-                        data = s,
-                        level = level
-                    };
-                    DebugConsole.ConsoleOutput.Add(v);
-                }
-
-                DebugConsole.ScrollDown();
-            }
-        }
-
         public static void Init()
         {
             SwitchEditorPhase(EditorPhase.WELCOME);
@@ -79,7 +61,6 @@ namespace Luminal.Editor
             var o = new Object3D();
             o.CreateComponent<WelcomeMenuBar>();
             o.CreateComponent<WelcomeWindow>();
-            o.CreateComponent<DebugConsole>();
             o.CreateComponent<ConvarTest>();
         }
 
@@ -95,7 +76,6 @@ namespace Luminal.Editor
             GUI.CreateComponent<MenuBar>();
             GUI.CreateComponent<SceneWindow>();
             GUI.CreateComponent<InspectorWindow>();
-            GUI.CreateComponent<DebugConsole>();
 
             TestModel = new("Teapot");
             var m = TestModel.CreateComponent<ModelRenderer>();

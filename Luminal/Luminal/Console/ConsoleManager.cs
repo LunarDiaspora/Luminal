@@ -117,7 +117,7 @@ namespace Luminal.Console
         
         public static void FindConCommands(Assembly asm)
         {
-            foreach (var t in asm.GetTypes())
+            foreach (var t in asm.DefinedTypes)
             {
                 // Make sure this is actually a console command
                 if (!t.IsAssignableTo(typeof(IConCommand)))
@@ -166,7 +166,7 @@ namespace Luminal.Console
 
         public static void FindConVars(Assembly asm)
         {
-            foreach (var t in asm.GetTypes())
+            foreach (var t in asm.DefinedTypes)
             {
                 foreach (var f in t.GetFields())
                 {
@@ -182,6 +182,18 @@ namespace Luminal.Console
                     ConVars.Add(a.Name, n);
                     ConVarAttrs.Add(a.Name, a);
                 }
+            }
+        }
+
+        public static void FindAllEverywhere()
+        {
+            var ad = AppDomain.CurrentDomain;
+            var asms = ad.GetAssemblies();
+
+            foreach (var a in asms)
+            {
+                FindConCommands(a);
+                FindConVars(a);
             }
         }
     }
