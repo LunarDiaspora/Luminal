@@ -241,13 +241,13 @@ namespace Luminal.Core
                         case SDL.SDL_EventType.SDL_KEYDOWN:
                             if (noRepeat & evt.key.repeat > 0) break;
                             var e = evt.key.keysym.scancode;
-                            WinKeyDown(e);
+                            WinKeyDown(e, evt.key.repeat > 0);
                             break;
 
                         case SDL.SDL_EventType.SDL_KEYUP:
                             if (noRepeat & evt.key.repeat > 0) break;
                             var k = evt.key.keysym.scancode;
-                            WinKeyUp(k);
+                            WinKeyUp(k, evt.key.repeat > 0);
                             break;
 
                         case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
@@ -363,11 +363,15 @@ namespace Luminal.Core
             Environment.Exit(exitCode);
         }
 
-        private void WinKeyDown(SDL.SDL_Scancode scancode)
+        private void WinKeyDown(SDL.SDL_Scancode scancode, bool repeat = false)
         {
             if (OpenGLManager.DontPassKeyPresses) return;
 
-            ConsoleManager.RunBind(scancode);
+            if (!repeat)
+            {
+                ConsoleManager.RunBind(scancode);
+                ConsoleManager.RunMomentaryBind(scancode, true);
+            }
 
             if (KeyDown != null)
                 KeyDown(this, scancode);
@@ -376,9 +380,14 @@ namespace Luminal.Core
                 sceneManager.ActiveScene.OnKeyDown(this, scancode);
         }
 
-        private void WinKeyUp(SDL.SDL_Scancode scancode)
+        private void WinKeyUp(SDL.SDL_Scancode scancode, bool repeat = false)
         {
             if (OpenGLManager.DontPassKeyPresses) return;
+
+            if (!repeat)
+            {
+                ConsoleManager.RunMomentaryBind(scancode, false);
+            }
 
             if (KeyUp != null)
                 KeyUp(this, scancode);

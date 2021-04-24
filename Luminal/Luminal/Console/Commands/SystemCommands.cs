@@ -68,4 +68,32 @@ namespace Luminal.Console.Commands
             }
         }
     }
+
+    [ConCommand("alias", "Aliases a name to a command.")]
+    [RequiredArgument("name", ArgumentType.STRING)]
+    [OverflowArgument("command")]
+    public class AliasCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            var t = a.Get("name");
+            var c = ((string)a.Get("command")).Trim();
+            if (c.Length == 0)
+            {
+                var has = ConsoleManager.Aliases.TryGetValue(t, out string v);
+                if (has)
+                {
+                    DebugConsole.LogRaw($@"""{t}"" = ""{v}""");
+                    return;
+                } else
+                {
+                    DebugConsole.LogRaw($@"Alias ""{t}"" does not exist.");
+                    return;
+                }
+            }
+
+            ConsoleManager.Aliases[t] = c;
+            DebugConsole.LogRaw($@"""{t}"" = ""{c}""");
+        }
+    }
 }

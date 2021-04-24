@@ -125,18 +125,33 @@ namespace Luminal.Console
             ImGui.End();
         }
 
-        public static void HandleCommand(string command)
+        public static void HandleCommand(string command, bool momentaryOnly = false, bool keyState = false, bool momentary = false, bool isKeyEvent = false)
         {
             try
             {
-                var (raw, overflow) = ConsoleSplitter.SplitArgs(command);
+                var (raw, overflow) = ConsoleSplitter.SplitArgs(command, 99999, momentary, keyState);
                 if (raw.Count == 0) return;
 
                 var cmdName = raw[0];
-                ConsoleManager.RunConsole(cmdName, raw.Skip(1).ToList(), command);
+                ConsoleManager.RunConsole(cmdName, raw.Skip(1).ToList(), command, cmdName, momentaryOnly, isKeyEvent);
             } catch(ArgumentException e)
             {
                 LogRaw(e.Message);
+            }
+        }
+
+        public static void HandleCommandSilently(string command, bool momentaryOnly = false, bool keyState = false, bool momentary = false, bool isKeyEvent = false)
+        {
+            try
+            {
+                var (raw, overflow) = ConsoleSplitter.SplitArgs(command, 99999, momentary, keyState);
+                if (raw.Count == 0) return;
+
+                var cmdName = raw[0];
+                ConsoleManager.RunConsole(cmdName, raw.Skip(1).ToList(), command, cmdName, momentaryOnly, isKeyEvent);
+            }
+            catch
+            {
             }
         }
 

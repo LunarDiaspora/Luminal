@@ -8,17 +8,66 @@ using Luminal.Core;
 
 namespace Luminal.Console
 {
+    public class ConsoleChunk
+    {
+        public string Text;
+        public bool IsMomentary = false;
+        public bool MomentaryState = false;
+
+        public static implicit operator string(ConsoleChunk h)
+        {
+            return h.Text;
+        }
+    }
+
+    internal static class StringExtensions
+    {
+        public static ConsoleChunk ToChunk(this string h)
+        {
+            return new()
+            {
+                Text = h
+            };
+        }
+    }
+
     internal static class ConsoleSplitter
     {
-        internal static (List<string> raw, string overflow) SplitArgs(string command, int overflowAt = 99999)
+
+        internal static (List<ConsoleChunk> raw, string overflow) SplitArgs(string command, int overflowAt = 99999, bool handleAsMomentary = false,
+                            bool keyState = true)
         {
-            var args = new List<string>();
+            var args = new List<ConsoleChunk>();
             var currentArgument = "";
             var inQuotedArgument = false;
             var argumentCount = 0;
             var charsProcessed = 0;
             var overflow = "";
             var overflowed = false;
+            var momentary = false;
+            var state = false;
+
+            bool Push()
+            {
+                var c = currentArgument.ToChunk();
+                c.IsMomentary = momentary;
+                c.MomentaryState = (handleAsMomentary ? keyState : state);
+                momentary = false;
+                if (currentArgument != "")
+                    args.Add(c);
+                currentArgument = "";
+                charsProcessed++;
+                if (argumentCount >= overflowAt)
+                {
+                    // Overflow here.
+                    var s = command[charsProcessed..];
+                    overflow = s;
+                    overflowed = true;
+                    return true;
+                }
+                argumentCount++;
+                return false;
+            }
 
             for (int i = 0; i < command.Length; i++)
             {
@@ -27,20 +76,17 @@ namespace Luminal.Console
                 if (!inQuotedArgument && character == ' ')
                 {
                     // This is a space break.
-                    if (currentArgument != "")
-                        args.Add(currentArgument);
-                    currentArgument = "";
-                    charsProcessed++;
-                    if (argumentCount >= overflowAt)
-                    {
-                        // Overflow here.
-                        var s = command.Substring(charsProcessed);
-                        overflow = s;
-                        overflowed = true;
-                        break;
-                    }
-                    argumentCount++;
+                    if (Push()) break;
                     continue;
+                }
+
+                // Momentary variables: make sure they only count at the front of the string
+                if (!inQuotedArgument && (character == '-' || character == '+') && argumentCount == 0)
+                {
+                    // Momentary variable
+                    momentary = true;
+                    state = (character == '+');
+                    continue; // Drop the character
                 }
 
                 if (character == '"')
@@ -49,19 +95,7 @@ namespace Luminal.Console
                     if (inQuotedArgument)
                     {
                         // This is a quote break.
-                        args.Add(currentArgument);
-                        currentArgument = "";
-                        inQuotedArgument = false;
-                        charsProcessed++;
-                        if (argumentCount >= overflowAt)
-                        {
-                            // Overflow here.
-                            var s = command.Substring(charsProcessed);
-                            overflow = s;
-                            overflowed = true;
-                            break;
-                        }
-                        argumentCount++;
+                        if (Push()) break;
                         continue;
                     }
                     // This is not a quote break; begin a quoted argument.
@@ -75,7 +109,8 @@ namespace Luminal.Console
                 if (command.Length - 1 == i)
                 {
                     // At the end of the string.
-                    args.Add(currentArgument);
+                    Push();
+                    break;
                 }
             }
 
@@ -96,6 +131,7 @@ namespace Luminal.Console
         {
             { SDL_Scancode.SDL_SCANCODE_F10, "toggleconsole" } // Default console bind.
         };
+        public static Dictionary<string, string> Aliases = new();
 
         public static void RegisterCommand(ConCommandContainer header)
         {
@@ -113,7 +149,7 @@ namespace Luminal.Console
             return string.Join(' ', j);
         }
 
-        public static Arguments BuildArgs(List<string> ina, List<Argument> desired, string raw)
+        public static Arguments BuildArgs(List<ConsoleChunk> ina, List<Argument> desired, string raw)
         {
             var arg = new Arguments();
 
@@ -137,14 +173,14 @@ namespace Luminal.Console
 
                 var p = ina[i];
                 var n = new ReceiveArgument(wanted.Type, wanted.Name);
-                n.Parse(p);
+                n.Parse(p.Text);
                 arg.values.Add(wanted.Name, n);
             }
 
             return arg;
         }
 
-        public static Arguments BuildArgs(List<string> ina, ConCommandContainer ccc, string raw)
+        public static Arguments BuildArgs(List<ConsoleChunk> ina, ConCommandContainer ccc, string raw)
         {
             var a = ccc.Arguments ?? new();
             try
@@ -156,7 +192,8 @@ namespace Luminal.Console
             }
         }
 
-        public static void RunConsole(string commandName, List<string> inp, string raw)
+        public static void RunConsole(string commandName, List<ConsoleChunk> inp, string raw, ConsoleChunk initial = null,
+                                      bool momentaryOnly = false, bool isKeyEvent = false)
         {
             if (!Commands.ContainsKey(commandName))
             {
@@ -164,12 +201,41 @@ namespace Luminal.Console
                 if (!ConVars.ContainsKey(commandName))
                 {
                     // Nah.
-                    throw new ArgumentException($"Unknown command \"{commandName}\"");
+                    // ...what if it's aliased?
+
+                    var prefix = "";
+                    if (initial != null && initial.IsMomentary)
+                    {
+                        prefix = initial.MomentaryState ? "+" : "-";
+
+                        if (isKeyEvent && !momentaryOnly) return;
+                    }
+
+                    var ok = Aliases.TryGetValue(prefix + commandName, out string alias);
+                    if (ok)
+                    {
+                        // It is, let's run it.
+                        DebugConsole.HandleCommandSilently(alias);
+                        return;
+                    } else
+                    {
+                        // No dice. Fail.
+                        throw new ArgumentException($"Unknown command \"{commandName}\"");
+                    }
                 }
 
                 // Oh, it is.
                 var cv = ConVars[commandName];
                 var attr = ConVarAttrs[commandName];
+
+                if (attr.Momentary && !attr.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary)
+                {
+                    if (cv.t != ConVarType.BOOL)
+                        throw new Exception("Momentary variable is not a boolean!");
+                    cv.fi.SetValue(null, initial.MomentaryState);
+                    return;
+                }
+
                 var type = cv.t;
                 var field = cv.fi;
 
@@ -204,6 +270,10 @@ namespace Luminal.Console
                 
                 return;
             }
+
+            // Avoid running any commands in a momentary keystate.
+            if (momentaryOnly) return;
+
             var command = Commands[commandName];
             var a = BuildArgs(inp, command, raw);
             command.Command.Run(a);
@@ -310,7 +380,16 @@ namespace Luminal.Console
             if (Binds.ContainsKey(code))
             {
                 var v = Binds[code];
-                DebugConsole.HandleCommand(v);
+                DebugConsole.HandleCommand(v, false, false, false, true);
+            }
+        }
+
+        public static void RunMomentaryBind(SDL_Scancode code, bool KeyState)
+        {
+            if (Binds.ContainsKey(code))
+            {
+                var v = Binds[code];
+                DebugConsole.HandleCommand(v, true, KeyState, true, true);
             }
         }
     }
