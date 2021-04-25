@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using Luminal.Console;
 using Luminal.Core;
 using Luminal.Entities;
 using Luminal.Entities.Components;
@@ -6,7 +7,7 @@ using Luminal.Entities.Screen;
 using Luminal.Entities.World;
 using Luminal.OpenGL.Models;
 using System.Collections.Generic;
-using SC = SDL2.SDL.SDL_Scancode;
+using static SDL2.SDL.SDL_Scancode;
 using Vector3 = System.Numerics.Vector3;
 
 namespace Luminal.TestApplication
@@ -121,10 +122,17 @@ namespace Luminal.TestApplication
             e.OnDraw += Draw;
             e.OnGUI += GUI;
 
-            e.KeyDown += KeyDown;
-
             e.OnFinishedLoad += Init;
             e.OnUpdate += Update;
+
+            ConsoleManager.Binds[SDL_SCANCODE_W] = "+forward";
+            ConsoleManager.Binds[SDL_SCANCODE_S] = "+back";
+            ConsoleManager.Binds[SDL_SCANCODE_A] = "+left";
+            ConsoleManager.Binds[SDL_SCANCODE_D] = "+right";
+            ConsoleManager.Binds[SDL_SCANCODE_SPACE] = "+up";
+            ConsoleManager.Binds[SDL_SCANCODE_LCTRL] = "+down";
+            ConsoleManager.Binds[SDL_SCANCODE_LEFT] = "+cam_left";
+            ConsoleManager.Binds[SDL_SCANCODE_RIGHT] = "+cam_right";
 
             AnimationManager.AddPaused("test", new()
             {
@@ -213,6 +221,9 @@ namespace Luminal.TestApplication
 
             mr.Material.AlbedoMap = new("Boris", "boris.jpg");
 
+            var cm = model.CreateComponent<CubemapRenderer>();
+            cm.Cubemap = new OpenGL.GLCubemap("Resources/cubemap.jpg", "Cubemap");
+
             //var ir = test2d.CreateComponent<ImageRenderer>();
             //ir.LoadImage("file.jpg");
 
@@ -222,68 +233,92 @@ namespace Luminal.TestApplication
 
         internal static float modelAngle = 0.0f;
 
-        private void Update(Engine _, float __)
+        private void Update(Engine _, float dt)
         {
+            Movement(dt);
+
             camera.Position = PlayerPos;
 
             model.Euler = new(0.0f, modelAngle, 0.0f);
         }
 
-        private void KeyDown(Engine _, SC s)
+        [ConVar("forward")]
+        public static bool Forward = false;
+        [ConVar("left")]
+        public static bool Left = false;
+        [ConVar("right")]
+        public static bool Right = false;
+        [ConVar("back")]
+        public static bool Back = false;
+        [ConVar("up")]
+        public static bool Up = false;
+        [ConVar("down")]
+        public static bool Down = false;
+
+        [ConVar("cam_left")]
+        public static bool CameraLeft = false;
+        [ConVar("cam_right")]
+        public static bool CameraRight = false;
+        [ConVar("cam_up")]
+        public static bool CameraUp = false;
+        [ConVar("cam_down")]
+        public static bool CameraDown = false;
+
+        private void Movement(float dt)
         {
-            const float speed = 0.1f;
-            const float turnSpeed = 0.7f;
+            const float speed = 4f;
+            const float turnSpeed = 10f;
 
-            switch (s)
+            if (Forward)
             {
-                case SC.SDL_SCANCODE_S:
-                    PlayerPos += (camera.Forward * -speed);
-                    break;
-
-                case SC.SDL_SCANCODE_W:
-                    PlayerPos += (camera.Forward * speed);
-                    break;
-
-                case SC.SDL_SCANCODE_A:
-                    PlayerPos += (camera.Right * -speed);
-                    break;
-
-                case SC.SDL_SCANCODE_D:
-                    PlayerPos += (camera.Right * speed);
-                    break;
-
-                case SC.SDL_SCANCODE_LEFT:
-                    camera.Rotate(new Vector3(0.0f, -turnSpeed, 0.0f));
-                    break;
-
-                case SC.SDL_SCANCODE_RIGHT:
-                    camera.Rotate(new Vector3(0.0f, turnSpeed, 0.0f));
-                    break;
-
-                case SC.SDL_SCANCODE_Q:
-                    modelAngle -= turnSpeed;
-                    break;
-
-                case SC.SDL_SCANCODE_E:
-                    modelAngle += turnSpeed;
-                    break;
-
-                case SC.SDL_SCANCODE_R:
-                    PlayerPos += (camera.Up * speed);
-                    break;
-
-                case SC.SDL_SCANCODE_F:
-                    PlayerPos += (-camera.Up * speed);
-                    break;
-
-                case SC.SDL_SCANCODE_UP:
-                    camera.Rotate(new Vector3(turnSpeed, 0.0f, 0.0f));
-                    break;
-
-                case SC.SDL_SCANCODE_DOWN:
-                    camera.Rotate(new Vector3(-turnSpeed, 0.0f, 0.0f));
-                    break;
+                PlayerPos += (camera.Forward * (speed * dt));
             }
+
+            if (Back)
+            {
+                PlayerPos += (camera.Forward * (-speed * dt));
+            }
+
+            if (Left)
+            {
+                PlayerPos += (camera.Right * (-speed * dt));
+            }
+
+            if (Right)
+            {
+                PlayerPos += (camera.Right * (speed * dt));
+            }
+
+            if (Up)
+            {
+                PlayerPos += (camera.Up * (speed * dt));
+            }
+
+            if (Down)
+            {
+                PlayerPos += (camera.Up * (-speed * dt));
+            }
+
+            if (CameraLeft)
+            {
+                camera.Rotate(new Vector3(0.0f, -turnSpeed * dt, 0.0f));
+            }
+
+            if (CameraRight)
+            {
+                camera.Rotate(new Vector3(0.0f, turnSpeed * dt, 0.0f));
+            }
+
+            if (CameraDown)
+            {
+                camera.Rotate(new Vector3(turnSpeed * dt, 0.0f, 0.0f));
+            }
+
+            if (CameraUp)
+            {
+                camera.Rotate(new Vector3(-turnSpeed * dt, 0.0f, 0.0f));
+            }
+
         }
     }
 

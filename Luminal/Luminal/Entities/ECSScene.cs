@@ -71,7 +71,23 @@ namespace Luminal.Entities
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
+                   c.EarlyRender3D();
+                }
+            }
+
+            foreach (var o in enabled)
+            {
+                foreach (var c in o.components.Where(a => a.Enabled))
+                {
                     c.Render3D();
+                }
+            }
+
+            foreach (var o in enabled)
+            {
+                foreach (var c in o.components.Where(a => a.Enabled))
+                {
+                    c.LateRender3D();
                 }
             }
 

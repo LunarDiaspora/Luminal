@@ -31,6 +31,14 @@ namespace Luminal.Entities
         {
         }
 
+        public virtual void EarlyRender3D()
+        {
+        }
+
+        public virtual void LateRender3D()
+        {
+        }
+
         public virtual void Render3D()
         {
         }

@@ -130,6 +130,7 @@ namespace Luminal.Core
             var logger = new ConsoleLogger();
             Log.SetLogger(logger);
             Log.SetLogLevel(logLevel);
+            ConsoleManager.FindAllEverywhere();
         }
 
         public static SDL.SDL_Scancode StringToScancode(string s)
@@ -153,8 +154,6 @@ namespace Luminal.Core
             Log.Info($"Engine flags present: {(fs == "" ? "none" : fs)}");
             Log.Info($"ImGui theme present: {themename}");
             Log.Info("");
-
-            ConsoleManager.FindAllEverywhere();
 
             Width = WindowWidth;
             Height = WindowHeight;
