@@ -68,7 +68,8 @@ namespace Luminal.Console
                 if (argumentCount > overflowAt)
                 {
                     // Overflow here.
-                    var s = command[charsProcessed..];
+                    var range = (Math.Min(charsProcessed, command.Length));
+                    var s = command[range..];
                     overflow = s;
                     overflowed = true;
                     inQuotedArgument = false;
@@ -165,8 +166,9 @@ namespace Luminal.Console
             for (int i=0; i<desired.Count; i++)
             {
                 var wanted = desired[i];
-                if ((ina.Count <= i) && !wanted.Optional)
-                    throw new ArgumentOutOfRangeException();
+
+                if ((ina.Count < i) && !wanted.Optional)
+                    throw new ArgumentNullException();
 
                 if (wanted.Overflow)
                 {
@@ -195,7 +197,7 @@ namespace Luminal.Console
             try
             {
                 return BuildArgs(ina, a, raw);
-            } catch (ArgumentOutOfRangeException)
+            } catch (ArgumentNullException)
             {
                 throw new ArgumentException($"Usage: {ccc.Name} {GetUsage(a)}");
             }
