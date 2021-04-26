@@ -14,6 +14,11 @@ namespace Luminal.TestApplication
 {
     internal class DemoWindowComponent : Component3D
     {
+        public override void Create()
+        {
+            Enabled = false;
+        }
+
         public override void OnGUI()
         {
             ImGui.ShowDemoWindow(ref Enabled);
@@ -267,7 +272,7 @@ namespace Luminal.TestApplication
         private void Movement(float dt)
         {
             const float speed = 4f;
-            const float turnSpeed = 10f;
+            const float turnSpeed = 100f;
 
             if (Forward)
             {

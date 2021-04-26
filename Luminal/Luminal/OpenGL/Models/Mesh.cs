@@ -44,7 +44,7 @@ namespace Luminal.OpenGL.Models
 
             SetupPointers();
 
-            //GL.BindVertexArray(0);
+            GL.BindVertexArray(0);
         }
 
         private unsafe void SetupPointers()
@@ -73,12 +73,11 @@ namespace Luminal.OpenGL.Models
         {
             VAO.Bind();
 
-            VBO.Bind(BufferTarget.ArrayBuffer);
-            EBO.Bind(BufferTarget.ElementArrayBuffer);
-
             GL.Enable(EnableCap.DepthTest);
 
             GL.DrawElements(BeginMode.Triangles, Indices.Count, DrawElementsType.UnsignedInt, 0);
+
+            GL.BindVertexArray(0);
         }
     }
 }

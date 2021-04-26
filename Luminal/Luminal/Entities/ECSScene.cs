@@ -65,13 +65,13 @@ namespace Luminal.Entities
         {
             if (Disable3D) return; // Don't bother
 
-            L3D_BeforeFrame();
+            BeforeDrawCalls();
 
             foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
-                   c.EarlyRender3D();
+                    c.EarlyRender3D();
                 }
             }
 
@@ -130,8 +130,6 @@ namespace Luminal.Entities
         public static void L3D_SetUp()
         {
             var vsSource = File.ReadAllText("EngineResources/mesh.vert");
-
-            // TODO: write a better light shader
             var fsSource = File.ReadAllText("EngineResources/lit.frag");
 
             var VS = new GLShader(vsSource, GLShaderType.VERTEX);
@@ -144,7 +142,7 @@ namespace Luminal.Entities
                 .Link();
         }
 
-        public static void L3D_BeforeFrame()
+        public static void BeforeDrawCalls()
         {
             Program.Use();
 

@@ -70,7 +70,9 @@ namespace Luminal.Entities.Components
 
             VAO.Bind();
 
-            VBO.Data(skyboxVertices, BufferUsageHint.StaticDraw);
+            VBO.Bind(BufferTarget.ArrayBuffer);
+
+            VBO.Data(skyboxVertices, BufferUsageHint.DynamicDraw);
 
             var VS = File.ReadAllText("EngineResources/cubemap.vert");
             var FS = File.ReadAllText("EngineResources/cubemap.frag");
@@ -79,16 +81,18 @@ namespace Luminal.Entities.Components
             var FP = new GLShader(FS, GLShaderType.FRAGMENT);
 
             CubemapShader = new GLShaderProgram()
+                .Label("Cubemap Shader")
                 .Attach(VP)
                 .Attach(FP)
-                .Label("Cubemap Shader")
                 .Link();
 
             GL.EnableVertexAttribArray(0);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+
+            GL.BindVertexArray(0);
         }
 
-        public override void LateRender3D()
+        public override void EarlyRender3D()
         {
             VAO.Bind();
             Cubemap.Bind();
@@ -110,6 +114,8 @@ namespace Luminal.Entities.Components
             GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
             GL.DepthMask(true);
+
+            GL.BindVertexArray(0);
         }
     }
 }

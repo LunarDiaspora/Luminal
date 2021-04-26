@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using Luminal.Logging;
+using OpenTK.Graphics.OpenGL;
 
 namespace Luminal.OpenGL
 {
@@ -6,6 +7,7 @@ namespace Luminal.OpenGL
     {
         public int GLObject;
         public BufferTarget CurrentTarget;
+        public string Name;
 
         public GLFloatBuffer()
         {
@@ -14,6 +16,7 @@ namespace Luminal.OpenGL
 
         public GLFloatBuffer(string name)
         {
+            Name = name;
             GLObject = GL.GenBuffer();
             GLHelper.LabelObj(ObjectLabelIdentifier.Buffer, GLObject, $"FloatBuffer: {name}");
         }
