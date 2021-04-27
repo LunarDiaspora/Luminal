@@ -8,19 +8,12 @@ It has support for hardware-accelerated 2D and 3D graphics, audio, handling inpu
 ## Progress at the moment
 This engine is extremely work-in-progress, and **is not stable**. Please do not yell at us when it crashes, until release.
 
-## The configuration
-In the folder where Luminal.dll resides in the host application, make a file called `Luminal.json`.
-*Luminal applications need to do this.*
-Example config:
-```json
-{
-	"AudioEngine": "LuminalFMODCoreEngine"
-}
-```
-Luminal will then attempt to load the audio engine specified by that key.
-
 ## The logger
 To make a custom logger, write a class that implements ILogger, then call `Log.SetLogger(ILogger yourLogger);` after constructing Engine.
+
+## Operating system support
+**Luminal is Windows only.**  
+I will not change this. Ever. It would be far too much dev time for a platform I don't even use.
 
 ## Roadmap
 - [x] Basic 2D graphics
@@ -29,9 +22,9 @@ To make a custom logger, write a class that implements ILogger, then call `Log.S
 - [x] Keyboard/mouse input
 - [x] Flexible logging
 - [X] IMGUI support
-- [ ] Expose more of the engine to the end user
-- [ ] Finish LGUI
-- [ ] Extremely basic 3D support
+- [X] Expose more of the engine to the end user
+- [X] Extremely basic 3D support
+- [X] More advanced 3D support
 
 ## Credits
 Luminal is a [Lunar Diaspora](https://github.com/LunarDiaspora) project.  
