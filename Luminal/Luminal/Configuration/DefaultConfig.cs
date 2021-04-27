@@ -11,8 +11,8 @@ namespace Luminal.Configuration
     {
         public new int WindowWidth = 0;
         public new int WindowHeight = 0;
-        public new int WindowX = 0;
-        public new int WindowY = 0;
+        public new int WindowX = 200;
+        public new int WindowY = 200;
         public new int WindowState = 0;
     }
 }

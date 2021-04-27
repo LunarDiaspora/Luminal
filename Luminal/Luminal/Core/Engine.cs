@@ -11,7 +11,6 @@ using SDL2;
 using SFML.System;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Luminal.Console;
 using System.Text.Json;
 using System.IO;
@@ -201,6 +200,8 @@ namespace Luminal.Core
             WindowX = Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION) ? config.WindowX : 200;
             WindowY = Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION) ? config.WindowY : 200;
 
+            if (WindowY <= 0) WindowY = 200;
+
             Viewport.Size = new(Width, Height);
 
             EngineFlags = Flags;
@@ -209,8 +210,8 @@ namespace Luminal.Core
 
             sceneManager = new SceneManager(executingType);
 
-            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 1);
+            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 5);
 
             Window = SDL.SDL_CreateWindow(WindowTitle, WindowX, WindowY, Width, Height,
                                           SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
