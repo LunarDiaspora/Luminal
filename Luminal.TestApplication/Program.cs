@@ -149,7 +149,7 @@ namespace Luminal.TestApplication
             });
 
             e.StartRenderer(1920, 1080, "Luminal Engine 3D Demonstration", typeof(Main),
-                LuminalFlags.ENABLE_KEY_REPEAT | LuminalFlags.RESIZABLE);
+                LuminalFlags.ENABLE_KEY_REPEAT | LuminalFlags.RESIZABLE | LuminalFlags.RESPECT_CONFIG_RESOLUTION);
         }
 
         public void Draw(Engine _)

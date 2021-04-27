@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Luminal.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Luminal.Configuration
 {
     public class DefaultConfig : LuminalConfig
     {
-        public new string AudioPlugin => null;
+        public new int WindowWidth = 0;
+        public new int WindowHeight = 0;
     }
 }

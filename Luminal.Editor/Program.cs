@@ -19,8 +19,10 @@ namespace Luminal.Editor
 
             EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
 
+            var f = LuminalFlags.ENABLE_KEY_REPEAT | LuminalFlags.RESIZABLE | LuminalFlags.RESPECT_CONFIG_RESOLUTION;
+
             EnginePlayer.Instance.Start(1920, 1080, "Luminal Editor",
-                LuminalFlags.ENABLE_KEY_REPEAT | LuminalFlags.RESIZABLE, new LuminalTheme());
+                f, new LuminalTheme());
         }
     }
 }

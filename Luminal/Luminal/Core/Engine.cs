@@ -13,13 +13,16 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Luminal.Console;
+using System.Text.Json;
+using System.IO;
 
 namespace Luminal.Core
 {
     public enum LuminalFlags
     {
         ENABLE_KEY_REPEAT = 1 << 0,
-        RESIZABLE = 1 << 1
+        RESIZABLE = 1 << 1,
+        RESPECT_CONFIG_RESOLUTION = 1 << 2
     }
 
     public static class LuminalFlagsExtension
@@ -121,6 +124,8 @@ namespace Luminal.Core
 
         public static LuminalFlags EngineFlags;
 
+        public static LuminalConfig Config;
+
         [ConVar("r_vsync", "Sets vertical sync mode. 0 is off, 1 is on, 2 is adaptive.")]
         public static VSyncMode VSync;
 
@@ -161,22 +166,28 @@ namespace Luminal.Core
             if (theme != null)
                 themename = theme.GetType().Name;
 
+            var config = LuminalConfigLoader.LoadConfig("Config.json");
+            Config = config;
+
+            var actualWidth = (config.WindowWidth <= 0) || !Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION)
+                ? WindowWidth : config.WindowWidth;
+            var actualHeight = (config.WindowHeight <= 0) || !Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION)
+                ? WindowHeight : config.WindowHeight;
+
             Log.Info("");
             Log.Info("--[[ STARTING RENDERING PIPELINE ]]--");
-            Log.Info($"Starting at {WindowWidth}x{WindowHeight} (\"{WindowTitle}\")");
+            Log.Info($"Starting at {actualWidth}x{actualHeight} (\"{WindowTitle}\")");
             Log.Info($"Host program (passed to StartRenderer): {executingType.Name}");
             Log.Info($"Engine flags present: {(fs == "" ? "none" : fs)}");
             Log.Info($"ImGui theme present: {themename}");
             Log.Info("");
 
-            Width = WindowWidth;
-            Height = WindowHeight;
+            Width = actualWidth;
+            Height = actualHeight;
 
             Viewport.Size = new(Width, Height);
 
             EngineFlags = Flags;
-
-            var config = LuminalConfigLoader.LoadConfig("Luminal.json");
 
             AudioEngine.Instance.Initialise();
 
@@ -185,7 +196,7 @@ namespace Luminal.Core
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 2);
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
-            Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, WindowWidth, WindowHeight,
+            Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, Width, Height,
                                           SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 
             var winid = SDL.SDL_GetWindowID(Window);
@@ -383,6 +394,17 @@ namespace Luminal.Core
 
         public static void Quit(int exitCode = 0)
         {
+            if (EngineFlags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION))
+            {
+                Config.WindowWidth = Width;
+                Config.WindowHeight = Height;
+
+                // Save the config.
+                var h = JsonSerializer.Serialize(Config);
+                File.WriteAllText("Config.json", h);
+                Log.Debug("Flushed config before exiting");
+            }
+
             AudioEngine.Instance.Dispose();
 
             WindowOpen = false;
