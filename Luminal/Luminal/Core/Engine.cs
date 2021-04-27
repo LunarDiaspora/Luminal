@@ -18,7 +18,8 @@ namespace Luminal.Core
 {
     public enum LuminalFlags
     {
-        ENABLE_KEY_REPEAT = 1 << 0
+        ENABLE_KEY_REPEAT = 1 << 0,
+        RESIZABLE = 1 << 1
     }
 
     public static class LuminalFlagsExtension
@@ -59,7 +60,7 @@ namespace Luminal.Core
             Patch = pat;
         }
 
-        public static readonly EngineVersion Current = new(0, 1, 0);
+        public static readonly EngineVersion Current = new(0, 2, 0);
     }
 
     public enum VSyncMode
@@ -71,8 +72,8 @@ namespace Luminal.Core
 
     public class Engine
     {
-        public static IntPtr Renderer; // SDL_Renderer*
         public static IntPtr Window; // SDL_Window*
+
         public static IntPtr Screen;
 
         public SceneManager sceneManager;
@@ -120,9 +121,13 @@ namespace Luminal.Core
 
         public static LuminalFlags EngineFlags;
 
+        [ConVar("r_vsync", "Sets vertical sync mode. 0 is off, 1 is on, 2 is adaptive.")]
         public static VSyncMode VSync;
 
+        [ConVar("con_enable", "Sets if the console can be opened.")]
         public static bool EnableConsole = true;
+
+        [ConVar("console", "The state of the console.")]
         public static bool ConsoleOpen = false;
 
         public Engine(int logLevel = 0)
@@ -130,6 +135,14 @@ namespace Luminal.Core
             var logger = new ConsoleLogger();
             Log.SetLogger(logger);
             Log.SetLogLevel(logLevel);
+
+            Log.Info($"--[[ Welcome to the Luminal Engine, version {EngineVersion.Current}. ]]--");
+            Log.Info($"(c) 2021 The Lunar Diaspora. This is open-source software.");
+            Log.Info("");
+            Log.Info($"It is {DateTime.Now}.");
+            Log.Info($"Log level specified: {logLevel}");
+            Log.Info("");
+
             ConsoleManager.FindAllEverywhere();
         }
 
@@ -148,7 +161,8 @@ namespace Luminal.Core
             if (theme != null)
                 themename = theme.GetType().Name;
 
-            Log.Info($"-== [[ Luminal Engine v{EngineVersion.Current} ]] ==-");
+            Log.Info("");
+            Log.Info("--[[ STARTING RENDERING PIPELINE ]]--");
             Log.Info($"Starting at {WindowWidth}x{WindowHeight} (\"{WindowTitle}\")");
             Log.Info($"Host program (passed to StartRenderer): {executingType.Name}");
             Log.Info($"Engine flags present: {(fs == "" ? "none" : fs)}");
@@ -219,6 +233,8 @@ namespace Luminal.Core
                 if (OnGUI != null) OnGUI(this);
                 ECSScene.OnGUIAll();
 
+                PersistentUI.Draw();
+
                 if (ConsoleOpen)
                     DebugConsole.OnGUI();
 
@@ -263,8 +279,26 @@ namespace Luminal.Core
                             var d = evt.motion;
                             MouseDrag(d.x, d.y, d.xrel, d.yrel);
                             break;
+
+                        case SDL.SDL_EventType.SDL_WINDOWEVENT:
+                            switch (evt.window.windowEvent)
+                            {
+                                case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
+                                    var x = evt.window.data1;
+                                    var y = evt.window.data2;
+
+                                    Width = x;
+                                    Height = y;
+
+                                    Log.Debug($"Window resized to {x}x{y}");
+                                    break;
+                            }
+                            break;
                     }
                 }
+
+                var isResizable = EngineFlags.Has(LuminalFlags.RESIZABLE);
+                SDL.SDL_SetWindowResizable(Window, isResizable ? SDL.SDL_bool.SDL_TRUE : SDL.SDL_bool.SDL_FALSE);
 
                 SDL_GPU.GPU_ResetRendererState();
 

@@ -57,7 +57,7 @@ namespace Luminal.Console
         public static ConVarType ToConVarType(Type t)
         {
             if (t == typeof(string)) return ConVarType.STRING;
-            else if (t == typeof(int)) return ConVarType.INT;
+            else if (t == typeof(int) || t.IsEnum) return ConVarType.INT;
             else if (t == typeof(float)) return ConVarType.FLOAT;
             else if (t == typeof(double)) return ConVarType.DOUBLE;
             else if (t == typeof(bool)) return ConVarType.BOOL;

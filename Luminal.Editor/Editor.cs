@@ -35,6 +35,7 @@ namespace Luminal.Editor
         public static void Init()
         {
             SwitchEditorPhase(EditorPhase.WELCOME);
+            Engine.VSync = VSyncMode.SYNC;
         }
 
         public static void SwitchEditorPhase(EditorPhase n)
@@ -88,8 +89,6 @@ namespace Luminal.Editor
             ECSScene.RenderTexture = new();
 
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-
-            Engine.VSync = VSyncMode.SYNC;
         }
 
         class LoadThread : IDisposable

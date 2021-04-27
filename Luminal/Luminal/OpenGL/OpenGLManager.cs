@@ -244,6 +244,8 @@ namespace Luminal.OpenGL
         {
             GLRenderTexture.Reset();
 
+            GL.Viewport(0, 0, Viewport.Width, Viewport.Height);
+
             if (dd.CmdListsCount == 0)
             {
                 return;
@@ -271,7 +273,7 @@ namespace Luminal.OpenGL
             }
 
             var io = ImGui.GetIO();
-            var MVP = Matrix4.CreateOrthographicOffCenter(0.0f, Engine.Width, Engine.Height, 0.0f, -1.0f, 1.0f);
+            var MVP = Matrix4.CreateOrthographicOffCenter(0.0f, Viewport.Width, Viewport.Height, 0.0f, -1.0f, 1.0f);
 
             ImGuiProgram.Use();
 
@@ -312,7 +314,7 @@ namespace Luminal.OpenGL
                         GL.BindTexture(TextureTarget.Texture2D, (int)pcmd.TextureId);
 
                         var clip = pcmd.ClipRect;
-                        GL.Scissor((int)clip.X, Engine.Height - (int)clip.W, (int)(clip.Z - clip.X), (int)(clip.W - clip.Y));
+                        GL.Scissor((int)clip.X, Viewport.Height - (int)clip.W, (int)(clip.Z - clip.X), (int)(clip.W - clip.Y));
 
                         if ((io.BackendFlags & ImGuiBackendFlags.RendererHasVtxOffset) != 0)
                         {
@@ -333,15 +335,18 @@ namespace Luminal.OpenGL
             GL.Disable(EnableCap.ScissorTest);
         }
 
-        private static void IGUpdate(float dt)
+        private unsafe static void IGUpdate(float dt)
         {
-            var io = ImGui.GetIO();
-            io.DeltaTime = dt;
-            io.DisplaySize = new System.Numerics.Vector2(
-                    Engine.Width / ImGuiScale.X,
-                    Engine.Height / ImGuiScale.Y
+            var ioptr = ImGuiNative.igGetIO();
+
+            ioptr->DeltaTime = dt;
+
+            ioptr->DisplaySize = new System.Numerics.Vector2(
+                    Viewport.Width / ImGuiScale.X,
+                    Viewport.Height / ImGuiScale.Y
                 );
-            io.DisplayFramebufferScale = ImGuiScale;
+
+            ioptr->DisplayFramebufferScale = ImGuiScale;
         }
 
         public static void Update(float dt)

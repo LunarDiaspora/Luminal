@@ -2,8 +2,6 @@
 using OpenTK.Mathematics;
 using Vector3 = System.Numerics.Vector3;
 using Quaternion = OpenTK.Mathematics.Quaternion;
-using Newtonsoft.Json;
-using System;
 
 namespace Luminal.Entities.World
 {

@@ -20,7 +20,7 @@ namespace Luminal.Editor
             EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
 
             EnginePlayer.Instance.Start(1920, 1080, "Luminal Editor",
-                LuminalFlags.ENABLE_KEY_REPEAT, new LuminalTheme());
+                LuminalFlags.ENABLE_KEY_REPEAT | LuminalFlags.RESIZABLE, new LuminalTheme());
         }
     }
 }

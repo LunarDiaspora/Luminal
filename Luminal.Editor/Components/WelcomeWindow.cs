@@ -24,7 +24,10 @@ namespace Luminal.Editor.Components
                 Editor.DoLoadFlow();
             }
 
-            ImGui.Button("Create new project", new(320, 120));
+            if (ImGui.Button("Create new project", new(320, 120)))
+            {
+                Editor.SwitchEditorPhase(EditorPhase.EDIT);
+            }
 
             ImGui.End();
         }

@@ -13,7 +13,7 @@ namespace Luminal.Entities
     {
         public static List<BaseObject> objects = new();
 
-        public static IEnumerable<BaseObject> enabled = objects.Where(e => !e.Destroying && e.Active);
+        public static List<BaseObject> enabled = new();
 
         // Defer adding new objects until the frame ends.
         // This prevents an exception from being thrown.
@@ -102,7 +102,7 @@ namespace Luminal.Entities
                 objects.Add(o);
             }
 
-            enabled = objects.Where(e => !e.Destroying && e.Active);
+            enabled = objects.Where(e => !e.Destroying && e.Active).ToList();
 
             var dead = objects.Where(e => e.Destroying).ToList();
 
@@ -149,11 +149,12 @@ namespace Luminal.Entities
             if (RenderTexture != null)
             {
                 RenderTexture.Use();
-                GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-                GL.Viewport(0, 0, Viewport.Width, Viewport.Height);
             }
+
+            GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            GL.Viewport(0, 0, Viewport.Width, Viewport.Height);
 
             GL.Enable(EnableCap.DepthTest);
 

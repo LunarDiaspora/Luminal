@@ -13,6 +13,8 @@ namespace Luminal.Logging
         {
             foreach (var s in message.Split("\n"))
             {
+                System.Console.WriteLine($"{level}: {message}");
+
                 var v = new DebugConsole.ConsoleLine()
                 {
                     data = s,

@@ -284,7 +284,7 @@ namespace Luminal.Console
             }
 
             // Avoid running any commands in a momentary keystate.
-            if (momentaryOnly) return;
+            if (isKeyEvent && momentaryOnly) return;
 
             var command = Commands[commandName];
             var a = BuildArgs(inp, command, raw);
