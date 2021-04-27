@@ -96,4 +96,13 @@ namespace Luminal.Console.Commands
             DebugConsole.LogRaw($@"""{t}"" = ""{c}""");
         }
     }
+
+    [ConCommand("debug_winapi_get_workarea")]
+    public class WorkAreaCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            WinAPIUtilities.WorkArea();
+        }
+    }
 }

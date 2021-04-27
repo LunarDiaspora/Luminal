@@ -15,6 +15,7 @@ using System.Reflection;
 using Luminal.Console;
 using System.Text.Json;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Luminal.Core
 {
@@ -73,6 +74,13 @@ namespace Luminal.Core
         ADAPTIVE
     }
 
+    public enum WindowState
+    {
+        REGULAR,
+        MINIMISED,
+        MAXIMISED
+    }
+
     public class Engine
     {
         public static IntPtr Window; // SDL_Window*
@@ -119,6 +127,11 @@ namespace Luminal.Core
 
         public static int Width;
         public static int Height;
+
+        public static int WindowX;
+        public static int WindowY;
+
+        public static WindowState WindowState;
 
         public static IntPtr GlContext;
 
@@ -185,6 +198,9 @@ namespace Luminal.Core
             Width = actualWidth;
             Height = actualHeight;
 
+            WindowX = Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION) ? config.WindowX : 200;
+            WindowY = Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION) ? config.WindowY : 200;
+
             Viewport.Size = new(Width, Height);
 
             EngineFlags = Flags;
@@ -196,7 +212,7 @@ namespace Luminal.Core
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 2);
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
-            Window = SDL.SDL_CreateWindow(WindowTitle, 200, 200, Width, Height,
+            Window = SDL.SDL_CreateWindow(WindowTitle, WindowX, WindowY, Width, Height,
                                           SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 
             var winid = SDL.SDL_GetWindowID(Window);
@@ -232,6 +248,32 @@ namespace Luminal.Core
             WindowOpen = true;
 
             sfClock = new Clock();
+
+            var state = (WindowState)config.WindowState;
+            if (Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION))
+            {
+                switch (state)
+                {
+                    case WindowState.MAXIMISED:
+                        // Special case:
+                        SDL.SDL_MaximizeWindow(Window);
+                        var r = WinAPIUtilities.WorkArea();
+                        var h = (int)r.h - SystemInformation.CaptionHeight;
+
+                        SDL.SDL_SetWindowPosition(Window, (int)r.x, (int)r.y + SystemInformation.CaptionHeight);
+                        SDL.SDL_SetWindowSize(Window, (int)r.w, h);
+
+                        Width = (int)r.w;
+                        Height = h;
+                        break;
+                    case WindowState.MINIMISED:
+                        SDL.SDL_MinimizeWindow(Window);
+                        break;
+                    case WindowState.REGULAR:
+                        SDL.SDL_RestoreWindow(Window);
+                        break;
+                }
+            }
 
             while (WindowOpen)
             {
@@ -302,6 +344,23 @@ namespace Luminal.Core
                                     Height = y;
 
                                     Log.Debug($"Window resized to {x}x{y}");
+                                    break;
+                                case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_MOVED:
+                                    var x1 = evt.window.data1;
+                                    var y1 = evt.window.data2;
+
+                                    WindowX = x1;
+                                    WindowY = y1;
+                                    break;
+                                case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_MAXIMIZED:
+                                    WindowState = WindowState.MAXIMISED;
+                                    WindowY = 20;
+                                    break;
+                                case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_MINIMIZED:
+                                    WindowState = WindowState.MINIMISED;
+                                    break;
+                                case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESTORED:
+                                    WindowState = WindowState.REGULAR;
                                     break;
                             }
                             break;
@@ -398,6 +457,11 @@ namespace Luminal.Core
             {
                 Config.WindowWidth = Width;
                 Config.WindowHeight = Height;
+
+                Config.WindowX = WindowX;
+                Config.WindowY = WindowY;
+
+                Config.WindowState = (int)WindowState;
 
                 // Save the config.
                 var h = JsonSerializer.Serialize(Config);

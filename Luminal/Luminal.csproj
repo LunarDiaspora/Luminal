@@ -2,15 +2,16 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <Authors>Supernova Dev Team</Authors>
-    <Description>Fast game engine for Supernova.</Description>
+    <TargetFramework>net5.0-windows7.0</TargetFramework>
+    <Authors>The Lunar Diaspora</Authors>
+    <Description>Fast, simple game engine.</Description>
     <Copyright>(C) 2021 Supernova Dev Team</Copyright>
     <AssemblyName>Luminal</AssemblyName>
     <PackageId>LuminalEngine</PackageId>
     <Product>Luminal Game Engine</Product>
     <RootNamespace></RootNamespace>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
