@@ -84,7 +84,7 @@ int main()
         glBindVertexArray(0);
 #endif
 
-        camera.AddComponent(std::make_unique<Luminal::EngineComponent>((Luminal::EngineComponent)cam));
+        camera.AddComponent(std::make_unique<Luminal::Camera>(cam));
         camera.Position.z = -5.0f;
     };
 
