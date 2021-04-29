@@ -1,5 +1,6 @@
 #include <glm/glm.hpp>
 #include "Object.h"
+#include "Component.h"
 
 namespace Luminal
 {
