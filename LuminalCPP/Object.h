@@ -22,5 +22,8 @@ namespace Luminal
         glm::mat4 Model();
 
         void AddComponent(std::unique_ptr<EngineComponent> c);
+
+    	Object(const Object& obj);
+    	Object& operator=(const Object& obj);
     };
 }
