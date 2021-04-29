@@ -10,9 +10,9 @@ namespace Luminal
     class Scene
     {
     public:
-        static Camera* Camera;
+        inline static Camera* Camera;
 
-        static std::vector<Object> objects;
+        inline static std::vector<Object> objects;
 
         static void AddObject(Object o);
 
@@ -22,9 +22,9 @@ namespace Luminal
 
         static void OnStart();
 
-        static GLShaderProgram Program;
-        static GLShader VertexShader;
-        static GLShader FragmentShader;
+        inline static GLShaderProgram Program;
+        inline static GLShader VertexShader;
+        inline static GLShader FragmentShader;
 
     private:
         static void BeforeFrame();

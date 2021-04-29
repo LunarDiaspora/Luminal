@@ -5,7 +5,7 @@ namespace Luminal
     class Viewport
     {
     public:
-        static float Width;
-        static float Height;
+        inline static float Width;
+        inline static float Height;
     };
 }

@@ -12,8 +12,8 @@ namespace Luminal
     glm::mat4 Camera::View()
     {
         glm::mat4 m = glm::mat4(1.0f);
-        m = glm::translate(m, parent.Position);
-        glm::mat4 qm = glm::toMat4(parent.Quaternion);
+        m = glm::translate(m, parent->Position);
+        glm::mat4 qm = glm::toMat4(parent->Quaternion);
         m *= qm;
         return m;
     }
