@@ -17,10 +17,10 @@ namespace Luminal
         glm::vec3 Position;
         glm::dquat Quaternion;
 
-        std::vector<std::unique_ptr<Luminal::EngineComponent>> Components;
+        std::vector<std::unique_ptr<EngineComponent>> Components;
 
         glm::mat4 Model();
 
-        void AddComponent(std::unique_ptr<Luminal::EngineComponent> c);
+        void AddComponent(std::unique_ptr<EngineComponent> c);
     };
 }
