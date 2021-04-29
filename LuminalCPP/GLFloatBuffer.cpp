@@ -7,10 +7,10 @@ namespace Luminal
         glGenBuffers(1, &GLObject);
     }
 
-    void GLFloatBuffer::BufferData(float data[], unsigned int mode = GL_STATIC_DRAW)
+    void GLFloatBuffer::BufferData(float* data, size_t size, unsigned int mode = GL_STATIC_DRAW, unsigned int where = GL_ARRAY_BUFFER)
     {
-        Bind(GL_ARRAY_BUFFER);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, mode);
+        Bind(where);
+        glBufferData(where, size, data, mode);
     }
 
     void GLFloatBuffer::Bind(unsigned int target)

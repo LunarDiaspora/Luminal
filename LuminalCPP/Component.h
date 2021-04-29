@@ -1,13 +1,18 @@
 #pragma once
 
+#include "Object.h"
+
 namespace Luminal
 {
-    class Component
+    class EngineComponent
     {
     public:
-        void OnGUI() {};
-        void OnRender() {};
-        void OnCreate() {};
-        void OnDestroy() {};
+        Object parent;
+
+        virtual void OnGUI() {};
+        virtual void OnRender() {};
+        virtual void OnUpdate(float dt) {};
+        virtual void OnCreate() {};
+        virtual void OnDestroy() {};
     };
 }

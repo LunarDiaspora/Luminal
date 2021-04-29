@@ -4,6 +4,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <vector>
 #include "Component.h"
+#include <memory>
 
 namespace Luminal
 {
@@ -15,6 +16,10 @@ namespace Luminal
         glm::vec3 Position;
         glm::dquat Quaternion;
 
-        std::vector<Component*> Components;
+        std::vector<std::unique_ptr<Luminal::EngineComponent>> Components;
+
+        glm::mat4 Model();
+
+        void AddComponent(std::unique_ptr<Luminal::EngineComponent> c);
     };
 }

@@ -9,7 +9,7 @@ namespace Luminal
     public:
         void Create();
 
-        void BufferData(float data[], unsigned int mode);
+        void BufferData(float* data, size_t size, unsigned int mode, unsigned int where);
 
         void Bind(unsigned int target);
 

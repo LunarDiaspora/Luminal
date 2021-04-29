@@ -42,4 +42,22 @@ namespace Luminal
     {
         glUseProgram(GLObject);
     }
+
+    void GLShaderProgram::Uniform1f(std::string name, float val)
+    {
+        int i = glGetUniformLocation(GLObject, name.c_str());
+        glUniform1f(i, val);
+    }
+
+    void GLShaderProgram::Uniform1i(std::string name, int val)
+    {
+        int i = glGetUniformLocation(GLObject, name.c_str());
+        glUniform1i(i, val);
+    }
+
+    void GLShaderProgram::UniformMatrix4(std::string name, glm::mat4 mat)
+    {
+        int i = glGetUniformLocation(GLObject, name.c_str());
+        glUniformMatrix4fv(i, 1, GL_FALSE, glm::value_ptr(mat));
+    }
 }

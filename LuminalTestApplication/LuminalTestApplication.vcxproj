@@ -126,8 +126,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>echo D | xcopy /E /Y "$(SolutionDir)Resources" "$(TargetDir)Resources"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>echo D | xcopy /E /Y "$(SolutionDir)Resources" "$(TargetDir)Resources"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

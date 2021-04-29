@@ -16,6 +16,8 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl.h"
 #include <SDL2/SDL_syswm.h>
+#include "Viewport.h"
+#include "Scene.h"
 
 namespace Luminal
 {
@@ -69,6 +71,8 @@ namespace Luminal
         ImGui_ImplSDL2_InitForOpenGL(Window, GLContext);
         ImGui_ImplOpenGL3_Init();
 
+        Scene::OnStart();
+
         OnLoaded();
 
         while (1)
@@ -91,8 +95,12 @@ namespace Luminal
             ImGui::NewFrame();
 
             OnGUI();
+            Scene::GUIAll();
 
             ImGuiIO& io = ImGui::GetIO();
+            Viewport::Width = io.DisplaySize.x;
+            Viewport::Height = io.DisplaySize.y;
+
             glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
 
             glClearColor(0.1, 0.1, 0.1, 1);
@@ -100,7 +108,9 @@ namespace Luminal
             glClear(GL_COLOR_BUFFER_BIT);
 
             OnUpdate(0);
+            Scene::UpdateAll(0);
             OnDraw();
+            Scene::DrawAll();
 
             ImGui::Render();
 
