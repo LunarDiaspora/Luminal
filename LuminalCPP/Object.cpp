@@ -15,7 +15,7 @@ namespace Luminal
     void Object::AddComponent(std::unique_ptr<EngineComponent> c)
     {
         c->OnCreate();
-		c->parent = *this;
+		c->parent = this;
         Components.emplace_back(std::move(c));
     }
 
@@ -31,7 +31,7 @@ namespace Luminal
 
     	for (const auto& comp: obj.Components) {
     		// Copy the component and update its parent to *this
-    		Components.emplace_back(std::unique_ptr<EngineComponent>(comp->clone()))->parent = *this;
+    		Components.emplace_back(std::unique_ptr<EngineComponent>(comp->clone()))->parent = this;
     	}
     
 		return *this;

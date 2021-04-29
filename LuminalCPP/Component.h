@@ -7,7 +7,7 @@ namespace Luminal
     class EngineComponent
     {
     public:
-        Object& parent;
+        Object* parent = nullptr;
 
     	// These should probably be pure, no? You don't wanna instantiate an abstract EngineComponent
         virtual void OnGUI() {};
@@ -17,6 +17,9 @@ namespace Luminal
         virtual void OnDestroy() {};
 
     	virtual EngineComponent* clone() = 0;
+
+
+    	
 
     	/*
     	Example implementation
