@@ -12,12 +12,30 @@ namespace Luminal
         Quaternion = glm::dquat(0, 0, 0, 1);
     }
 
-    void Object::AddComponent(std::unique_ptr<Luminal::EngineComponent> c)
+    void Object::AddComponent(std::unique_ptr<EngineComponent> c)
     {
         c->OnCreate();
-
-        Components.push_back(c);
+		c->parent = *this;
+        Components.emplace_back(std::move(c));
     }
+
+	Object::Object(const Object& obj)
+	{
+    	*this = obj;
+	}
+
+	Object& Object::operator=(const Object& obj)
+	{
+		Position = obj.Position;
+    	Quaternion = obj.Quaternion;
+
+    	for (const auto& comp: obj.Components) {
+    		// Copy the component and update its parent to *this
+    		Components.emplace_back(std::unique_ptr<EngineComponent>(comp->clone()))->parent = *this;
+    	}
+    
+		return *this;
+	}
 
     glm::mat4 Object::Model()
     {
