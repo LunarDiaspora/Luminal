@@ -14,8 +14,8 @@ namespace Luminal
 
     void Object::AddComponent(std::unique_ptr<EngineComponent> c)
     {
-        c->OnCreate();
 		c->parent = this;
+        c->OnCreate();
         Components.emplace_back(std::move(c));
     }
 
