@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+#include "Component.h"
+
 #include <gl/glew.h>
 
 namespace Luminal

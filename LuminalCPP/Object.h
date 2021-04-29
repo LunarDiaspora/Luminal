@@ -3,11 +3,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <vector>
-#include "Component.h"
 #include <memory>
 
 namespace Luminal
 {
+    class EngineComponent;
+
     class Object
     {
     public:

@@ -5,6 +5,8 @@
 
 namespace Luminal
 {
+    class Object;
+
     class Scene
     {
     public:

@@ -2,6 +2,8 @@
 
 #include "Component.h"
 
+#include <glm/glm.hpp>
+
 namespace Luminal
 {
     class Camera : public EngineComponent

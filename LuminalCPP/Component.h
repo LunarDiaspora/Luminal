@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Object.h"
-
 namespace Luminal
 {
+    // forward declaring it
+    class Object
+    {};
+
     class EngineComponent
     {
     public:
