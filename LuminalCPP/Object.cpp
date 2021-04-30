@@ -14,28 +14,28 @@ namespace Luminal
 
     void Object::AddComponent(std::unique_ptr<EngineComponent> c)
     {
-		c->parent = this;
+        c->parent = this;
         c->OnCreate();
         Components.emplace_back(std::move(c));
     }
 
-	Object::Object(const Object& obj)
-	{
-    	*this = obj;
-	}
+    Object::Object(const Object& obj)
+    {
+        *this = obj;
+    }
 
-	Object& Object::operator=(const Object& obj)
-	{
-		Position = obj.Position;
-    	Quaternion = obj.Quaternion;
+    Object& Object::operator=(const Object& obj)
+    {
+        Position = obj.Position;
+        Quaternion = obj.Quaternion;
 
-    	for (const auto& comp: obj.Components) {
-    		// Copy the component and update its parent to *this
-    		Components.emplace_back(std::unique_ptr<EngineComponent>(comp->clone()))->parent = this;
-    	}
+        for (const auto& comp: obj.Components) {
+            // Copy the component and update its parent to *this
+            Components.emplace_back(std::unique_ptr<EngineComponent>(comp->clone()))->parent = this;
+        }
     
-		return *this;
-	}
+        return *this;
+    }
 
     glm::mat4 Object::Model()
     {

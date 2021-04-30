@@ -59,7 +59,7 @@ namespace Luminal
             else if (name == "texture_specular")
                 number = std::to_string(specularCount++);
 
-            prog.Uniform1i(("material." + name + number).c_str(), i);
+            //prog.Uniform1i(("material." + name + number).c_str(), i);
 
             glBindTexture(GL_TEXTURE_2D, Textures[i].ID);
         }
@@ -67,7 +67,6 @@ namespace Luminal
         glActiveTexture(GL_TEXTURE0);
 
         VAO.Bind();
-        prog.Use();
 
         glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, 0);
 

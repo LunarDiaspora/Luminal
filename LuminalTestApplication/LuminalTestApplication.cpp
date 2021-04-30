@@ -12,6 +12,7 @@
 #include<Scene.h>
 #include<Camera.h>
 #include<Object.h>
+#include <ModelRenderer.h>
 
 Luminal::GLShader vert;
 Luminal::GLShader frag;
@@ -24,6 +25,8 @@ Luminal::Model pot;
 
 Luminal::Object camera;
 Luminal::Camera cam;
+Luminal::Object model;
+Luminal::ModelRenderer mr;
 
 float vertices[] = {
      0.5f,  0.5f, 0.0f, 1.0f, 1.0f,  // top right
@@ -44,53 +47,15 @@ int main()
 
     eng.OnLoaded = []()
     {
-#if 0
-        vert.Load("Resources/standard.vert", GL_VERTEX_SHADER);
-        frag.Load("Resources/standard.frag", GL_FRAGMENT_SHADER);
-
-        prog.Create();
-
-        prog.Attach(vert).Attach(frag).Link();
-        
-        prog.Use();
-
-        VAO.Create();
-
-        VAO.Bind();
-
-        buf.Create();
-
-        buf.BufferData(vertices, sizeof(vertices), GL_STATIC_DRAW, GL_ARRAY_BUFFER);
-
-        EBO.Create();
-
-        EBO.BufferData(indices, sizeof(indices), GL_STATIC_DRAW, GL_ELEMENT_ARRAY_BUFFER);
-
-        boris.Create();
-
-        boris.Bind();
-        boris.Load("Resources/boris.png");
-#endif
-
-        pot.Load("Resources/test.obj");
-
-#if 0
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        glBindVertexArray(0);
-#endif
-
         camera.AddComponent(std::make_unique<Luminal::Camera>(cam));
         camera.Position.z = -5.0f;
+
+        mr.LoadModel("Resources/test.obj");
+        model.AddComponent(std::make_unique<Luminal::ModelRenderer>(mr));
     };
 
     eng.OnDraw = []()
     {
-        pot.Draw(prog);
     };
 
     eng.OnGUI = []()

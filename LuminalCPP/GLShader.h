@@ -9,6 +9,6 @@ namespace Luminal
         void Load(const char* filename, unsigned int type);
         std::string SourceCode;
 
-        unsigned int GLObject;
+        unsigned int GLObject = -1;
     };
 }

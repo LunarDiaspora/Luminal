@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include "GLShaderProgram.h"
+#include "PointLight.h"
 
 namespace Luminal
 {
@@ -25,6 +26,8 @@ namespace Luminal
         inline static GLShaderProgram Program;
         inline static GLShader VertexShader;
         inline static GLShader FragmentShader;
+
+        inline static std::vector<std::unique_ptr<PointLight>> PointLights;
 
     private:
         static void BeforeFrame();

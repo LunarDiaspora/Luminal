@@ -20,5 +20,6 @@ namespace Luminal
         void Uniform1f(std::string name, float val);
         void Uniform1i(std::string name, int val);
         void UniformMatrix4(std::string name, glm::mat4 mat);
+        void Uniform3f(std::string name, glm::vec3 vec);
     };
 }

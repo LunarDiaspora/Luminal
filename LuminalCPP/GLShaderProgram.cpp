@@ -60,4 +60,10 @@ namespace Luminal
         int i = glGetUniformLocation(GLObject, name.c_str());
         glUniformMatrix4fv(i, 1, GL_FALSE, glm::value_ptr(mat));
     }
+
+    void GLShaderProgram::Uniform3f(std::string name, glm::vec3 vec)
+    {
+        int i = glGetUniformLocation(GLObject, name.c_str());
+        glUniform3f(i, vec.x, vec.y, vec.z);
+    }
 }
