@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 #include "Object.h"
 #include "Component.h"
+#include "Scene.h"
 
 namespace Luminal
 {
@@ -44,5 +45,11 @@ namespace Luminal
         glm::mat4 qm = glm::toMat4(Quaternion);
         m *= qm;
         return m;
+    }
+
+    void Object::Complete()
+    {
+        auto t = this;
+        Scene::AddObject(std::unique_ptr<Luminal::Object>(t));
     }
 }

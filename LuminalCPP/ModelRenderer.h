@@ -23,5 +23,7 @@ namespace Luminal
         void OnRender() override;
 
         void LoadModel(const char* path);
+
+        void OnCreate() override;
     };
 }

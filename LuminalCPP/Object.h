@@ -25,5 +25,7 @@ namespace Luminal
 
     	Object(const Object& obj);
     	Object& operator=(const Object& obj);
+
+        void Complete();
     };
 }

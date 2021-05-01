@@ -13,9 +13,9 @@ namespace Luminal
     public:
         inline static Camera* Camera;
 
-        inline static std::vector<Object> objects;
+        inline static std::vector<std::unique_ptr<Object>> objects;
 
-        static void AddObject(Object o);
+        static void AddObject(std::unique_ptr<Object> o);
 
         static void DrawAll();
         static void GUIAll();

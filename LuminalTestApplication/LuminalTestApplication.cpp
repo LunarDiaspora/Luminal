@@ -50,8 +50,12 @@ int main()
         camera.AddComponent(std::make_unique<Luminal::Camera>(cam));
         camera.Position.z = -5.0f;
 
+        camera.Complete();
+
         mr.LoadModel("Resources/test.obj");
         model.AddComponent(std::make_unique<Luminal::ModelRenderer>(mr));
+
+        model.Complete();
     };
 
     eng.OnDraw = []()
@@ -69,7 +73,7 @@ int main()
         ImGui::ShowDemoWindow();
     };
 
-    eng.Start(800, 600, "Test App");
+    eng.Start(1366, 768, "Test App");
 
     return 0;
 }

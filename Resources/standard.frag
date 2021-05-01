@@ -1,7 +1,7 @@
 #version 330 core
 
 #define ONE 1.0f
-#define MAXIMUM_POINT_LIGHTS 1000
+#define MAXIMUM_POINT_LIGHTS 100
 
 #define AMBIENT_STRENGTH    0.1f
 #define SPECULAR_STRENGTH   0.5f

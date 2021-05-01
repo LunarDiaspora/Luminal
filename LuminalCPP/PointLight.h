@@ -15,8 +15,8 @@ namespace Luminal
 
         void OnDestroy() override;
 
-        float Linear = 0.09;
-        float Quadratic = 0.012;
+        float Linear = 0.09f;
+        float Quadratic = 0.012f;
 
         glm::vec3 Colour;
     };
