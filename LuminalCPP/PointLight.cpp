@@ -1,12 +1,13 @@
 #include "PointLight.h"
 #include "Scene.h"
+#include <algorithm>
 
 namespace Luminal
 {
     void PointLight::OnCreate()
     {
         auto p = std::unique_ptr<Luminal::PointLight>(this);
-        Scene::PointLights.push_back(p);
+        Scene::PointLights.push_back(std::move(p));
     }
 
     void PointLight::OnDestroy()
