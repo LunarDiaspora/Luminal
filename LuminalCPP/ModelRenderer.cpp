@@ -33,8 +33,7 @@ namespace Luminal
 
     void ModelRenderer::LoadModel(const char* path)
     {
-        Luminal::Model m;
-        m.Load(path);
-        Model = std::unique_ptr<Luminal::Model>(&m);
+        Model = std::make_shared<Luminal::Model>();
+        Model->Load(path);
     }
 }

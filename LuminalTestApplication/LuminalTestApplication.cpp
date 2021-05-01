@@ -23,9 +23,9 @@ Luminal::GLUIntBuffer EBO;
 Luminal::GLTexture boris;
 Luminal::Model pot;
 
-Luminal::Object camera;
-Luminal::Camera cam;
-Luminal::Object model;
+std::unique_ptr<Luminal::Object> camera = std::make_unique<Luminal::Object>();
+std::unique_ptr<Luminal::Camera> cam = std::make_unique<Luminal::Camera>();
+std::unique_ptr<Luminal::Object> model = std::make_unique<Luminal::Object>();
 Luminal::ModelRenderer mr;
 
 float vertices[] = {
@@ -47,15 +47,15 @@ int main()
 
     eng.OnLoaded = []()
     {
-        camera.AddComponent(std::make_unique<Luminal::Camera>(cam));
-        camera.Position.z = -5.0f;
+        camera->AddComponent(std::move(cam));
+        camera->Position.z = -5.0f;
 
-        camera.Complete();
+        Luminal::Scene::AddObject(std::move(camera));
 
         mr.LoadModel("Resources/test.obj");
-        model.AddComponent(std::make_unique<Luminal::ModelRenderer>(mr));
+        model->AddComponent(std::make_unique<Luminal::ModelRenderer>(mr));
 
-        model.Complete();
+        Luminal::Scene::AddObject(std::move(model));
     };
 
     eng.OnDraw = []()
