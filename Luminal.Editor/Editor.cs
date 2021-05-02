@@ -13,6 +13,9 @@ using OpenTK.Mathematics;
 using Luminal.Logging;
 using System.Windows.Forms;
 using System.Threading;
+using ImGuizmoNET;
+using Luminal.OpenGL;
+using Luminal.Console;
 
 namespace Luminal.Editor
 {
@@ -71,6 +74,7 @@ namespace Luminal.Editor
 
             Camera = new Object3D("Main Camera");
             Camera.CreateComponent<Camera3D>();
+            Camera.CreateComponent<GridRenderer>();
 
             GUI = new Object3D("Editor GUI. You should not see this!");
             GUI.CreateComponent<ViewportWindow>();

@@ -2,6 +2,7 @@
 using Luminal.Entities.World;
 using System;
 using Newtonsoft.Json;
+using Luminal.Reflection;
 
 namespace Luminal.Entities
 {
@@ -15,8 +16,10 @@ namespace Luminal.Entities
         [JsonIgnore]
         protected internal BaseObject _parent;
 
+        [Skip]
         public bool Enabled = true;
 
+        [Skip]
         public string Type;
 
         public virtual void Create()

@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Luminal.Entities;
+using Luminal.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Luminal.Editor.Components
                 ImGui.Checkbox("Enabled?", ref c.Enabled);
                 ImGui.Separator();
 
-                var props = c.GetType().GetFields();
+                var props = c.GetType().GetFilteredFields();
                 foreach (var p in props)
                 {
                     if (p.Name == "Type") continue; // hidden.
@@ -44,6 +45,12 @@ namespace Luminal.Editor.Components
                         var s = (string)v;
                         ImGui.InputText(p.Name, ref s, 65536);
                         p.SetValue(c, s);
+                    }
+                    else if (p.FieldType == typeof(bool))
+                    {
+                        var b = (bool)v;
+                        ImGui.Checkbox(p.Name, ref b);
+                        p.SetValue(c, b);
                     }
                 }
             }

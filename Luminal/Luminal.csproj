@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
-    <PackageReference Include="ImGui.NET" Version="1.78.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="OpenTK.Graphics" Version="4.6.3" />
     <PackageReference Include="SFML.Net" Version="2.5.0" />
@@ -38,8 +37,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\Dependencies\ImGui.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGuizmo.NET">
+      <HintPath>..\Dependencies\ImGuizmo.NET.dll</HintPath>
+    </Reference>
     <Reference Include="SDL2-CS">
-      <HintPath>SDL2-CS.dll</HintPath>
+      <HintPath>..\Dependencies\SDL2-CS.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using ImGuizmoNET;
 using Luminal.Core;
 using Luminal.Logging;
 using OpenTK.Graphics.OpenGL;
@@ -100,6 +101,8 @@ namespace Luminal.OpenGL
             Context = ImGui.CreateContext();
 
             ImGui.SetCurrentContext(Context);
+
+            ImGuizmo.SetImGuiContext(Context);
 
             var io = ImGui.GetIO();
 
@@ -212,6 +215,7 @@ namespace Luminal.OpenGL
             if (!Initialised) throw new Exception("Tried to call BeforeFrame before initialising.");
 
             ImGui.NewFrame();
+            ImGuizmo.BeginFrame();
             NewFrame = true;
         }
 

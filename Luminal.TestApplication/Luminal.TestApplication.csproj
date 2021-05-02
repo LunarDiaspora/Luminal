@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ImGui.NET" Version="1.78.0" />
     <PackageReference Include="OpenTK.Graphics" Version="4.6.3" />
   </ItemGroup>
 
@@ -17,11 +16,18 @@
 
   <ItemGroup>
     <Reference Include="SDL2-CS">
-      <HintPath>..\Luminal\SDL2-CS.dll</HintPath>
+      <HintPath>..\Dependencies\SDL2-CS.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\Dependencies\ImGui.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGuizmo.NET">
+      <HintPath>..\Dependencies\ImGuizmo.NET.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo D | xcopy /E /Y &quot;$(SolutionDir)DLLDependencies&quot; &quot;$(TargetDir)&quot;" />
     <Exec Command="echo D | xcopy /E /Y &quot;$(SolutionDir)Luminal\EngineResources&quot; &quot;$(TargetDir)EngineResources&quot;" />
   </Target>
 

@@ -30,6 +30,15 @@ namespace Luminal.Entities.Components
             {
                 aspect = 1f;
             }
+            if (Near == 0f)
+            {
+                Near = 0.01f;
+            }
+
+            if (Far == 0f)
+            {
+                Far = 1000f;
+            }
             return Matrix4.CreatePerspectiveFieldOfView(GLHelper.DegRad(FieldOfView), aspect, Near, Far);
         }
     }

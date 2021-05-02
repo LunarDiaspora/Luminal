@@ -29,8 +29,8 @@ namespace Luminal.Core
                 var io = ImGui.GetIO();
                 var vp = ImGui.GetMainViewport();
 
-                var workPos = vp.GetWorkPos();
-                var workSize = vp.GetWorkSize();
+                var workPos = vp.WorkPos;
+                var workSize = vp.WorkSize;
 
                 var pos = new Vector2(FPSCounterPad, FPSCounterPad);
 
