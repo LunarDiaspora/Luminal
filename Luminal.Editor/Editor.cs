@@ -35,6 +35,10 @@ namespace Luminal.Editor
 
         public static Component CurrentlySelected;
 
+        public static Object3D SelectedObject;
+
+        public static bool ObjectSelected = false;
+
         public static void Init()
         {
             SwitchEditorPhase(EditorPhase.WELCOME);
@@ -65,7 +69,6 @@ namespace Luminal.Editor
             var o = new Object3D();
             o.CreateComponent<WelcomeMenuBar>();
             o.CreateComponent<WelcomeWindow>();
-            o.CreateComponent<ConvarTest>();
         }
 
         public static void BeginEditPhase()
@@ -74,13 +77,13 @@ namespace Luminal.Editor
 
             Camera = new Object3D("Main Camera");
             Camera.CreateComponent<Camera3D>();
-            Camera.CreateComponent<GridRenderer>();
 
             GUI = new Object3D("Editor GUI. You should not see this!");
             GUI.CreateComponent<ViewportWindow>();
             GUI.CreateComponent<MenuBar>();
             GUI.CreateComponent<SceneWindow>();
             GUI.CreateComponent<InspectorWindow>();
+            GUI.CreateComponent<GridRenderer>();
 
             TestModel = new("Teapot");
             var m = TestModel.CreateComponent<ModelRenderer>();

@@ -123,7 +123,7 @@ namespace Luminal.Console
             var reclaimFocus = false;
 
             ImGui.SetNextItemWidth(-1);
-            if (ImGui.InputText("", ref commandData, 65536, ImGuiInputTextFlags.EnterReturnsTrue))
+            if (ImGui.InputTextWithHint("", "Enter a command...", ref commandData, 65536, ImGuiInputTextFlags.EnterReturnsTrue))
             {
                 LogRaw("] " + commandData);
 

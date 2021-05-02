@@ -32,6 +32,12 @@ namespace Luminal.Editor.Components
 
                 bool h = ImGui.TreeNodeEx($"{obj.Name} (#{i})", ImGuiTreeNodeFlags.AllowItemOverlap);
 
+                if (ImGui.IsItemClicked())
+                {
+                    Editor.SelectedObject = (Object3D)obj;
+                    Editor.ObjectSelected = true;
+                }
+
                 if (ImGui.BeginPopupContextItem())
                 {
                     if (ImGui.Selectable("Delete"))
@@ -66,6 +72,7 @@ namespace Luminal.Editor.Components
                         if (ImGui.IsItemClicked())
                         {
                             Editor.CurrentlySelected = (Component)c;
+                            Editor.ObjectSelected = false;
                         }
                         ImGui.Separator();
                     }

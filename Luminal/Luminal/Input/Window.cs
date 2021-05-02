@@ -7,6 +7,7 @@ using static SDL2.SDL;
 using static SDL2.SDL.SDL_bool;
 using Luminal.Core;
 using System.Numerics;
+using Luminal.Console;
 
 namespace Luminal.Input
 {
@@ -19,6 +20,7 @@ namespace Luminal.Input
 
     public static class Window
     {
+        [ConVar("wm_opacity", "Opacity of the window.")]
         public static float Opacity
         {
             get
@@ -32,6 +34,7 @@ namespace Luminal.Input
             }
         }
 
+        [ConVar("wm_title", "The title of the window.")]
         public static string Title
         {
             get => SDL_GetWindowTitle(Engine.Window);

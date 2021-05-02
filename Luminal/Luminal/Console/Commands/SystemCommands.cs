@@ -105,4 +105,13 @@ namespace Luminal.Console.Commands
             WinAPIUtilities.WorkArea();
         }
     }
+
+    [ConCommand("clear", "Clears the console.")]
+    public class ClearCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            DebugConsole.ConsoleOutput.Clear();
+        }
+    }
 }

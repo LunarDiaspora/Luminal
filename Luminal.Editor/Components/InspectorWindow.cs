@@ -13,16 +13,76 @@ namespace Luminal.Editor.Components
     {
         public override void OnGUI()
         {
-            ImGui.Begin("Component Inspector");
+            ImGui.Begin("Inspector");
 
+            if (!Editor.ObjectSelected)
+                DoComponent();
+            else
+                DoObject();
+
+            ImGui.End();
+        }
+
+        void DoObject()
+        {
+            var c = Editor.SelectedObject;
+
+            if (c == null)
+            {
+                ImGui.Text("Select an item from the scene view.");
+            } else
+            {
+                ImGui.SetNextItemWidth(-1);
+                ImGui.Text($"{c.Name}");
+                if (ImGui.BeginPopupContextWindow("Edit name", ImGuiPopupFlags.MouseButtonLeft | ImGuiPopupFlags.MouseButtonRight))
+                {
+                    ImGui.InputTextWithHint("", "object name", ref c.Name, 65536);
+                    ImGui.EndPopup();
+                }
+
+                ImGui.Separator();
+
+                ImGui.DragFloat3("Position", ref c.Position);
+                var a = c.Euler;
+                ImGui.DragFloat3("Rotation", ref a);
+                c.Euler = a;
+
+                ImGui.Separator();
+
+                foreach (var i in c.components)
+                {
+                    ImGui.SetNextItemWidth(-1);
+                    
+                    if (ImGui.Selectable($"{i.GetType().Name}##{i.ID}"))
+                    {
+                        Editor.ObjectSelected = false;
+                        Editor.CurrentlySelected = i;
+                    }
+
+                    ImGui.Separator();
+                }
+            }
+        }
+
+        void DoComponent()
+        {
             var c = Editor.CurrentlySelected;
 
             if (c == null)
             {
-                ImGui.Text("Select a component from the scene view.");
-            } else
+                ImGui.Text("Select an item from the scene view.");
+            }
+            else
             {
-                ImGui.Text($"{((Component3D)c).Parent.Name} > {c.GetType().Name}");
+                if (ImGui.Selectable($"{((Component3D)c).Parent.Name}"))
+                {
+                    Editor.SelectedObject = ((Component3D)c).Parent;
+                    Editor.ObjectSelected = true;
+                    return;
+                }
+
+                ImGui.SameLine();
+                ImGui.Text($"> {c.GetType().Name}");
                 ImGui.Separator();
 
                 ImGui.Checkbox("Enabled?", ref c.Enabled);
@@ -54,8 +114,6 @@ namespace Luminal.Editor.Components
                     }
                 }
             }
-
-            ImGui.End();
         }
     }
 }

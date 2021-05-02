@@ -22,6 +22,8 @@ namespace Luminal.Entities
 
         internal bool Destroying = false;
 
+        public Guid ID = new();
+
         public BaseObject()
         {
             ECSScene.PushObject(this);

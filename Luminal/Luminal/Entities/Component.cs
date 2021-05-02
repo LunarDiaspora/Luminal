@@ -22,6 +22,9 @@ namespace Luminal.Entities
         [Skip]
         public string Type;
 
+        [Skip]
+        public Guid ID = new();
+
         public virtual void Create()
         {
         }
