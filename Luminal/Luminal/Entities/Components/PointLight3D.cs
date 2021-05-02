@@ -1,10 +1,13 @@
-﻿using System.Numerics;
+﻿using Luminal.Reflection;
+using System.Numerics;
 
 namespace Luminal.Entities.Components
 {
     public class PointLight3D : Component3D
     {
+        [Colour]
         public Vector3 Colour = new(1.0f, 1.0f, 1.0f);
+
         public float Intensity = 1.0f;
 
         public float Linear = 0.09f;

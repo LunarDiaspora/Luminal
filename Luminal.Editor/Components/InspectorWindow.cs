@@ -4,6 +4,7 @@ using Luminal.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -111,6 +112,43 @@ namespace Luminal.Editor.Components
                         var b = (bool)v;
                         ImGui.Checkbox(p.Name, ref b);
                         p.SetValue(c, b);
+                    }
+                    else if (p.FieldType == typeof(Vector2))
+                    {
+                        var v2 = (Vector2)v;
+                        ImGui.DragFloat2(p.Name, ref v2);
+                        p.SetValue(c, v2);
+                    }
+                    else if (p.FieldType == typeof(Vector3))
+                    {
+                        // Do we have the Colour attribute?
+                        var colour = Attribute.IsDefined(p, typeof(ColourAttribute));
+
+                        var v3 = (Vector3)v;
+                        if (colour)
+                        {
+                            ImGui.ColorEdit3(p.Name, ref v3);
+                        } else
+                        {
+                            ImGui.DragFloat3(p.Name, ref v3);
+                        }
+                        p.SetValue(c, v3);
+                    }
+                    else if (p.FieldType == typeof(Vector4))
+                    {
+                        // same thing as above
+                        var colour = Attribute.IsDefined(p, typeof(ColourAttribute));
+
+                        var v4 = (Vector4)v;
+                        if (colour)
+                        {
+                            ImGui.ColorEdit4(p.Name, ref v4);
+                        }
+                        else
+                        {
+                            ImGui.DragFloat4(p.Name, ref v4);
+                        }
+                        p.SetValue(c, v4);
                     }
                 }
             }

@@ -109,6 +109,8 @@ vec3 CalculatePointLight(PointLight light, vec3 viewDirection)
 
 	result += GetTextureOrAlbedo(UV);
 
+	result *= light.Colour;
+
 	result *= attenuation;
 
 	return result;
