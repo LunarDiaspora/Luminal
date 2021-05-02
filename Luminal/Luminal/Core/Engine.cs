@@ -15,6 +15,8 @@ using Luminal.Console;
 using System.Text.Json;
 using System.IO;
 using System.Windows.Forms;
+using System.Numerics;
+using Luminal.Input;
 
 namespace Luminal.Core
 {
@@ -138,6 +140,8 @@ namespace Luminal.Core
 
         public static LuminalConfig Config;
 
+        internal static Vector2 _DeltaMouse = new();
+
         [ConVar("r_vsync", "Sets vertical sync mode. 0 is off, 1 is on, 2 is adaptive.")]
         public static VSyncMode VSync;
 
@@ -173,6 +177,8 @@ namespace Luminal.Core
         public void StartRenderer(int WindowWidth, int WindowHeight, string WindowTitle, Type executingType,
                                   LuminalFlags Flags = 0, IImGuiTheme theme = null)
         {
+            Keyboard.Initialise();
+
             var fs = Flags.GetFlagString();
             var themename = "none";
             if (theme != null)
@@ -387,6 +393,10 @@ namespace Luminal.Core
 
                 Timing.TotalElapsedTime += seconds;
 
+                SDL.SDL_GetRelativeMouseState(out int mdx, out int mdy);
+                _DeltaMouse.X = mdx;
+                _DeltaMouse.Y = mdy;
+
                 AnimationManager.Update(seconds);
 
                 if (sceneManager.ActiveScene != null)
@@ -449,6 +459,8 @@ namespace Luminal.Core
                     Timing.FrameRate = (float)Timing.frameCount;
                     Timing.frameCount = 0;
                 }
+
+                Keyboard.Update();
             }
         }
 
@@ -489,6 +501,8 @@ namespace Luminal.Core
 
             if (!repeat)
             {
+                Keyboard.PressedMap[scancode] = true;
+                Keyboard.DownThisFrame[scancode] = true;
                 ConsoleManager.RunBind(scancode);
                 ConsoleManager.RunMomentaryBind(scancode, true);
             }
@@ -506,6 +520,8 @@ namespace Luminal.Core
 
             if (!repeat)
             {
+                Keyboard.PressedMap[scancode] = false;
+                Keyboard.UpThisFrame[scancode] = true;
                 ConsoleManager.RunMomentaryBind(scancode, false);
             }
 

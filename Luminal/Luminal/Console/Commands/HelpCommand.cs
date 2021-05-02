@@ -20,7 +20,7 @@ namespace Luminal.Console.Commands
                 var o = "";
                 foreach (var attr in ConsoleManager.Commands)
                     o += $"{attr.Key}: {attr.Value.Description ?? "No description specified."}\n";
-                foreach (var attr in ConsoleManager.ConVarAttrs)
+                foreach (var attr in ConsoleManager.ConVars)
                     o += $"{attr.Key}: {attr.Value.Description ?? "No description specified."}\n";
 
                 //Editor.LogRaw(o.Trim());
@@ -31,7 +31,7 @@ namespace Luminal.Console.Commands
             if (ConsoleManager.ConVars.ContainsKey(thing))
             {
                 // This is a convar.
-                var cv = ConsoleManager.ConVarAttrs[thing];
+                var cv = ConsoleManager.ConVars[thing];
 
                 var o = $"{cv.Name}: {cv.Description ?? "No description specified."}";
                 

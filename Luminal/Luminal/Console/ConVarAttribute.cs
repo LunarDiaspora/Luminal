@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,14 +25,22 @@ namespace Luminal.Console
 
     public static class ConVarFlagsExtensions
     {
-        public static string GetFlagString(this ConVarFlags t)
+        public static string GetFlagString(this ConVarFlags t, string[] custom = null)
         {
             var features = (from e in Enum.GetNames(typeof(ConVarFlags))
                 let val = Enum.Parse(typeof(ConVarFlags), e)
                 let present = t.Has((ConVarFlags) val)
-                where present select e.ToLower()).ToList();
+                where present select e.ToLower());
 
-            return string.Join(" ", features);
+            var final = features;
+
+            if (custom != null)
+            {
+                var c = custom.ToList();
+                final = features.Union(c);
+            }
+
+            return string.Join(" ", final);
         }
 
         public static bool Has(this ConVarFlags a, ConVarFlags b)
@@ -40,18 +49,38 @@ namespace Luminal.Console
         }
     }
 
-    [AttributeUsage(AttributeTargets.Field)]
+    public enum ConVarTarget
+    {
+        FIELD,
+        PROPERTY
+    }
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class ConVarAttribute : Attribute
     {
         public string Name;
         public string Description = null;
         public ConVarFlags Flags = 0;
+        public ConVarTarget Target;
+
+        public FieldInfo FieldInfo;
+        public Type FieldType;
+
+        public PropertyInfo PropertyInfo;
+        public Type PropertyType;
+
+        public ConVarType ValueType;
 
         public ConVarAttribute(string name, string description = null, ConVarFlags flags = 0)
         {
             Name = name;
             Description = description;
             Flags = flags;
+        }
+
+        public void SetType(Type t)
+        {
+            ValueType = ToConVarType(t);
         }
 
         public static ConVarType ToConVarType(Type t)

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
+using Luminal.Console;
 
 namespace Luminal.Entities.Components
 {
@@ -15,6 +16,9 @@ namespace Luminal.Entities.Components
         public GLCubemap Cubemap;
 
         private GLShaderProgram CubemapShader;
+
+        [ConVar("r_cubemaps", "Enable or disable rendering of cubemaps. (skyboxes)")]
+        public static bool RenderCubemaps = true;
 
         private static float[] skyboxVertices = {
             -1.0f,  1.0f, -1.0f,
@@ -111,7 +115,8 @@ namespace Luminal.Entities.Components
 
             CubemapShader.Uniform1i("Cubemap", 0);
 
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+            if (RenderCubemaps)
+                GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
 
             GL.DepthMask(true);
 

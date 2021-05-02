@@ -135,8 +135,7 @@ namespace Luminal.Console
     public static class ConsoleManager
     {
         public static Dictionary<string, ConCommandContainer> Commands = new();
-        public static Dictionary<string, (FieldInfo fi, ConVarType t)> ConVars = new();
-        public static Dictionary<string, ConVarAttribute> ConVarAttrs = new();
+        public static Dictionary<string, ConVarAttribute> ConVars = new();
         public static Dictionary<SDL_Scancode, string> Binds = new()
         {
             { SDL_Scancode.SDL_SCANCODE_F10, "toggleconsole" } // Default console bind.
@@ -238,46 +237,89 @@ namespace Luminal.Console
 
                 // Oh, it is.
                 var cv = ConVars[commandName];
-                var attr = ConVarAttrs[commandName];
 
-                if (!attr.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary)
+                if (cv.Target == ConVarTarget.FIELD)
                 {
-                    if (cv.t != ConVarType.BOOL)
-                        return;
-                    cv.fi.SetValue(null, initial.MomentaryState);
-                    return;
-                }
-
-                var type = cv.t;
-                var field = cv.fi;
-
-                if (inp.Count == 0 || field.IsInitOnly)
-                {
-                    // There is no actual argument, print the value.
-                    var val = field.GetValue(null);
-                    var h = val.ToString();
-                    DebugConsole.LogRaw($@"""{commandName}"" = ""{h}""");
-                    // also display flags + description
-                    if (attr.Flags != 0) // has flags!
+                    if (!cv.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary)
                     {
-                        DebugConsole.LogRaw($" {attr.Flags.GetFlagString()}");
+                        if (cv.ValueType != ConVarType.BOOL)
+                            return;
+                        cv.FieldInfo.SetValue(null, initial.MomentaryState);
+                        return;
                     }
-                    DebugConsole.LogRaw($" - {attr.Description ?? "No description specified."}");
 
-                    return;
-                }
+                    var type = cv.ValueType;
+                    var field = cv.FieldInfo;
 
-                if (!attr.Flags.Has(ConVarFlags.READONLY))
-                {
+                    if (inp.Count == 0 || field.IsInitOnly || cv.Flags.Has(ConVarFlags.READONLY))
+                    {
+                        // There is no actual argument, print the value.
+                        var val = field.GetValue(null);
+                        var h = val.ToString();
+                        DebugConsole.LogRaw($@"""{commandName}"" = ""{h}""");
+                        // also display flags + description
+                        if (cv.Flags != 0) // has flags!
+                        {
+                            DebugConsole.LogRaw($" {cv.Flags.GetFlagString()}");
+                        }
+                        DebugConsole.LogRaw($" - {cv.Description ?? "No description specified."}");
+
+                        return;
+                    }
                     // Okay, there's an input
                     var input = inp[0];
 
                     var value = ConVarAttribute.Parse(input, type);
 
                     field.SetValue(null, value);
-                } else
+                } else if (cv.Target == ConVarTarget.PROPERTY)
                 {
-                    DebugConsole.LogRaw($"Convar {commandName} is read only.");
+                    if (!cv.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary && cv.PropertyInfo.CanWrite)
+                    {
+                        // Write to it
+                        if (cv.ValueType != ConVarType.BOOL)
+                            return;
+                        var value = ConVarAttribute.Parse(inp[0], cv.ValueType);
+                        cv.PropertyInfo.SetValue(null, value);
+                    }
+
+                    var isRO = !cv.PropertyInfo.CanWrite || cv.Flags.Has(ConVarFlags.READONLY);
+
+                    if (inp.Count == 0 || isRO)
+                    {
+                        if (cv.PropertyInfo.CanRead)
+                        {
+                            var val = cv.PropertyInfo.GetValue(null);
+                            var h = val.ToString();
+                            DebugConsole.LogRaw($@"""{commandName}"" = ""{h}""");
+                            // also display flags + description
+
+                            var fsa = new[] { "readonly" };
+
+                            if (cv.Flags > 0 || isRO)
+                                DebugConsole.LogRaw($" {cv.Flags.GetFlagString(isRO ? fsa : null)}");
+
+                            DebugConsole.LogRaw($" - {cv.Description ?? "No description specified."}");
+                        } else
+                        {
+                            DebugConsole.LogRaw($@"""{commandName}"" = (unavailable)");
+
+                            var p = new[] { "writeonly" };
+                            if (!cv.PropertyInfo.CanWrite)
+                                p = new[] { "inaccessible" };
+
+                            var fstr = cv.Flags.GetFlagString(p);
+
+                            DebugConsole.LogRaw($" {fstr}");
+                            DebugConsole.LogRaw($" - {cv.Description ?? "No description specified."}");
+                        }
+
+                        return;
+                    }
+
+                    var input = inp[0];
+                    var v = ConVarAttribute.Parse(input, cv.ValueType);
+                    cv.PropertyInfo.SetValue(null, v);
                 }
                 
                 return;
@@ -347,13 +389,30 @@ namespace Luminal.Console
                     if (a == null)
                         continue;
 
-                    (FieldInfo fi, ConVarType t) n = new();
+                    a.FieldInfo = f;
+                    a.FieldType = f.FieldType;
 
-                    n.fi = f;
-                    n.t = ConVarAttribute.ToConVarType(f.FieldType);
+                    a.SetType(f.FieldType);
 
-                    ConVars.Add(a.Name, n);
-                    ConVarAttrs.Add(a.Name, a);
+                    a.Target = ConVarTarget.FIELD;
+
+                    ConVars.Add(a.Name, a);
+                }
+
+                foreach (var f in t.GetProperties())
+                {
+                    var a = f.GetCustomAttribute<ConVarAttribute>();
+                    if (a == null)
+                        continue;
+
+                    a.PropertyInfo = f;
+                    a.PropertyType = f.PropertyType;
+
+                    a.SetType(f.PropertyType);
+
+                    a.Target = ConVarTarget.PROPERTY;
+
+                    ConVars.Add(a.Name, a);
                 }
             }
         }

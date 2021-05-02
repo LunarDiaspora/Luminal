@@ -5,6 +5,8 @@ using Luminal.Entities;
 using Luminal.Entities.Components;
 using Luminal.Entities.Screen;
 using Luminal.Entities.World;
+using Luminal.Input;
+using Luminal.Logging;
 using Luminal.OpenGL.Models;
 using System.Collections.Generic;
 using static SDL2.SDL.SDL_Scancode;
@@ -115,6 +117,30 @@ namespace Luminal.TestApplication
         public override void Update()
         {
             Parent.Position = Main.camera.Position;
+        }
+    }
+
+    internal class ConVarPropTest
+    {
+        public static bool BackingField = false;
+
+        [ConVar("prop_readwrite", "A read-write property.")]
+        public static bool TestProp
+        {
+            get => BackingField;
+            set => BackingField = value;
+        }
+
+        [ConVar("prop_readonly", "A read-only property.")]
+        public static bool TestReadonly
+        {
+            get => BackingField;
+        }
+
+        [ConVar("prop_writeonly", "A write-only property.")]
+        public static bool TestWriteonly
+        {
+            set => BackingField = value;
         }
     }
 
