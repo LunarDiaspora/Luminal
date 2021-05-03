@@ -18,7 +18,7 @@ namespace Luminal.Console.Commands
     }
 
     [ConCommand("quit", "Shuts down Luminal and exits.")]
-    [OptionalArgument("code", ArgumentType.INT)]
+    [OptionalArgument("code", ArgumentType.Integer)]
     public class QuitCommand : IConCommand
     {
         public void Run(Arguments a)
@@ -38,7 +38,7 @@ namespace Luminal.Console.Commands
     }
 
     [ConCommand("bind", "Binds an action to a key.")]
-    [RequiredArgument("key", ArgumentType.STRING)]
+    [RequiredArgument("key", ArgumentType.String)]
     [OverflowArgument("command")]
     public class BindCommand : IConCommand
     {
@@ -70,7 +70,7 @@ namespace Luminal.Console.Commands
     }
 
     [ConCommand("alias", "Aliases a name to a command.")]
-    [RequiredArgument("name", ArgumentType.STRING)]
+    [RequiredArgument("name", ArgumentType.String)]
     [OverflowArgument("command")]
     public class AliasCommand : IConCommand
     {

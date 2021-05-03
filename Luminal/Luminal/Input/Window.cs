@@ -13,9 +13,9 @@ namespace Luminal.Input
 {
     public enum FullscreenMode
     {
-        WINDOWED,
-        FULLSCREEN,
-        BORDERLESS
+        Windowed,
+        FullScreen,
+        Borderless
     }
 
     public static class Window
@@ -48,19 +48,19 @@ namespace Luminal.Input
                 var f = SDL_GetWindowFlags(Engine.Window);
 
                 if ((f & (uint)SDL_WindowFlags.SDL_WINDOW_FULLSCREEN) > 0)
-                    return FullscreenMode.FULLSCREEN;
+                    return FullscreenMode.FullScreen;
                 else if ((f & (uint)SDL_WindowFlags.SDL_WINDOW_FULLSCREEN_DESKTOP) > 0)
-                    return FullscreenMode.BORDERLESS;
+                    return FullscreenMode.Borderless;
                 else
-                    return FullscreenMode.WINDOWED;
+                    return FullscreenMode.Windowed;
             }
 
             set
             {
                 SDL_SetWindowFullscreen(Engine.Window, value switch
                 {
-                    FullscreenMode.FULLSCREEN => 1,
-                    FullscreenMode.BORDERLESS => 4097,
+                    FullscreenMode.FullScreen => 1,
+                    FullscreenMode.Borderless => 4097,
                     _ => 0
                 });
             }

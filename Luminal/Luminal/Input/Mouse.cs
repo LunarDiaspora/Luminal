@@ -10,6 +10,15 @@ using Luminal.Core;
 
 namespace Luminal.Input
 {
+    public enum MouseButton
+    {
+        Left,
+        Middle,
+        Right,
+        Thumb1,
+        Thumb2
+    }
+
     public class Mouse
     {
         public static Vector2 Position

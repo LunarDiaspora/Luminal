@@ -54,10 +54,10 @@ namespace Luminal.Editor.Components
                 if (ImGui.BeginMenu("Mode"))
                 {
                     if (ImGui.MenuItem("Edit"))
-                        Editor.SwitchEditorPhase(EditorPhase.EDIT);
+                        Editor.SwitchEditorPhase(EditorPhase.Edit);
 
                     if (ImGui.MenuItem("Play"))
-                        Editor.SwitchEditorPhase(EditorPhase.PLAY);
+                        Editor.SwitchEditorPhase(EditorPhase.Play);
 
                     ImGui.EndMenu();
                 }

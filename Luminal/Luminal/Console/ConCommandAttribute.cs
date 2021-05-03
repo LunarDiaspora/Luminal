@@ -74,7 +74,7 @@ namespace Luminal.Console
 
         public Argument ToArg()
         {
-            var e = new Argument(ArgumentType.STRING, Name, true);
+            var e = new Argument(ArgumentType.String, Name, true);
             e.Overflow = true;
             return e;
         }

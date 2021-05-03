@@ -22,16 +22,16 @@ namespace Luminal.Console
         {
             switch (Type)
             {
-                case ArgumentType.STRING:
+                case ArgumentType.String:
                     Value = a;
                     break;
-                case ArgumentType.INT:
+                case ArgumentType.Integer:
                     Value = int.Parse(a);
                     break;
-                case ArgumentType.BOOL:
+                case ArgumentType.Boolean:
                     Value = (a == "true" || a == "yes" || a == "1");
                     break;
-                case ArgumentType.FLOAT:
+                case ArgumentType.Float:
                     Value = float.Parse(a);
                     break;
             }

@@ -8,7 +8,7 @@ using Luminal.Entities.Components;
 namespace Luminal.Console.Commands
 {
     [ConCommand("help", "Lists all console commands and variables, or gets info on one.")]
-    [OptionalArgument("command or field", ArgumentType.STRING)]
+    [OptionalArgument("command or field", ArgumentType.String)]
     public class HelpCommand : IConCommand
     {
         public void Run(Arguments a)

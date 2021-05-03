@@ -9,12 +9,12 @@ namespace Luminal.Console
 {
     public enum ConVarType
     {
-        STRING,
-        INT,
-        FLOAT,
-        DOUBLE,
-        BOOL,
-        UNKNOWN
+        Unknown = -1,
+        String,
+        Integer,
+        Float,
+        Double,
+        Boolean
     }
 
     [Flags]
@@ -85,27 +85,27 @@ namespace Luminal.Console
 
         public static ConVarType ToConVarType(Type t)
         {
-            if (t == typeof(string)) return ConVarType.STRING;
-            else if (t == typeof(int) || t.IsEnum) return ConVarType.INT;
-            else if (t == typeof(float)) return ConVarType.FLOAT;
-            else if (t == typeof(double)) return ConVarType.DOUBLE;
-            else if (t == typeof(bool)) return ConVarType.BOOL;
-            return ConVarType.UNKNOWN;
+            if (t == typeof(string)) return ConVarType.String;
+            else if (t == typeof(int) || t.IsEnum) return ConVarType.Integer;
+            else if (t == typeof(float)) return ConVarType.Float;
+            else if (t == typeof(double)) return ConVarType.Double;
+            else if (t == typeof(bool)) return ConVarType.Boolean;
+            return ConVarType.Unknown;
         }
 
         public static dynamic Parse(string t, ConVarType cvt)
         {
             switch (cvt)
             {
-                case ConVarType.STRING:
+                case ConVarType.String:
                     return t;
-                case ConVarType.INT:
+                case ConVarType.Integer:
                     return int.Parse(t);
-                case ConVarType.FLOAT:
+                case ConVarType.Float:
                     return float.Parse(t);
-                case ConVarType.DOUBLE:
+                case ConVarType.Double:
                     return double.Parse(t);
-                case ConVarType.BOOL:
+                case ConVarType.Boolean:
                     return (t == "true" || t == "yes" || t == "1");
             }
 

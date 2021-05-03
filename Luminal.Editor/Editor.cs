@@ -22,9 +22,9 @@ namespace Luminal.Editor
 {
     internal enum EditorPhase
     {
-        WELCOME,
-        EDIT,
-        PLAY
+        Welcome,
+        Edit,
+        Play
     }
 
     internal class SceneDebugger
@@ -72,8 +72,8 @@ namespace Luminal.Editor
         {
             SetUpStoredScene();
 
-            SwitchEditorPhase(EditorPhase.WELCOME);
-            Engine.VSync = VSyncMode.SYNC;
+            SwitchEditorPhase(EditorPhase.Welcome);
+            Engine.VSync = VSyncMode.Sync;
 
             ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
         }
@@ -82,13 +82,13 @@ namespace Luminal.Editor
         {
             switch (n)
             {
-                case EditorPhase.WELCOME:
+                case EditorPhase.Welcome:
                     BeginWelcomePhase();
                     break;
-                case EditorPhase.EDIT:
+                case EditorPhase.Edit:
                     BeginEditPhase();
                     break;
-                case EditorPhase.PLAY:
+                case EditorPhase.Play:
                     BeginPlayPhase();
                     break;
                 default:

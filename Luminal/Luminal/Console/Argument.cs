@@ -8,10 +8,10 @@ namespace Luminal.Console
 {
     public enum ArgumentType
     {
-        STRING,
-        INT,
-        FLOAT,
-        BOOL
+        String,
+        Integer,
+        Float,
+        Boolean
     }
 
     public class Argument

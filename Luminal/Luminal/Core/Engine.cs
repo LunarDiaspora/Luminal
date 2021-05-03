@@ -17,14 +17,15 @@ using System.IO;
 using System.Windows.Forms;
 using System.Numerics;
 using Luminal.Input;
+using System.Threading;
 
 namespace Luminal.Core
 {
     public enum LuminalFlags
     {
-        ENABLE_KEY_REPEAT = 1 << 0,
-        RESIZABLE = 1 << 1,
-        RESPECT_CONFIG_RESOLUTION = 1 << 2
+        EnableKeyRepeat = 1 << 0,
+        Resizable = 1 << 1,
+        RespectConfigResolution = 1 << 2
     }
 
     public static class LuminalFlagsExtension
@@ -70,16 +71,16 @@ namespace Luminal.Core
 
     public enum VSyncMode
     {
-        OFF,
-        SYNC,
-        ADAPTIVE
+        Disabled,
+        Sync,
+        Adaptive
     }
 
     public enum WindowState
     {
-        REGULAR,
-        MINIMISED,
-        MAXIMISED
+        Regular,
+        Minimised,
+        Maximised
     }
 
     public class Engine
@@ -149,6 +150,9 @@ namespace Luminal.Core
         [ConVar("console", "The state of the console.")]
         public static bool ConsoleOpen = false;
 
+        [ConVar("r_fpscap", "The maximum frame-rate the application will update at.")]
+        public static float FPSCap = 0.0f;
+
         public static bool Playing = false;
 
         public Engine(int logLevel = 0)
@@ -187,9 +191,9 @@ namespace Luminal.Core
             var config = LuminalConfigLoader.LoadConfig("Config.json");
             Config = config;
 
-            var actualWidth = (config.WindowWidth <= 0) || !Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION)
+            var actualWidth = (config.WindowWidth <= 0) || !Flags.Has(LuminalFlags.RespectConfigResolution)
                 ? WindowWidth : config.WindowWidth;
-            var actualHeight = (config.WindowHeight <= 0) || !Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION)
+            var actualHeight = (config.WindowHeight <= 0) || !Flags.Has(LuminalFlags.RespectConfigResolution)
                 ? WindowHeight : config.WindowHeight;
 
             Log.Info("");
@@ -203,8 +207,8 @@ namespace Luminal.Core
             Width = actualWidth;
             Height = actualHeight;
 
-            WindowX = Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION) ? config.WindowX : 200;
-            WindowY = Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION) ? config.WindowY : 200;
+            WindowX = Flags.Has(LuminalFlags.RespectConfigResolution) ? config.WindowX : 200;
+            WindowY = Flags.Has(LuminalFlags.RespectConfigResolution) ? config.WindowY : 200;
 
             if (WindowY <= 0) WindowY = 200;
 
@@ -255,11 +259,11 @@ namespace Luminal.Core
             sfClock = new Clock();
 
             var state = (WindowState)config.WindowState;
-            if (Flags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION))
+            if (Flags.Has(LuminalFlags.RespectConfigResolution))
             {
                 switch (state)
                 {
-                    case WindowState.MAXIMISED:
+                    case WindowState.Maximised:
                         // Special case:
                         SDL.SDL_MaximizeWindow(Window);
                         var r = WinAPIUtilities.WorkArea();
@@ -271,10 +275,10 @@ namespace Luminal.Core
                         Width = (int)r.w;
                         Height = h;
                         break;
-                    case WindowState.MINIMISED:
+                    case WindowState.Minimised:
                         SDL.SDL_MinimizeWindow(Window);
                         break;
-                    case WindowState.REGULAR:
+                    case WindowState.Regular:
                         SDL.SDL_RestoreWindow(Window);
                         break;
                 }
@@ -303,7 +307,7 @@ namespace Luminal.Core
                 {
                     OpenGLManager.ImGuiHandleEvent(evt);
 
-                    var noRepeat = ((EngineFlags & LuminalFlags.ENABLE_KEY_REPEAT) <= 0);
+                    var noRepeat = ((EngineFlags & LuminalFlags.EnableKeyRepeat) <= 0);
 
                     switch (evt.type)
                     {
@@ -358,30 +362,30 @@ namespace Luminal.Core
                                     WindowY = y1;
                                     break;
                                 case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_MAXIMIZED:
-                                    WindowState = WindowState.MAXIMISED;
+                                    WindowState = WindowState.Maximised;
                                     WindowY = 20;
                                     break;
                                 case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_MINIMIZED:
-                                    WindowState = WindowState.MINIMISED;
+                                    WindowState = WindowState.Minimised;
                                     break;
                                 case SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESTORED:
-                                    WindowState = WindowState.REGULAR;
+                                    WindowState = WindowState.Regular;
                                     break;
                             }
                             break;
                     }
                 }
 
-                var isResizable = EngineFlags.Has(LuminalFlags.RESIZABLE);
+                var isResizable = EngineFlags.Has(LuminalFlags.Resizable);
                 SDL.SDL_SetWindowResizable(Window, isResizable ? SDL.SDL_bool.SDL_TRUE : SDL.SDL_bool.SDL_FALSE);
 
                 SDL_GPU.GPU_ResetRendererState();
 
                 SDL.SDL_GL_SetSwapInterval(VSync switch
                 {
-                    VSyncMode.OFF => 0,
-                    VSyncMode.ADAPTIVE => -1,
-                    VSyncMode.SYNC => 1,
+                    VSyncMode.Disabled => 0,
+                    VSyncMode.Adaptive => -1,
+                    VSyncMode.Sync => 1,
                     _ => 0
                 });
 
@@ -450,15 +454,27 @@ namespace Luminal.Core
                     Timing.fpsCounter = 0;
                     Timing.FrameRate = (float)Timing.frameCount;
                     Timing.frameCount = 0;
+                    PersistentUI._updateGraph();
                 }
 
+                PersistentUI._afterFrame();
+
                 Keyboard.Update();
+
+                if (FPSCap >= 1)
+                {
+                    float ms = (1 / (FPSCap / 2)) - seconds;
+                    int sleep = (int)Math.Floor(ms * 1000);
+
+                    if (sleep > 0)
+                        Thread.Sleep(sleep);
+                }
             }
         }
 
         public static void Quit(int exitCode = 0)
         {
-            if (EngineFlags.Has(LuminalFlags.RESPECT_CONFIG_RESOLUTION))
+            if (EngineFlags.Has(LuminalFlags.RespectConfigResolution))
             {
                 Config.WindowWidth = Width;
                 Config.WindowHeight = Height;

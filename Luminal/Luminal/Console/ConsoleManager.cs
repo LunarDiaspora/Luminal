@@ -242,7 +242,7 @@ namespace Luminal.Console
                 {
                     if (!cv.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary)
                     {
-                        if (cv.ValueType != ConVarType.BOOL)
+                        if (cv.ValueType != ConVarType.Boolean)
                             return;
                         cv.FieldInfo.SetValue(null, initial.MomentaryState);
                         return;
@@ -277,7 +277,7 @@ namespace Luminal.Console
                     if (!cv.Flags.Has(ConVarFlags.READONLY) && initial.IsMomentary && cv.PropertyInfo.CanWrite)
                     {
                         // Write to it
-                        if (cv.ValueType != ConVarType.BOOL)
+                        if (cv.ValueType != ConVarType.Boolean)
                             return;
                         var value = ConVarAttribute.Parse(inp[0], cv.ValueType);
                         cv.PropertyInfo.SetValue(null, value);
