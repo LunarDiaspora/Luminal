@@ -9,6 +9,7 @@ using System.Numerics;
 using Luminal.Logging;
 using Luminal.Console;
 using Luminal.Core;
+using System.Runtime.InteropServices;
 
 namespace Luminal.Console
 {
@@ -22,6 +23,10 @@ namespace Luminal.Console
         }
 
         public static List<ConsoleLine> ConsoleOutput = new();
+
+        public static List<string> History = new();
+
+        static int histItem = -1;
 
         static Dictionary<LogLevel, string> levels = new()
         {
@@ -123,15 +128,35 @@ namespace Luminal.Console
             var reclaimFocus = false;
 
             ImGui.SetNextItemWidth(-1);
-            if (ImGui.InputTextWithHint("", "Enter a command...", ref commandData, 65536, ImGuiInputTextFlags.EnterReturnsTrue))
+
+            unsafe
             {
-                LogRaw("] " + commandData);
+                if (ImGui.InputTextWithHint("", "Enter a command...", ref commandData, 65536,
+                    ImGuiInputTextFlags.EnterReturnsTrue |
+                    ImGuiInputTextFlags.CallbackCompletion |
+                    ImGuiInputTextFlags.CallbackHistory,
+                    CommandCallback))
+                {
+                    if (commandData.Length != 0)
+                    {
+                        if (History.Contains(commandData))
+                        {
+                            History.Remove(commandData);
+                        }
 
-                HandleCommand(commandData);
+                        History.Insert(0, commandData);
+                    }
 
-                ScrollDown();
+                    histItem = -1;
 
-                reclaimFocus = true;
+                    LogRaw("] " + commandData);
+
+                    HandleCommand(commandData);
+
+                    ScrollDown();
+
+                    reclaimFocus = true;
+                }
             }
 
             ImGui.SetItemDefaultFocus();
@@ -139,6 +164,44 @@ namespace Luminal.Console
                 ImGui.SetKeyboardFocusHere(-1);
 
             ImGui.End();
+        }
+
+        private static unsafe int CommandCallback(ImGuiInputTextCallbackData* data)
+        {
+            if (data->EventFlag == ImGuiInputTextFlags.CallbackHistory)
+            {
+                if (data->EventKey == ImGuiKey.UpArrow)
+                {
+                    // Previous history item
+                    histItem = Math.Min(histItem + 1, History.Count-1);
+
+                    if (histItem >= 0)
+                    {
+                        ImGuiNative.ImGuiInputTextCallbackData_DeleteChars(data, 0, data->BufTextLen);
+                        var h = History[histItem];
+                        var p = Marshal.StringToHGlobalUni(h);
+                        ImGuiNative.ImGuiInputTextCallbackData_InsertChars(data, 0, (byte*)p.ToPointer(), null);
+                        ImGuiNative.ImGuiInputTextCallbackData_SelectAll(data);
+                    }
+                }
+
+                if (data->EventKey == ImGuiKey.DownArrow)
+                {
+                    // Next history item
+                    histItem = Math.Max(histItem - 1, 0);
+
+                    if (histItem >= 0)
+                    {
+                        ImGuiNative.ImGuiInputTextCallbackData_DeleteChars(data, 0, data->BufTextLen);
+                        var h = History[histItem];
+                        var p = Marshal.StringToHGlobalUni(h);
+                        ImGuiNative.ImGuiInputTextCallbackData_InsertChars(data, 0, (byte*)p.ToPointer(), null);
+                        ImGuiNative.ImGuiInputTextCallbackData_SelectAll(data);
+                    }
+                }
+            }
+
+            return 0;
         }
 
         public static void HandleCommand(string command, bool momentaryOnly = false, bool keyState = false, bool momentary = false, bool isKeyEvent = false)
