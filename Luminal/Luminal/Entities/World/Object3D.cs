@@ -15,6 +15,21 @@ namespace Luminal.Entities.World
         public Object3D() { }
         public Object3D(string n) : base(n) { }
 
+        private Vector3 _storedPos = new(0f, 0f, 0f);
+        private Quaternion _storedQuat = Quaternion.Identity;
+
+        public override void _Store()
+        {
+            _storedPos = Position;
+            _storedQuat = Quat;
+        }
+
+        public override void _Load()
+        {
+            Position = _storedPos;
+            Quat = _storedQuat;
+        }
+
         public Vector3 Euler
         {
             set

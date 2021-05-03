@@ -1,4 +1,5 @@
 ﻿using Luminal.Core;
+using Luminal.Entities;
 using Luminal.OpenGL.ImGuiTheme;
 using System;
 
@@ -23,6 +24,45 @@ namespace Luminal.Player.Core
             theme ??= new LuminalTheme();
 
             Engine.StartRenderer(width, height, wintitle, typeof(EnginePlayer), f, theme);
+        }
+
+        private static bool _hasPlayed = false;
+
+        public static void Play()
+        {
+            Engine.Playing = true;
+            _hasPlayed = true;
+
+            if (ECSScene.CurrentScene != null)
+            {
+                foreach (var o in ECSScene.CurrentScene.Objects)
+                {
+                    o._Store();
+
+                    foreach (var c in o.components)
+                    {
+                        c.BeginPlay();
+                    }
+                }
+            }
+        }
+
+        public static void StopPlaying()
+        {
+            Engine.Playing = false;
+
+            if (ECSScene.CurrentScene != null && _hasPlayed)
+            {
+                foreach (var o in ECSScene.CurrentScene.Objects)
+                {
+                    o._Load();
+
+                    foreach (var c in o.components)
+                    {
+                        c.EndPlay();
+                    }
+                }
+            }
         }
 
         public static readonly EnginePlayer Instance = new();

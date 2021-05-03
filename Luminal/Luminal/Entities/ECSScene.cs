@@ -11,7 +11,7 @@ namespace Luminal.Entities
 {
     public class ECSScene
     {
-        public static List<BaseObject> objects = new();
+        public static Scene CurrentScene;
 
         public static List<BaseObject> enabled = new();
 
@@ -21,15 +21,21 @@ namespace Luminal.Entities
 
         public static Camera3D Camera;
 
-        public static List<PointLight3D> PointLights = new();
+        public static GLRenderTexture RenderTexture = new();
 
-        public static GLRenderTexture RenderTexture;
+        [ConVar("r_userendertexture", "Dictates use of the render texture. DO NOT TOUCH THIS IF YOU DON'T KNOW WHAT THIS DOES.")]
+        public static bool UseRenderTexture = false;
+
+        public static bool DisableTracking = false;
 
         [ConVar("r_disable3d", "Completely disables 3D rendering. Don't touch this unless you know what you're doing!")]
         public static bool Disable3D = false;
 
         public static void UpdateAll()
         {
+            if (CurrentScene == null) return;
+            if (!Engine.Playing) return;
+
             foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
@@ -41,6 +47,8 @@ namespace Luminal.Entities
 
         public static void Render2DAll()
         {
+            if (CurrentScene == null) return;
+
             foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
@@ -52,6 +60,8 @@ namespace Luminal.Entities
 
         public static void OnGUIAll()
         {
+            if (CurrentScene == null) return;
+
             foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
@@ -64,6 +74,7 @@ namespace Luminal.Entities
         public static void Render3DAll()
         {
             if (Disable3D) return; // Don't bother
+            if (CurrentScene == null) return;
 
             BeforeDrawCalls();
 
@@ -94,33 +105,36 @@ namespace Luminal.Entities
             L3D_AfterFrame();
         }
 
-        public static void ProcessChangesToObjects()
+        public static void ProcessChangesToObjects(bool dontKill = false)
         {
             foreach (var o in deferred)
             {
                 if (o.Destroying) continue;
-                objects.Add(o);
+                if (!dontKill) CurrentScene?.Objects.Add(o);
             }
 
-            enabled = objects.Where(e => !e.Destroying && e.Active).ToList();
+            enabled = CurrentScene?.Objects.Where(e => !e.Destroying && e.Active).ToList();
 
-            var dead = objects.Where(e => e.Destroying).ToList();
+            var dead = CurrentScene?.Objects.Where(e => e.Destroying).ToList();
 
-            foreach (var o in dead)
+            if (dead != null)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var o in dead)
                 {
-                    c.Destroy();
+                    foreach (var c in o.components.Where(a => a.Enabled))
+                    {
+                        c.Destroy();
+                    }
+                    if (!dontKill) CurrentScene.Objects?.Remove(o);
                 }
-                objects.Remove(o);
             }
 
-            deferred.Clear();
+            if (!dontKill) deferred.Clear();
         }
 
         public static void PushObject(BaseObject o)
         {
-            deferred.Add(o);
+            CurrentScene?.Objects.Add(o);
         }
 
         public static GLShaderProgram Program;
@@ -146,7 +160,7 @@ namespace Luminal.Entities
         {
             Program.Use();
 
-            if (RenderTexture != null)
+            if (UseRenderTexture)
             {
                 RenderTexture.Use();
             }
@@ -169,9 +183,9 @@ namespace Luminal.Entities
             Program.Uniform3("ViewPosition", Camera.Parent.Position);
 
             // We actually -do- need the index here
-            for (int i=0; i<PointLights.Count; i++)
+            for (int i=0; i<CurrentScene.PointLights.Count; i++)
             {
-                var light = PointLights[i];
+                var light = CurrentScene.PointLights[i];
                 Program.Uniform3($"Points[{i}].Position", light.Parent.Position);
                 Program.Uniform3($"Points[{i}].Colour", light.Colour);
                 Program.Uniform1($"Points[{i}].Intensity", light.Intensity);
@@ -179,7 +193,7 @@ namespace Luminal.Entities
                 Program.Uniform1($"Points[{i}].Quadratic", light.Quadratic);
             }
 
-            Program.Uniform1i("PointCount", PointLights.Count);
+            Program.Uniform1i("PointCount", CurrentScene.PointLights.Count);
         }
 
         public static void L3D_AfterFrame()
@@ -189,9 +203,18 @@ namespace Luminal.Entities
 
         public static void L3D_SceneEnding()
         {
-            PointLights.Clear();
+            if (CurrentScene != null)
+            {
+                foreach (var o in CurrentScene.Objects)
+                {
+                    foreach (var c in o.components)
+                    {
+                        c.Destroy();
+                    }
+                }
+            }
 
-            objects.Clear();
+            CurrentScene = null;
         }
     }
 }

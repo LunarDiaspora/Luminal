@@ -88,8 +88,6 @@ namespace Luminal.Core
 
         public static IntPtr Screen;
 
-        public SceneManager sceneManager;
-
         public static bool WindowOpen;
 
         public Clock sfClock;
@@ -150,6 +148,8 @@ namespace Luminal.Core
 
         [ConVar("console", "The state of the console.")]
         public static bool ConsoleOpen = false;
+
+        public static bool Playing = false;
 
         public Engine(int logLevel = 0)
         {
@@ -213,8 +213,6 @@ namespace Luminal.Core
             EngineFlags = Flags;
 
             AudioEngine.Instance.Initialise();
-
-            sceneManager = new SceneManager(executingType);
 
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 4);
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 5);
@@ -399,9 +397,6 @@ namespace Luminal.Core
 
                 AnimationManager.Update(seconds);
 
-                if (sceneManager.ActiveScene != null)
-                    sceneManager.ActiveScene.Update(this, seconds);
-
                 ECSScene.UpdateAll();
 
                 if (OnUpdate != null)
@@ -422,9 +417,6 @@ namespace Luminal.Core
                     OnDraw(this);
 
                 ECSScene.Render2DAll();
-
-                if (sceneManager.ActiveScene != null)
-                    sceneManager.ActiveScene.Draw(this);
 
                 if (OnLateDraw != null)
                     OnLateDraw(this);
@@ -509,9 +501,6 @@ namespace Luminal.Core
 
             if (KeyDown != null)
                 KeyDown(this, scancode);
-
-            if (sceneManager.ActiveScene != null)
-                sceneManager.ActiveScene.OnKeyDown(this, scancode);
         }
 
         private void WinKeyUp(SDL.SDL_Scancode scancode, bool repeat = false)
@@ -527,9 +516,6 @@ namespace Luminal.Core
 
             if (KeyUp != null)
                 KeyUp(this, scancode);
-
-            if (sceneManager.ActiveScene != null)
-                sceneManager.ActiveScene.OnKeyUp(this, scancode);
         }
 
         private void MouseButtonDown(byte btn, int x, int y)

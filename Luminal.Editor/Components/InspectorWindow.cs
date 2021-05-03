@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using Luminal.Core;
 using Luminal.Entities;
 using Luminal.Reflection;
 using System;
@@ -15,6 +16,14 @@ namespace Luminal.Editor.Components
         public override void OnGUI()
         {
             ImGui.Begin("Inspector");
+
+            if (Engine.Playing)
+            {
+                ImGui.Text("You cannot modify components in play mode.");
+
+                ImGui.End();
+                return;
+            }
 
             if (!Editor.ObjectSelected)
                 DoComponent();
@@ -43,9 +52,11 @@ namespace Luminal.Editor.Components
 
                 ImGui.Separator();
 
-                ImGui.DragFloat3("Position", ref c.Position);
+                var sf = Engine.Playing ? ImGuiSliderFlags.NoInput : 0;
+
+                ImGui.DragFloat3("Position", ref c.Position, 1.0f, float.NegativeInfinity, float.PositiveInfinity, "%.3f", sf);
                 var a = c.Euler;
-                ImGui.DragFloat3("Rotation", ref a);
+                ImGui.DragFloat3("Rotation", ref a, 1.0f, float.NegativeInfinity, float.PositiveInfinity, "%.3f", sf);
                 c.Euler = a;
 
                 ImGui.Separator();

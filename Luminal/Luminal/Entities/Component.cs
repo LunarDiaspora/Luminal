@@ -13,6 +13,11 @@ namespace Luminal.Entities
             Type = GetType().Name;
         }
 
+        public Component Copy()
+        {
+            return (Component)MemberwiseClone();
+        }
+
         [JsonIgnore]
         protected internal BaseObject _parent;
 
@@ -26,6 +31,14 @@ namespace Luminal.Entities
         public Guid ID = new();
 
         public virtual void Create()
+        {
+        }
+
+        public virtual void BeginPlay()
+        {
+        }
+
+        public virtual void EndPlay()
         {
         }
 

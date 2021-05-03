@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ImGuiNET;
 using Luminal.Entities.World;
+using Luminal.Core;
 
 namespace Luminal.Editor.Components
 {
@@ -21,7 +22,7 @@ namespace Luminal.Editor.Components
             ImGui.Begin("Scene");
 
             int i = 0;
-            foreach (var obj in ECSScene.objects)
+            foreach (var obj in ECSScene.CurrentScene.Objects)
             {
                 if (obj.GetComponent<InternalComponent>() != null)
                 {
@@ -53,8 +54,11 @@ namespace Luminal.Editor.Components
                         var o3d = (Object3D)obj;
                         var a = o3d.Euler;
 
-                        ImGui.DragFloat3("Position", ref o3d.Position, 0.25f);
-                        ImGui.DragFloat3("Angle", ref a, 0.25f);
+                        if (!Engine.Playing)
+                        {
+                            ImGui.DragFloat3("Position", ref o3d.Position, 0.25f);
+                            ImGui.DragFloat3("Angle", ref a, 0.25f);
+                        }
 
                         o3d.Euler = a;
                     }

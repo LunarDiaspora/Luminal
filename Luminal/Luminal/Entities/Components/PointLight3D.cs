@@ -15,12 +15,12 @@ namespace Luminal.Entities.Components
 
         public override void Create()
         {
-            ECSScene.PointLights.Add(this);
+            ECSScene.CurrentScene.PointLights.Add(this);
         }
 
         public override void Destroy()
         {
-            ECSScene.PointLights.Remove(this);
+            ECSScene.CurrentScene.PointLights.Remove(this);
         }
     }
 }

@@ -51,6 +51,17 @@ namespace Luminal.Editor.Components
                     ImGui.EndMenu();
                 }
 
+                if (ImGui.BeginMenu("Mode"))
+                {
+                    if (ImGui.MenuItem("Edit"))
+                        Editor.SwitchEditorPhase(EditorPhase.EDIT);
+
+                    if (ImGui.MenuItem("Play"))
+                        Editor.SwitchEditorPhase(EditorPhase.PLAY);
+
+                    ImGui.EndMenu();
+                }
+
                 ImGuiUtil.RightAlignText($"Luminal v{EngineVersion.Current} - {Timing.FrameRate} fps");
 
                 ImGui.EndMainMenuBar();

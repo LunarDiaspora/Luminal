@@ -13,11 +13,10 @@ namespace Luminal.Editor
     {
         static void Main(string[] args)
         {
-            ECSScene.Disable3D = true;
-
             EnginePlayer.Instance.ConstructEngine();
 
             EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
+            EnginePlayer.Instance.Engine.OnGUI += _ => SceneDebugger.OnGUI();
 
             var f = LuminalFlags.ENABLE_KEY_REPEAT | LuminalFlags.RESIZABLE | LuminalFlags.RESPECT_CONFIG_RESOLUTION;
 

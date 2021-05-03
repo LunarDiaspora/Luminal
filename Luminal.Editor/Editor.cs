@@ -16,6 +16,7 @@ using System.Threading;
 using ImGuizmoNET;
 using Luminal.OpenGL;
 using Luminal.Console;
+using Luminal.Player.Core;
 
 namespace Luminal.Editor
 {
@@ -24,6 +25,28 @@ namespace Luminal.Editor
         WELCOME,
         EDIT,
         PLAY
+    }
+
+    internal class SceneDebugger
+    {
+        public static void OnGUI()
+        {
+            ImGui.Begin("Scene debugger");
+
+            if (ImGui.Button("Editor.Scene.SetActive()")) Editor.Scene.SetActive();
+            if (ImGui.Button("Editor.WelcomeScene.SetActive()")) Editor.WelcomeScene.SetActive();
+            if (ImGui.Button("Scene.Deactivate()")) Scene.Deactivate();
+
+            ImGui.End();
+        }
+    }
+
+    internal class TestComponent : Component3D
+    {
+        public override void Update()
+        {
+            Parent.Translate(Parent.Right * Timing.DeltaTime * 5.0f);
+        }
     }
 
     internal class Editor
@@ -39,16 +62,24 @@ namespace Luminal.Editor
 
         public static bool ObjectSelected = false;
 
+        public static bool Playing = false;
+
+        public static Scene WelcomeScene = new();
+
+        public static Scene Scene = new();
+
         public static void Init()
         {
+            SetUpStoredScene();
+
             SwitchEditorPhase(EditorPhase.WELCOME);
             Engine.VSync = VSyncMode.SYNC;
+
+            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
         }
 
         public static void SwitchEditorPhase(EditorPhase n)
         {
-            ECSScene.L3D_SceneEnding();
-
             switch (n)
             {
                 case EditorPhase.WELCOME:
@@ -56,6 +87,9 @@ namespace Luminal.Editor
                     break;
                 case EditorPhase.EDIT:
                     BeginEditPhase();
+                    break;
+                case EditorPhase.PLAY:
+                    BeginPlayPhase();
                     break;
                 default:
                     break;
@@ -65,18 +99,28 @@ namespace Luminal.Editor
         public static void BeginWelcomePhase()
         {
             ECSScene.Disable3D = true;
+            WelcomeScene.SetActive();
+        }
 
+        public static void SetUpStoredScene()
+        {
+            WelcomeScene = new();
+
+            WelcomeScene.SetActive();
             var o = new Object3D();
             o.CreateComponent<WelcomeMenuBar>();
             o.CreateComponent<WelcomeWindow>();
-        }
+            Scene.Deactivate();
 
-        public static void BeginEditPhase()
-        {
-            ECSScene.Disable3D = false;
+
+            Scene = new();
+
+            Scene.SetActive();
 
             Camera = new Object3D("Main Camera");
             Camera.CreateComponent<Camera3D>();
+
+            Camera.Position = new(0f, -3f, 0f);
 
             GUI = new Object3D("Editor GUI. You should not see this!");
             GUI.CreateComponent<ViewportWindow>();
@@ -89,13 +133,26 @@ namespace Luminal.Editor
             var m = TestModel.CreateComponent<ModelRenderer>();
             m.Model = new("test.obj");
             TestModel.Position = new(0f, 0f, -5f);
+            TestModel.CreateComponent<TestComponent>();
 
             var l = new Object3D("Light");
             l.CreateComponent<PointLight3D>();
 
-            ECSScene.RenderTexture = new();
+            Scene.Deactivate();
+        }
 
-            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+        public static void BeginEditPhase()
+        {
+            EnginePlayer.StopPlaying();
+
+            ECSScene.Disable3D = false;
+            ECSScene.UseRenderTexture = true;
+            Scene.SetActive();
+        }
+
+        public static void BeginPlayPhase()
+        {
+            EnginePlayer.Play();
         }
 
         class LoadThread : IDisposable

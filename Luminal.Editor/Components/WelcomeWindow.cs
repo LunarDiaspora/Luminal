@@ -26,6 +26,7 @@ namespace Luminal.Editor.Components
 
             if (ImGui.Button("Create new project", new(320, 120)))
             {
+                Editor.SetUpStoredScene();
                 Editor.SwitchEditorPhase(EditorPhase.EDIT);
             }
 

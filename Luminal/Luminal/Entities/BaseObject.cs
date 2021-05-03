@@ -26,19 +26,29 @@ namespace Luminal.Entities
 
         public BaseObject()
         {
-            ECSScene.PushObject(this);
+            if (!ECSScene.DisableTracking)
+                ECSScene.PushObject(this);
         }
 
         public BaseObject(string n)
         {
             Name = n;
-            ECSScene.PushObject(this);
+            if (!ECSScene.DisableTracking)
+                ECSScene.PushObject(this);
         }
 
         public void Destroy()
         {
             Destroying = true;
         }
+
+        public BaseObject Copy()
+        {
+            return (BaseObject)MemberwiseClone();
+        }
+
+        public virtual void _Store() { }
+        public virtual void _Load() { }
 
         public T? GetComponent<T>() where T : Component
         {

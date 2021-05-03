@@ -183,7 +183,7 @@ namespace Luminal.Player.Core
     {
         public static string Serialise()
         {
-            var t = ECSScene.objects;
+            var t = ECSScene.CurrentScene.Objects;
             var opt = new JsonSerializerSettings
             {
                 Converters =
