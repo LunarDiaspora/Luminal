@@ -66,7 +66,7 @@ namespace Luminal.Core
             Patch = pat;
         }
 
-        public static readonly EngineVersion Current = new(0, 2, 0);
+        public static readonly EngineVersion Current = new(0, 3, 0);
     }
 
     public enum VSyncMode

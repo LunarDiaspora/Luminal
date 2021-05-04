@@ -30,6 +30,22 @@ namespace Luminal.Entities.World
             Quat = _storedQuat;
         }
 
+        public Matrix4 ModelMatrix
+        {
+            get
+            {
+                //Matrix4.CreateTranslation(Position.ToOpenTK());
+                var m = Matrix4.CreateFromQuaternion(Quat);
+                m *= Matrix4.CreateTranslation(Position.ToOpenTK());
+                return m;
+            }
+            set
+            {
+                Position = value.ExtractTranslation().ToSystemNumerics();
+                Quat = value.ExtractRotation();
+            }
+        }
+
         public Vector3 Euler
         {
             set

@@ -31,7 +31,7 @@ namespace Luminal.Editor.Components
 
                 i++;
 
-                bool h = ImGui.TreeNodeEx($"{obj.Name} (#{i})", ImGuiTreeNodeFlags.AllowItemOverlap);
+                bool h = ImGui.TreeNodeEx($"{obj.Name}##O {obj.ID}", ImGuiTreeNodeFlags.AllowItemOverlap);
 
                 if (ImGui.IsItemClicked())
                 {
@@ -72,7 +72,7 @@ namespace Luminal.Editor.Components
 
                         var treeflag = ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
 
-                        ImGui.TreeNodeEx($"{c.GetType().Name}##Component{j} - {c.GetType()}", treeflag);
+                        ImGui.TreeNodeEx($"{c.GetType().Name}##C {c.ID}", treeflag);
                         if (ImGui.IsItemClicked())
                         {
                             Editor.CurrentlySelected = (Component)c;

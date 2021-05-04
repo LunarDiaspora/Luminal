@@ -11,6 +11,8 @@ namespace Luminal.Entities
         public Component()
         {
             Type = GetType().Name;
+
+            ID = Guid.NewGuid();
         }
 
         public Component Copy()

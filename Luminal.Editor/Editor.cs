@@ -123,11 +123,13 @@ namespace Luminal.Editor
             Camera.Position = new(0f, -3f, 0f);
 
             GUI = new Object3D("Editor GUI. You should not see this!");
+            GUI.CreateComponent<Dockspace>();
             GUI.CreateComponent<ViewportWindow>();
             GUI.CreateComponent<MenuBar>();
             GUI.CreateComponent<SceneWindow>();
             GUI.CreateComponent<InspectorWindow>();
             GUI.CreateComponent<GridRenderer>();
+            GUI.CreateComponent<Toolbar>();
 
             TestModel = new("Teapot");
             var m = TestModel.CreateComponent<ModelRenderer>();
@@ -144,6 +146,8 @@ namespace Luminal.Editor
         public static void BeginEditPhase()
         {
             EnginePlayer.StopPlaying();
+
+            Engine.ConsoleOpen = true;
 
             ECSScene.Disable3D = false;
             ECSScene.UseRenderTexture = true;

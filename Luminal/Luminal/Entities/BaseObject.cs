@@ -28,6 +28,8 @@ namespace Luminal.Entities
         {
             if (!ECSScene.DisableTracking)
                 ECSScene.PushObject(this);
+
+            ID = Guid.NewGuid();
         }
 
         public BaseObject(string n)
@@ -35,6 +37,8 @@ namespace Luminal.Entities
             Name = n;
             if (!ECSScene.DisableTracking)
                 ECSScene.PushObject(this);
+
+            ID = Guid.NewGuid();
         }
 
         public void Destroy()

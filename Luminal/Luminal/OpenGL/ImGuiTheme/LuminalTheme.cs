@@ -85,6 +85,8 @@ namespace Luminal.OpenGL.ImGuiTheme
 
             io.Fonts.AddFontDefault();
             //io.Fonts.AddFontFromFileTTF("./EngineResources/SourceCodePro.ttf", 18);
+
+            io.ConfigWindowsMoveFromTitleBarOnly = true;
         }
     }
 }

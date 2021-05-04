@@ -16,7 +16,8 @@ namespace Luminal.Editor
             EnginePlayer.Instance.ConstructEngine();
 
             EnginePlayer.Instance.Engine.OnFinishedLoad += _ => Editor.Init();
-            //EnginePlayer.Instance.Engine.OnGUI += _ => SceneDebugger.OnGUI();
+
+            Engine.EnableConsole = true;
 
             var f = LuminalFlags.EnableKeyRepeat | LuminalFlags.Resizable | LuminalFlags.RespectConfigResolution;
 
