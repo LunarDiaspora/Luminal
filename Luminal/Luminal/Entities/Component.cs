@@ -48,6 +48,10 @@ namespace Luminal.Entities
         {
         }
 
+        public virtual void UpdateAlways()
+        {
+        }
+
         public virtual void Render2D()
         {
         }

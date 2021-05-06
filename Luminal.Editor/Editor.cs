@@ -17,6 +17,7 @@ using ImGuizmoNET;
 using Luminal.OpenGL;
 using Luminal.Console;
 using Luminal.Player.Core;
+using Luminal.Audio;
 
 namespace Luminal.Editor
 {
@@ -139,6 +140,12 @@ namespace Luminal.Editor
 
             var l = new Object3D("Light");
             l.CreateComponent<PointLight3D>();
+
+            // 3D audio test
+            var t = new Object3D("3D audio test");
+            var sr = t.CreateComponent<AudioSource>();
+            sr.Audio = new AudioFile("test.wav");
+            sr.PlayOnEnteringPlayMode = true;
 
             Scene.Deactivate();
         }

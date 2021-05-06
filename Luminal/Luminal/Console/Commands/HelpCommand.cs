@@ -8,25 +8,12 @@ using Luminal.Entities.Components;
 namespace Luminal.Console.Commands
 {
     [ConCommand("help", "Lists all console commands and variables, or gets info on one.")]
-    [OptionalArgument("command or field", ArgumentType.String)]
+    [RequiredArgument("command or field", ArgumentType.String)]
     public class HelpCommand : IConCommand
     {
         public void Run(Arguments a)
         {
             var thing = (string)a.Get("command or field");
-
-            if (thing == null)
-            {
-                var o = "";
-                foreach (var attr in ConsoleManager.Commands)
-                    o += $"{attr.Key}: {attr.Value.Description ?? "No description specified."}\n";
-                foreach (var attr in ConsoleManager.ConVars)
-                    o += $"{attr.Key}: {attr.Value.Description ?? "No description specified."}\n";
-
-                //Editor.LogRaw(o.Trim());
-
-                return;
-            }
 
             if (ConsoleManager.ConVars.ContainsKey(thing))
             {
@@ -47,8 +34,6 @@ namespace Luminal.Console.Commands
 
                 DebugConsole.LogRaw(o);
             }
-
-
         }
     }
 }

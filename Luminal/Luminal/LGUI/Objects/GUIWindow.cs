@@ -16,10 +16,10 @@ namespace Luminal.LGUI.Objects
         public override void OnRender()
         {
             Context.SetColour(30, 30, 30);
-            Render.Rectangle(X, Y, Width, Height, RenderMode.FILL);
+            Render.Rectangle(X, Y, Width, Height, RenderMode.Fill);
 
             Context.SetColour(77, 77, 77);
-            Render.Rectangle(X, Y, Width, Height, RenderMode.STROKE);
+            Render.Rectangle(X, Y, Width, Height, RenderMode.Stroke);
         }
     }
 }

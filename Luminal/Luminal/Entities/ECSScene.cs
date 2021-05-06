@@ -21,7 +21,7 @@ namespace Luminal.Entities
 
         public static Camera3D Camera;
 
-        public static GLRenderTexture RenderTexture = new();
+        public static GLRenderTexture RenderTexture;
 
         [ConVar("r_userendertexture", "Dictates use of the render texture. DO NOT TOUCH THIS IF YOU DON'T KNOW WHAT THIS DOES.")]
         public static bool UseRenderTexture = false;
@@ -34,13 +34,13 @@ namespace Luminal.Entities
         public static void UpdateAll()
         {
             if (CurrentScene == null) return;
-            if (!Engine.Playing) return;
 
             foreach (var o in enabled)
             {
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
-                    c.Update();
+                    c.UpdateAlways();
+                    if (Engine.Playing) c.Update();
                 }
             }
         }
@@ -143,6 +143,8 @@ namespace Luminal.Entities
 
         public static void L3D_SetUp()
         {
+            RenderTexture = new();
+
             var vsSource = File.ReadAllText("EngineResources/mesh.vert");
             var fsSource = File.ReadAllText("EngineResources/lit.frag");
 
@@ -198,6 +200,9 @@ namespace Luminal.Entities
 
         public static void L3D_AfterFrame()
         {
+            if (UseRenderTexture)
+                RenderTexture.AfterFrame();
+
             GLRenderTexture.Reset();
         }
 

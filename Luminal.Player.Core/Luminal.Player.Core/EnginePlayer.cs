@@ -41,6 +41,8 @@ namespace Luminal.Player.Core
 
                     foreach (var c in o.components)
                     {
+                        c.Create();
+
                         c.BeginPlay();
                     }
                 }

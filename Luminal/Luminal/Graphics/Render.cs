@@ -9,23 +9,23 @@ namespace Luminal.Graphics
 {
     public enum RenderMode
     {
-        STROKE,
-        FILL
+        Stroke,
+        Fill
     }
 
     public static class Render
     {
-        public static void Rectangle(float x, float y, float w, float h, RenderMode mode = RenderMode.STROKE)
+        public static void Rectangle(float x, float y, float w, float h, RenderMode mode = RenderMode.Stroke)
         {
             if (!Engine.WindowOpen) return; // Let's just not, ok
 
             switch (mode)
             {
-                case RenderMode.FILL:
+                case RenderMode.Fill:
                     SDL_GPU.GPU_RectangleFilled(Engine.Screen, x, y, x + w, y + h, Context.Colour);
                     break;
 
-                case RenderMode.STROKE:
+                case RenderMode.Stroke:
                     SDL_GPU.GPU_Rectangle(Engine.Screen, x, y, x + w, y + h, Context.Colour);
                     break;
             }
@@ -47,7 +47,7 @@ namespace Luminal.Graphics
         }
 
         // Type overrides (some code still uses int)
-        public static void Rectangle(int x, int y, int w, int h, RenderMode mode = RenderMode.STROKE)
+        public static void Rectangle(int x, int y, int w, int h, RenderMode mode = RenderMode.Stroke)
         {
             Rectangle((float)x, (float)y, (float)w, (float)h, mode); // This overflows the stack if I don't manually tell it which one to use.
         }

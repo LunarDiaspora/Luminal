@@ -94,6 +94,60 @@ namespace Luminal.OpenGL
 
         private static SetClipboardDelegate _SetClipboard;
 
+        private static void DebugLog(DebugSource source, DebugType type, int id, DebugSeverity severity,
+            int length, IntPtr message, IntPtr userParam)
+        {
+            var src = source switch
+            {
+                DebugSource.DebugSourceApi => "API",
+                DebugSource.DebugSourceApplication => "App",
+                DebugSource.DebugSourceOther => "???",
+                DebugSource.DebugSourceShaderCompiler => "ShC",
+                DebugSource.DebugSourceThirdParty => "3rd",
+                DebugSource.DebugSourceWindowSystem => "DWM",
+                DebugSource.DontCare => "WTF",
+                _ => "WTF"
+            };
+
+            var sev = severity switch
+            {
+                DebugSeverity.DebugSeverityHigh => "HIGH",
+                DebugSeverity.DebugSeverityLow => "Low ",
+                DebugSeverity.DebugSeverityMedium => "Med.",
+                DebugSeverity.DebugSeverityNotification => "Note",
+                _ => "????"
+            };
+
+            var msg = Marshal.PtrToStringAnsi(message);
+
+            if (msg.Contains("unknown") && msg.Contains("object"))
+                return; // God is dead, and this shitty hack has killed him
+            // I beg you, future graphics programmers that will be inheriting this codebase,
+            // please fix this.
+
+            switch (type)
+            {
+                case DebugType.DebugTypeUndefinedBehavior:
+                case DebugType.DebugTypeDeprecatedBehavior:
+                case DebugType.DebugTypeError:
+                    Log.Error("OpenGL reported an error!");
+                    Log.Error("-------------------------\n");
+                    Log.Error($"[{src}] ({sev}) {msg}");
+                    Log.Error("\nThis is a bug. Report this.\n");
+                    break;
+                case DebugType.DebugTypePerformance:
+                    Log.Info($"OpenGL (performance): [{src}] ({sev}) {msg}");
+                    break;
+            }
+
+            if (!Engine.Running)
+            {
+                //throw new Exception($"OpenGL error! (before engine rendered frame 1): [{src}] ({sev}) {msg}");
+            }
+        }
+
+        private static DebugProc _DebugCb = DebugLog;
+
         public static unsafe void Initialise()
         {
             GL.LoadBindings(new SDLBindingsContext());
@@ -105,6 +159,10 @@ namespace Luminal.OpenGL
             ImGuizmo.SetImGuiContext(Context);
 
             var io = ImGui.GetIO();
+
+            GL.Enable(EnableCap.DebugOutput);
+            GL.Enable(EnableCap.DebugOutputSynchronous);
+            GL.DebugMessageCallback(_DebugCb, IntPtr.Zero);
 
             io.DisplaySize.X = Engine.Width;
             io.DisplaySize.Y = Engine.Height;

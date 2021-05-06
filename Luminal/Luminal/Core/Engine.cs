@@ -155,6 +155,8 @@ namespace Luminal.Core
 
         public static bool Playing = false;
 
+        public static bool Running = false;
+
         public Engine(int logLevel = 0)
         {
             var logger = new ConsoleLogger();
@@ -296,6 +298,7 @@ namespace Luminal.Core
                 ECSScene.OnGUIAll();
 
                 PersistentUI.Draw();
+                OptionsWindow.Draw();
 
                 if (ConsoleOpen)
                     DebugConsole.OnGUI();
@@ -399,6 +402,8 @@ namespace Luminal.Core
                 _DeltaMouse.X = mdx;
                 _DeltaMouse.Y = mdy;
 
+                AudioEngine.Instance.Update();
+
                 AnimationManager.Update(seconds);
 
                 ECSScene.UpdateAll();
@@ -469,6 +474,8 @@ namespace Luminal.Core
                     if (sleep > 0)
                         Thread.Sleep(sleep);
                 }
+
+                Running = true; // Only set this to true after the first frame renders.
             }
         }
 

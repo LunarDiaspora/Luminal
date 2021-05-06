@@ -30,12 +30,12 @@ namespace Luminal.Console
 
         static Dictionary<LogLevel, string> levels = new()
         {
-            { LogLevel.DEBUG, "DEBUG" },
-            { LogLevel.INFO, " INFO" },
-            { LogLevel.WARNING, " WARN" },
-            { LogLevel.ERROR, "ERROR" },
-            { LogLevel.FATAL, "FATAL" },
-            { LogLevel.UNEXPECTED, "WHAT?" }
+            { LogLevel.Debug, "DEBUG" },
+            { LogLevel.Info, " INFO" },
+            { LogLevel.Warning, " WARN" },
+            { LogLevel.Error, "ERROR" },
+            { LogLevel.Fatal, "FATAL" },
+            { LogLevel.Unexpected, "WHAT?" }
         };
 
         public static readonly Vector4 C_DG = new(105/255f, 105/255f, 105/255f, 1.0f);
@@ -51,12 +51,12 @@ namespace Luminal.Console
 
         static Dictionary<LogLevel, Vector4> colours = new()
         {
-            {LogLevel.DEBUG, C_DEBUG},
-            {LogLevel.INFO, C_INFO},
-            {LogLevel.WARNING, C_WARN},
-            {LogLevel.ERROR, C_ERROR},
-            {LogLevel.FATAL, C_FATAL},
-            {LogLevel.UNEXPECTED, C_WTF}
+            {LogLevel.Debug, C_DEBUG},
+            {LogLevel.Info, C_INFO},
+            {LogLevel.Warning, C_WARN},
+            {LogLevel.Error, C_ERROR},
+            {LogLevel.Fatal, C_FATAL},
+            {LogLevel.Unexpected, C_WTF}
         };
 
         private static bool isScrollingDown = false;
@@ -241,7 +241,7 @@ namespace Luminal.Console
                 var v = new ConsoleLine()
                 {
                     data = s,
-                    level = LogLevel.DEBUG,
+                    level = LogLevel.Debug,
                     raw = true
                 };
                 ConsoleOutput.Add(v);

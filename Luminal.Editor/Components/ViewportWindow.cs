@@ -37,7 +37,7 @@ namespace Luminal.Editor.Components
             var size = h - l;
 
             ECSScene.RenderTexture.Size = size;
-            ImGui.Image(new IntPtr(ECSScene.RenderTexture.GLTextureObject), size,
+            ImGui.Image(new IntPtr(ECSScene.RenderTexture.ResolveTex), size,
                 new(0, 1), new(1, 0));
             // This renders the texture technically upside-down how OpenGL sees it
             // but since OpenGL textures are already upside-down it's uno reverse carding opengl's flip and it's normal now

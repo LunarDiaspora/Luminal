@@ -11,12 +11,12 @@ namespace Luminal.OpenGL
 {
     public enum CubemapFace
     {
-        FRONT,
-        BACK,
-        TOP,
-        BOTTOM,
-        LEFT,
-        RIGHT
+        Front,
+        Back,
+        Top,
+        Bottom,
+        Left,
+        Right
     }
 
     public class GLCubemap
@@ -25,12 +25,12 @@ namespace Luminal.OpenGL
 
         public static Dictionary<CubemapFace, TextureTarget> TextureTargetMapping = new()
         {
-            { CubemapFace.RIGHT, TextureTarget.TextureCubeMapPositiveX },
-            { CubemapFace.LEFT, TextureTarget.TextureCubeMapNegativeX },
-            { CubemapFace.TOP, TextureTarget.TextureCubeMapPositiveY },
-            { CubemapFace.BOTTOM, TextureTarget.TextureCubeMapNegativeY },
-            { CubemapFace.FRONT, TextureTarget.TextureCubeMapPositiveZ },
-            { CubemapFace.BACK, TextureTarget.TextureCubeMapNegativeZ }
+            { CubemapFace.Right, TextureTarget.TextureCubeMapPositiveX },
+            { CubemapFace.Left, TextureTarget.TextureCubeMapNegativeX },
+            { CubemapFace.Top, TextureTarget.TextureCubeMapPositiveY },
+            { CubemapFace.Bottom, TextureTarget.TextureCubeMapNegativeY },
+            { CubemapFace.Front, TextureTarget.TextureCubeMapPositiveZ },
+            { CubemapFace.Back, TextureTarget.TextureCubeMapNegativeZ }
         };
 
         public GLCubemap(string root, string name)
@@ -43,12 +43,12 @@ namespace Luminal.OpenGL
 
             var d = new Dictionary<CubemapFace, string>()
             {
-                { CubemapFace.RIGHT, "-right" },
-                { CubemapFace.LEFT, "-left" },
-                { CubemapFace.TOP, "-top" },
-                { CubemapFace.BOTTOM, "-bottom" },
-                { CubemapFace.FRONT, "-front" },
-                { CubemapFace.BACK, "-back" }
+                { CubemapFace.Right, "-right" },
+                { CubemapFace.Left, "-left" },
+                { CubemapFace.Top, "-top" },
+                { CubemapFace.Bottom, "-bottom" },
+                { CubemapFace.Front, "-front" },
+                { CubemapFace.Back, "-back" }
             };
 
             foreach (var (key, value) in d)

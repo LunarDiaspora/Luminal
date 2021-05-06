@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,10 +20,8 @@ namespace Luminal.Audio
 
         public void Load(string path)
         {
-            if (file.load(path) != 1)
-            {
-                throw new Exception($"Failed to load audio file {path}.");
-            }
+            var p = Path.GetFullPath(path);
+            file.load(p);
         }
 
         public void Play()
