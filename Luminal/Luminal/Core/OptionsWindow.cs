@@ -2,6 +2,7 @@
 using Luminal.Audio;
 using Luminal.Console;
 using Luminal.Entities.Components;
+using Luminal.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,16 +16,48 @@ namespace Luminal.Core
         [ConVar("options", "Dictates whether the options window is open or not.")]
         public static bool Open = false;
 
-        public static int AASamples = 2;
+        static int _AASamples = 2;
 
         [ConVar("r_aasamples", "Sets the amount of antialiasing samples. Cannot go below 1 or above 16.")]
-        public static int AASamplesConVar // Lord forgive me for what I am about to do to this perfectly good language
+        public static int AASamples // Lord forgive me for what I am about to do to this perfectly good language
         {
-            get => AASamples;
-            set => AASamples = Math.Max(Math.Min(value, 16), 1);
+            get => _AASamples;
+
+            set => _AASamples = Math.Max(Math.Min(value, 16), 1);
         }
 
-        static int AAIndex = 0;
+        static int AAIndex
+        {
+            get
+            {
+                if (!GLRenderTexture.UseAntialiasing) return 0;
+
+                return AASamples switch
+                {
+                    1 => 0,
+                    2 => 1,
+                    4 => 2,
+                    8 => 3,
+                    16 => 4,
+                    _ => 0
+                };
+            }
+
+            set
+            {
+                AASamples = value switch
+                {
+                    0 => 1,
+                    1 => 2,
+                    2 => 4,
+                    3 => 8,
+                    4 => 16,
+                    _ => 1
+                };
+
+                GLRenderTexture.UseAntialiasing = AASamples != 1;
+            }
+        }
 
         public static void Draw()
         {
@@ -51,19 +84,10 @@ namespace Luminal.Core
                             "16x"
                         };
 
-                        var results = new[]
+                        var ai = AAIndex;
+                        if (ImGui.Combo("Antialiasing", ref ai, items, items.Length))
                         {
-                            1,
-                            2,
-                            4,
-                            8,
-                            16
-                        };
-
-                        if (ImGui.Combo("Antialiasing", ref AAIndex, items, items.Length))
-                        {
-                            var setTo = results[AAIndex];
-                            AASamples = setTo;
+                            AAIndex = ai;
                         }
 
                         if (ImGui.IsItemHovered())
