@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     class InspectorWindow : Component3D
     {
         public override void OnGUI()

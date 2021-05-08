@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ImGuiNET;
+using Luminal.Reflection;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     class WelcomeMenuBar : Component3D
     {
         public override void OnGUI()

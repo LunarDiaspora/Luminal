@@ -18,6 +18,7 @@ using Luminal.OpenGL;
 using Luminal.Console;
 using Luminal.Player.Core;
 using Luminal.Audio;
+using Luminal.UI;
 
 namespace Luminal.Editor
 {
@@ -196,13 +197,13 @@ namespace Luminal.Editor
 
         public static void DoLoadFlow()
         {
-            using var fod = new LoadThread();
-            var fil = "Luminal Engine project files (.luminal)|*.luminal";
-            fod.OnFileChosen += d =>
+            var pan = new FileBrowserPanel(System.IO.Directory.GetCurrentDirectory(),
+                "Luminal projects,.luminal;All files,*");
+
+            pan.Selected += e =>
             {
-                Log.Debug(d);
+                Log.Debug($"Path: {e.AbsolutePath}");
             };
-            fod.Show(fil);
         }
     }
 }

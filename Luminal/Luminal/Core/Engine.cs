@@ -3,7 +3,6 @@ using Luminal.Audio;
 using Luminal.Configuration;
 using Luminal.Entities;
 using Luminal.Graphics;
-using Luminal.LGUI;
 using Luminal.Logging;
 using Luminal.OpenGL;
 using Luminal.OpenGL.ImGuiTheme;
@@ -18,6 +17,7 @@ using System.Windows.Forms;
 using System.Numerics;
 using Luminal.Input;
 using System.Threading;
+using Luminal.UI;
 
 namespace Luminal.Core
 {
@@ -290,8 +290,6 @@ namespace Luminal.Core
             {
                 SDL_GPU.GPU_ClearColor(Screen, Context.MakeColourFromRGBA(0, 0, 0, 255));
 
-                GUIManager.Begin();
-
                 OpenGLManager.BeforeFrame();
 
                 if (OnGUI != null) OnGUI(this);
@@ -299,6 +297,7 @@ namespace Luminal.Core
 
                 PersistentUI.Draw();
                 OptionsWindow.Draw();
+                PanelManager.RenderAllActivePanels();
 
                 if (ConsoleOpen)
                     DebugConsole.OnGUI();
@@ -430,8 +429,6 @@ namespace Luminal.Core
                 if (OnLateDraw != null)
                     OnLateDraw(this);
 
-                GUIManager.RenderAll();
-
                 // This moves deferred objects into the main object list.
                 // This also cleans up objects that have been destroyed.
                 //
@@ -447,8 +444,6 @@ namespace Luminal.Core
                 OpenGLManager.Draw();
 
                 SDL_GPU.GPU_Flip(Screen);
-
-                GUIManager.End();
 
                 Timing.FrameNumber++;
                 Timing.frameCount++;
@@ -543,17 +538,14 @@ namespace Luminal.Core
 
         private void MouseButtonDown(byte btn, int x, int y)
         {
-            GUIManager.OnMouseDown(x, y, btn);
         }
 
         private void MouseButtonUp(byte btn, int x, int y)
         {
-            GUIManager.OnMouseUp(x, y, btn);
         }
 
         private void MouseDrag(int x, int y, int xrel, int yrel)
         {
-            GUIManager.OnMouseDrag(x, y, xrel, yrel);
         }
 
         private void WinClose()

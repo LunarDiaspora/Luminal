@@ -13,7 +13,7 @@ namespace Luminal.OpenGL.ImGuiTheme
             style.Colors[(int)ImGuiCol.WindowBg] = new Vector4(0.05f, 0.05f, 0.05f, 1f);
             style.Colors[(int)ImGuiCol.ChildBg] = new Vector4(0.05f, 0.05f, 0.05f, 1f);
             style.Colors[(int)ImGuiCol.PopupBg] = new Vector4(0.00f, 0.00f, 0.00f, 0.9f);
-            style.Colors[(int)ImGuiCol.Border] = new Vector4(0.40f, 0.40f, 0.40f, 1.00f);
+            style.Colors[(int)ImGuiCol.Border] = new Vector4(0.20f, 0.20f, 0.20f, 1.00f);
             style.Colors[(int)ImGuiCol.BorderShadow] = new Vector4(1.00f, 1.00f, 1.00f, 0.00f);
             style.Colors[(int)ImGuiCol.FrameBg] = new Vector4(0.00f, 0.00f, 0.00f, 0.80f);
             style.Colors[(int)ImGuiCol.FrameBgHovered] = new Vector4(0.84f, 0.37f, 0.00f, 0.20f);

@@ -7,14 +7,46 @@ using System.Threading.Tasks;
 using ImGuiNET;
 using Luminal.Entities.World;
 using Luminal.Core;
+using Luminal.Reflection;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     class SceneWindow : Component3D
     {
         public override void Create()
         {
             var _ = Parent.GetOrCreateComponent<InternalComponent>();
+
+            UpdateComponents();
+        }
+
+        static HashSet<Type> types = new(); // Hashsets are automatically deduped
+
+        void UpdateComponents()
+        {
+            var t = AppDomain.CurrentDomain;
+            var asms = t.GetAssemblies();
+            foreach (var asm in asms)
+            {
+                foreach (var tp in asm.GetTypes())
+                {
+                    // Get all of them.
+                    if (tp.IsAssignableTo(typeof(Component3D)))
+                    {
+                        // This is a component3d
+                        if (tp == typeof(Component3D))
+                            continue;
+
+                        var skips = tp.GetCustomAttributes(typeof(SkipAttribute), false);
+
+                        if (skips.Length != 0)
+                            continue;
+
+                        types.Add(tp);
+                    }
+                }
+            }
         }
 
         public override void OnGUI()
@@ -43,6 +75,13 @@ namespace Luminal.Editor.Components
                 {
                     if (ImGui.Selectable("Delete"))
                         obj.Destroy();
+
+                    ImGui.Separator();
+
+                    foreach (var t in types)
+                    {
+                        ImGui.Selectable(t.Name);
+                    }
 
                     ImGui.EndPopup();
                 }

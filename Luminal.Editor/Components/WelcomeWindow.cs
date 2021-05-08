@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using ImGuiNET;
 using Luminal.Entities;
+using Luminal.Reflection;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     public class WelcomeWindow : Component3D
     {
         public override void OnGUI()

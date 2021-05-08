@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using Luminal.Entities;
 using Luminal.OpenGL;
+using Luminal.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Luminal.Editor.Components
         Rotate
     }
 
+    [Skip]
     public class Toolbar : Component3D
     {
         public static MovementMode ActiveMode = MovementMode.Translate;

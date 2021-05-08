@@ -61,8 +61,9 @@ namespace Luminal.Entities.Components
             // We don't need any special checks here, actually
             // because SoLoud does nothing if your handle is invalid.
 
-            AudioEngine.Instance.audio.set3dSourcePosition(handle,
-                Parent.Position.X, Parent.Position.Y, Parent.Position.Z);
+            if (AudioEngine.Instance.audio.isValidVoiceHandle(handle) == 1) // I lied.
+                AudioEngine.Instance.audio.set3dSourcePosition(handle,
+                    Parent.Position.X, Parent.Position.Y, Parent.Position.Z);
         }
     }
 }

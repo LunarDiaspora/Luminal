@@ -9,7 +9,7 @@ namespace Luminal.Reflection
     /*
      * Indicates that a field SHOULD NOT appear in the Inspector.
      */
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Class)]
     public class SkipAttribute : Attribute
     {
     }

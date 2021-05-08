@@ -53,6 +53,8 @@ struct PointLight
 #define AMBIENT_STRENGTH    0.1f
 #define SPECULAR_STRENGTH   0.5f
 
+#define GAMMA_CORRECTION 2.2f
+
 #define LIGHT_CONSTANT ONE
 
 uniform PointLight Points[MAX_POINTS];
@@ -131,6 +133,8 @@ void main()
 		PointLight light = Points[i];
 		result += CalculatePointLight(light, viewDirection);
 	}
+
+	result = pow(result, vec3(1.0f / GAMMA_CORRECTION));
 
 	FragColour = vec4(result, 1.0f);
 

@@ -9,9 +9,11 @@ using Luminal.Core;
 using Luminal.Logging;
 using Luminal.Entities.World;
 using Luminal.Player.Core;
+using Luminal.Reflection;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     public class MenuBar : Component3D
     {
         private string objName = "";

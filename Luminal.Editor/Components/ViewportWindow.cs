@@ -9,10 +9,12 @@ using Luminal.Console;
 using Luminal.Entities;
 using Luminal.Entities.World;
 using Luminal.OpenGL;
+using Luminal.Reflection;
 using OpenTK.Mathematics;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     class ViewportWindow : Component3D
     {
         public override void Create()

@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using Luminal.Entities;
+using Luminal.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using static ImGuiNET.ImGuiWindowFlags;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     public class Dockspace : Component3D
     {
         public override void OnGUI()

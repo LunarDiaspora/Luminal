@@ -63,7 +63,7 @@ namespace Luminal.OpenGL
             SetMagFilter(TextureMagFilter.Nearest);
         }
 
-        public GLTexture(string name, string file)
+        public GLTexture(string name, string file, bool isSRGB = false)
         {
             var bmp = new Bitmap(file);
 
@@ -74,8 +74,32 @@ namespace Luminal.OpenGL
             var ir = new Rectangle(0, 0, bmp.Width, bmp.Height);
             var data = bmp.LockBits(ir, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bmp.Width, bmp.Height, 0,
+            var fmt = isSRGB ? PixelInternalFormat.SrgbAlpha : PixelInternalFormat.Rgba;
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, fmt, bmp.Width, bmp.Height, 0,
                           PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+            bmp.UnlockBits(data);
+
+            SetMinFilter(TextureMinFilter.Linear);
+            SetMagFilter(TextureMagFilter.Linear);
+
+            SetWrappingRules(TextureWrapMode.Repeat);
+        }
+
+        public GLTexture(string name, Bitmap bmp)
+        {
+            GLHelper.Texture(TextureTarget.Texture2D, name, out int obj);
+            GLObject = obj;
+
+            Bind();
+            var ir = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            var data = bmp.LockBits(ir, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            var fmt = PixelInternalFormat.Rgba;
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, fmt, bmp.Width, bmp.Height, 0,
+              PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
 
             bmp.UnlockBits(data);
 

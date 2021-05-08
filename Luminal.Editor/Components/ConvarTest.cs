@@ -1,9 +1,11 @@
 ﻿using Luminal.Entities;
 using ImGuiNET;
 using Luminal.Console;
+using Luminal.Reflection;
 
 namespace Luminal.Editor.Components
 {
+    [Skip]
     public class ConvarTest : Component3D
     {
         [ConVar("s_test", "A testing convar.")]
