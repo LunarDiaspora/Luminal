@@ -90,7 +90,8 @@ namespace Luminal.OpenGL.Models
                     var vc = inp.VertexCount;
                     if (uvc != vc)
                     {
-                        Log.Wtf($"Luminal 3D: (Model.cs) Irregular UV channel length!?\nVertex {i}, {uvc} UVs, {vc} vertices.\n" +
+                        Log.Wtf($"Luminal 3D: (Model.cs) Irregular UV channel length!?\n" +
+                                $"Vertex {i}, {uvc} UVs, {vc} vertices.\n" +
                                 "Refusing to load this vertex's texture data!");
                     }
                     else

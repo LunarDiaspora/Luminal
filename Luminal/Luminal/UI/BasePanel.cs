@@ -10,6 +10,7 @@ namespace Luminal.UI
     {
         public abstract void Render();
         public bool Open = true;
+        public Guid ID;
 
         public void Close()
         {
@@ -18,6 +19,7 @@ namespace Luminal.UI
 
         public BasePanel()
         {
+            ID = Guid.NewGuid();
             PanelManager.DeferredAdd.Add(this);
         }
     }

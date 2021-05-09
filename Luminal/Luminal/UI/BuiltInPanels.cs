@@ -74,7 +74,8 @@ namespace Luminal.UI
             var vpc = ImGui.GetMainViewport().GetCenter();
 
             ImGui.SetNextWindowPos(vpc, ImGuiCond.Appearing, new(0.5f, 0.5f));
-            if (ImGui.Begin("Select a file", ref stillOpen, ImGuiWindowFlags.NoCollapse))
+            ImGui.SetNextWindowSize(new(Viewport.Width / 2f, Viewport.Height / 2f), ImGuiCond.Appearing);
+            if (ImGui.Begin($"Select a file##filebrowser {ID}", ref stillOpen, ImGuiWindowFlags.NoCollapse))
             {
                 var reservedHeight = ImGui.GetStyle().ItemSpacing.Y + (ImGui.GetFrameHeightWithSpacing() * 0.85f);
 

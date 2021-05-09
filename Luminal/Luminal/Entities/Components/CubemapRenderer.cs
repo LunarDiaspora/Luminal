@@ -78,11 +78,11 @@ namespace Luminal.Entities.Components
 
             VBO.Data(skyboxVertices, BufferUsageHint.DynamicDraw);
 
-            var VS = File.ReadAllText("EngineResources/cubemap.vert");
-            var FS = File.ReadAllText("EngineResources/cubemap.frag");
+            var VS = File.ReadAllText("EngineResources/Shaders/Cubemap/cubemap.vert");
+            var FS = File.ReadAllText("EngineResources/Shaders/Cubemap/cubemap.frag");
 
-            var VP = new GLShader(VS, GLShaderType.VERTEX);
-            var FP = new GLShader(FS, GLShaderType.FRAGMENT);
+            var VP = new GLShader(VS, GLShaderType.Vertex);
+            var FP = new GLShader(FS, GLShaderType.Fragment);
 
             CubemapShader = new GLShaderProgram()
                 .Label("Cubemap Shader")

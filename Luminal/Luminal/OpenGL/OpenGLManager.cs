@@ -223,11 +223,11 @@ namespace Luminal.OpenGL
 
             IG_VAO.Bind();
 
-            VertexSource = File.ReadAllText("EngineResources/2D.vert");
-            FragSource = File.ReadAllText("EngineResources/standard.frag");
+            VertexSource = File.ReadAllText("EngineResources/Shaders/2D/2D.vert");
+            FragSource = File.ReadAllText("EngineResources/Shaders/2D/2D.frag");
 
-            VS = new GLShader(VertexSource, GLShaderType.VERTEX);
-            FS = new GLShader(FragSource, GLShaderType.FRAGMENT);
+            VS = new GLShader(VertexSource, GLShaderType.Vertex);
+            FS = new GLShader(FragSource, GLShaderType.Fragment);
 
             VS.Compile();
             FS.Compile();

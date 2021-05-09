@@ -34,11 +34,11 @@ namespace Luminal.Entities.Components
         {
             VAO.Bind();
 
-            var vsource = File.ReadAllText("EngineResources/grid.vert");
-            var fsource = File.ReadAllText("EngineResources/grid.frag");
+            var vsource = File.ReadAllText("EngineResources/Shaders/Grid/grid.vert");
+            var fsource = File.ReadAllText("EngineResources/Shaders/Grid/grid.frag");
 
-            VS = new GLShader(vsource, GLShaderType.VERTEX);
-            FS = new GLShader(fsource, GLShaderType.FRAGMENT);
+            VS = new GLShader(vsource, GLShaderType.Vertex);
+            FS = new GLShader(fsource, GLShaderType.Fragment);
 
             Program = new GLShaderProgram()
                 .Attach(VS)

@@ -8,6 +8,7 @@ layout (location=3) in vec4 aColour;
 out vec4 Colour;
 out vec2 UV;
 out vec3 Normal;
+out vec3 TrueNormal;
 out vec3 FragPosition;
 
 uniform mat4 Model;
@@ -19,5 +20,6 @@ void main() {
 	Colour = aColour;
 	UV = aUV;
 	Normal = mat3(transpose(inverse(Model))) * aNormal;
+	TrueNormal = aNormal;
 	FragPosition = vec3(Model * vec4(aPos, 1.0f));
 }

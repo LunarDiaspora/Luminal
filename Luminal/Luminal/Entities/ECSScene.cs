@@ -105,6 +105,20 @@ namespace Luminal.Entities
             L3D_AfterFrame();
         }
 
+        internal static void ExplicitRender()
+        {
+            if (Disable3D) return; // Don't bother
+            if (CurrentScene == null) return;
+
+            foreach (var o in enabled)
+            {
+                foreach (var c in o.components.Where(a => a.Enabled))
+                {
+                    c.Render3D();
+                }
+            }
+        }
+
         public static void ProcessChangesToObjects(bool dontKill = false)
         {
             foreach (var o in deferred)
@@ -145,11 +159,11 @@ namespace Luminal.Entities
         {
             RenderTexture = new();
 
-            var vsSource = File.ReadAllText("EngineResources/mesh.vert");
-            var fsSource = File.ReadAllText("EngineResources/lit.frag");
+            var vsSource = File.ReadAllText("EngineResources/Shaders/Rendering/mesh.vert");
+            var fsSource = File.ReadAllText("EngineResources/Shaders/Rendering/lit.frag");
 
-            var VS = new GLShader(vsSource, GLShaderType.VERTEX);
-            var FS = new GLShader(fsSource, GLShaderType.FRAGMENT);
+            var VS = new GLShader(vsSource, GLShaderType.Vertex);
+            var FS = new GLShader(fsSource, GLShaderType.Fragment);
 
             Program = new GLShaderProgram()
                 .Label("Scene")
@@ -184,6 +198,9 @@ namespace Luminal.Entities
             Program.Uniform3("ObjectColour", ObjectColour);
             Program.Uniform3("ViewPosition", Camera.Parent.Position);
 
+            Program.Uniform1i("BlinnPhong", RenderingVariables.UseBlinnPhong ? 1 : 0);
+            Program.Uniform1("BlinnPhongMultiplier", RenderingVariables.BlinnPhongMult);
+
             // We actually -do- need the index here
             for (int i=0; i<CurrentScene.PointLights.Count; i++)
             {
@@ -195,7 +212,22 @@ namespace Luminal.Entities
                 Program.Uniform1($"Points[{i}].Quadratic", light.Quadratic);
             }
 
+            for (int i=0; i<CurrentScene.SpotLights.Count; i++)
+            {
+                var light = CurrentScene.SpotLights[i];
+
+                Program.Uniform3($"Spots[{i}].Position", light.Parent.Position);
+                Program.Uniform3($"Spots[{i}].Colour", light.Colour);
+                Program.Uniform3($"Spots[{i}].Angle", light.Parent.Forward);
+                Program.Uniform1($"Spots[{i}].CutOff", System.MathF.Cos(GLHelper.DegRad(light.Radius)));
+                Program.Uniform1($"Spots[{i}].OuterCutOff", System.MathF.Cos(GLHelper.DegRad(light.OuterRadius)));
+                Program.Uniform1($"Spots[{i}].Intensity", light.Intensity);
+                Program.Uniform1($"Spots[{i}].Linear", light.Linear);
+                Program.Uniform1($"Spots[{i}].Quadratic", light.Quadratic);
+            }
+
             Program.Uniform1i("PointCount", CurrentScene.PointLights.Count);
+            Program.Uniform1i("SpotCount", CurrentScene.SpotLights.Count);
         }
 
         public static void L3D_AfterFrame()

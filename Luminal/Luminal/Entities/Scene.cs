@@ -10,7 +10,10 @@ namespace Luminal.Entities
     public class Scene
     {
         public List<BaseObject> Objects = new();
+
         public List<PointLight3D> PointLights = new();
+        public List<SpotLight3D> SpotLights = new();
+
         public Camera3D Camera;
 
         public void SetActive()

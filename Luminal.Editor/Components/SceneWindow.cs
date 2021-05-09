@@ -80,7 +80,13 @@ namespace Luminal.Editor.Components
 
                     foreach (var t in types)
                     {
-                        ImGui.Selectable(t.Name);
+                        if (ImGui.Selectable(t.Name))
+                        {
+                            var gen = typeof(Object3D)
+                                .GetMethod("CreateComponent")
+                                .MakeGenericMethod(t);
+                            gen.Invoke(obj, Array.Empty<object>());
+                        }
                     }
 
                     ImGui.EndPopup();

@@ -6,8 +6,9 @@ namespace Luminal.OpenGL
 {
     public enum GLShaderType
     {
-        FRAGMENT,
-        VERTEX
+        Fragment,
+        Vertex,
+        Geometry
     }
 
     public class GLShader
@@ -20,19 +21,23 @@ namespace Luminal.OpenGL
 
         public bool Compiled = false;
 
-        public GLShader(string code, GLShaderType type = GLShaderType.FRAGMENT, bool compileOnCreate = true)
+        public GLShader(string code, GLShaderType type = GLShaderType.Fragment, bool compileOnCreate = true)
         {
             SourceCode = code;
             Type = type;
 
             switch (type)
             {
-                case GLShaderType.FRAGMENT:
+                case GLShaderType.Fragment:
                     TKType = ShaderType.FragmentShader;
                     break;
 
-                case GLShaderType.VERTEX:
+                case GLShaderType.Vertex:
                     TKType = ShaderType.VertexShader;
+                    break;
+
+                case GLShaderType.Geometry:
+                    TKType = ShaderType.GeometryShader;
                     break;
             }
 
@@ -55,7 +60,16 @@ namespace Luminal.OpenGL
             {
                 // Something's gone wrong.
                 var outputLog = GL.GetShaderInfoLog(GLObject);
-                Log.Fatal($"Error while compiling {(Type == GLShaderType.VERTEX ? "vertex" : "fragment")} shader!");
+
+                var shaderType = Type switch
+                {
+                    GLShaderType.Vertex => "vertex",
+                    GLShaderType.Fragment => "fragment",
+                    GLShaderType.Geometry => "geometry",
+                    _ => "(what the fuck?)"
+                };
+
+                Log.Fatal($"Error while compiling {shaderType} shader!");
                 Log.Fatal(outputLog.Trim());
                 throw new Exception("Shader compilation failure.");
             }

@@ -124,6 +124,8 @@ namespace Luminal.Editor
 
             Camera.Position = new(0f, -3f, 0f);
 
+            Camera.CreateComponent<SpotLight3D>();
+
             GUI = new Object3D("Editor GUI. You should not see this!");
             GUI.CreateComponent<Dockspace>();
             GUI.CreateComponent<ViewportWindow>();
@@ -135,12 +137,12 @@ namespace Luminal.Editor
 
             TestModel = new("Teapot");
             var m = TestModel.CreateComponent<ModelRenderer>();
-            m.Model = new("test.obj");
+            m.Model = new("test2.obj");
             TestModel.Position = new(0f, 0f, -5f);
             TestModel.CreateComponent<TestComponent>();
 
             var l = new Object3D("Light");
-            l.CreateComponent<PointLight3D>();
+            //l.CreateComponent<PointLight3D>();
 
             // 3D audio test
             var t = new Object3D("3D audio test");
