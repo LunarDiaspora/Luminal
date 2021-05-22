@@ -14,5 +14,9 @@ namespace Luminal.Core
 
         [ConVar("r_blinn_multiplier", "Multiplier for Blinn-Phong specular shading.")]
         public static float BlinnPhongMult = 4.0f;
+
+        [ConVar("r_fullbright", "Renders everything at maximum brightness and disables lighting. "+
+                                "Whether this is a good idea is up to you.")]
+        public static bool FullBright = false;
     }
 }

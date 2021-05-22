@@ -166,6 +166,17 @@ namespace Luminal.Console
             ImGui.End();
         }
 
+        private static unsafe byte* AllocString(string j)
+        {
+            var sp = stackalloc byte[32768];
+            for (int i=0; i<j.Length; i++)
+            {
+                sp[i] = Encoding.UTF8.GetBytes(new[] { j[i] })[0]; // Does this qualify as a crime against humanity? It should.
+            }
+            sp[j.Length] = 0;
+            return sp;
+        }
+
         private static unsafe int CommandCallback(ImGuiInputTextCallbackData* data)
         {
             if (data->EventFlag == ImGuiInputTextFlags.CallbackHistory)
@@ -179,8 +190,8 @@ namespace Luminal.Console
                     {
                         ImGuiNative.ImGuiInputTextCallbackData_DeleteChars(data, 0, data->BufTextLen);
                         var h = History[histItem];
-                        var p = Marshal.StringToHGlobalUni(h);
-                        ImGuiNative.ImGuiInputTextCallbackData_InsertChars(data, 0, (byte*)p.ToPointer(), null);
+                        var p = AllocString(h);
+                        ImGuiNative.ImGuiInputTextCallbackData_InsertChars(data, 0, p, (byte*)0);
                         ImGuiNative.ImGuiInputTextCallbackData_SelectAll(data);
                     }
                 }
@@ -194,8 +205,8 @@ namespace Luminal.Console
                     {
                         ImGuiNative.ImGuiInputTextCallbackData_DeleteChars(data, 0, data->BufTextLen);
                         var h = History[histItem];
-                        var p = Marshal.StringToHGlobalUni(h);
-                        ImGuiNative.ImGuiInputTextCallbackData_InsertChars(data, 0, (byte*)p.ToPointer(), null);
+                        var p = AllocString(h);
+                        ImGuiNative.ImGuiInputTextCallbackData_InsertChars(data, 0, p, (byte*)0);
                         ImGuiNative.ImGuiInputTextCallbackData_SelectAll(data);
                     }
                 }

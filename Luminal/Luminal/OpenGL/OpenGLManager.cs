@@ -125,6 +125,7 @@ namespace Luminal.OpenGL
             // I beg you, future graphics programmers that will be inheriting this codebase,
             // please fix this.
 
+            var shouldError = false;
             switch (type)
             {
                 case DebugType.DebugTypeUndefinedBehavior:
@@ -134,15 +135,16 @@ namespace Luminal.OpenGL
                     Log.Error("-------------------------\n");
                     Log.Error($"[{src}] ({sev}) {msg}");
                     Log.Error("\nThis is a bug. Report this.\n");
+                    shouldError = true;
                     break;
                 case DebugType.DebugTypePerformance:
                     Log.Info($"OpenGL (performance): [{src}] ({sev}) {msg}");
                     break;
             }
 
-            if (!Engine.Running)
+            if (!Engine.Running && shouldError)
             {
-                //throw new Exception($"OpenGL error! (before engine rendered frame 1): [{src}] ({sev}) {msg}");
+                throw new Exception($"OpenGL error! (before engine rendered frame 1): [{src}] ({sev}) {msg}");
             }
         }
 

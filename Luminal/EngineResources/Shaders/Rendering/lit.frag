@@ -18,6 +18,8 @@ uniform vec3 ViewPosition;
 uniform bool BlinnPhong;
 uniform float BlinnPhongMultiplier;
 
+uniform bool aFullBright;
+
 struct Material
 {
     
@@ -214,6 +216,15 @@ void main()
     vec3 viewDirection = normalize(ViewPosition - FragPosition);
 
     vec3 result = ambient * GetTextureOrAlbedo(UV);
+
+    if (aFullBright)
+    {
+        // Full-bright mode; Don't do any of this shit
+        result += GetTextureOrAlbedo(UV);
+        result = pow(result, vec3(1.0f / GAMMA_CORRECTION));
+        FragColour = vec4(result, 1.0f);
+        return;
+    }
 
     for (int i=0; i<PointCount; i++)
     {

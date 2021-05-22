@@ -228,6 +228,8 @@ namespace Luminal.Entities
 
             Program.Uniform1i("PointCount", CurrentScene.PointLights.Count);
             Program.Uniform1i("SpotCount", CurrentScene.SpotLights.Count);
+
+            Program.Uniform1i("aFullBright", RenderingVariables.FullBright ? 1 : 0);
         }
 
         public static void L3D_AfterFrame()
