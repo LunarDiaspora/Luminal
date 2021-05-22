@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using Luminal.Core;
 using System.IO;
+using OpenTK.Graphics.OpenGL;
 
 namespace Luminal.Entities
 {
@@ -18,9 +19,9 @@ namespace Luminal.Entities
 
         public float Shininess = 64.0f;
 
-        public GLTexture AlbedoMap;
+        public TextureLike AlbedoMap;
 
-        public GLTexture SpecularMap;
+        public TextureLike SpecularMap;
 
         public Material(string name)
         {
@@ -53,12 +54,14 @@ namespace Luminal.Entities
 
             if (AlbedoMap != null)
             {
-                AlbedoMap.ActiveBind(Texture0);
+                GL.ActiveTexture(Texture0);
+                AlbedoMap.Bind();
             }
 
             if (SpecularMap != null)
             {
-                SpecularMap.ActiveBind(Texture1);
+                GL.ActiveTexture(Texture1);
+                SpecularMap.Bind();
             }
         }
     }

@@ -24,12 +24,16 @@ namespace Luminal.Entities
         public static GLRenderTexture RenderTexture;
 
         [ConVar("r_userendertexture", "Dictates use of the render texture. DO NOT TOUCH THIS IF YOU DON'T KNOW WHAT THIS DOES.")]
-        public static bool UseRenderTexture = false;
+        public static bool UseRenderTexture = true;
 
         public static bool DisableTracking = false;
 
         [ConVar("r_disable3d", "Completely disables 3D rendering. Don't touch this unless you know what you're doing!")]
         public static bool Disable3D = false;
+
+        public static bool DontDrawTextureToScreen = false;
+
+        public static bool Update = false;
 
         public static void UpdateAll()
         {
@@ -40,7 +44,7 @@ namespace Luminal.Entities
                 foreach (var c in o.components.Where(a => a.Enabled))
                 {
                     c.UpdateAlways();
-                    if (Engine.Playing) c.Update();
+                    if (Engine.Playing || Update) c.Update();
                 }
             }
         }
@@ -254,6 +258,74 @@ namespace Luminal.Entities
             }
 
             CurrentScene = null;
+        }
+
+        private static GLFloatBuffer RenderBuffer = new("Fullscreen Render Buffer");
+        private static GLUIntBuffer IndexBuffer = new("Fullscreen Index Buffer");
+        private static GLVertexArrayObject VAO = new("Fullscreen VAO");
+        private static GLShaderProgram FullscreenProgram;
+
+        internal static void InitRender()
+        {
+            FullscreenProgram = new();
+
+            var VS = new GLShader(File.ReadAllText("EngineResources/Shaders/Special/fullscreen.vert"), GLShaderType.Vertex);
+            var FS = new GLShader(File.ReadAllText("EngineResources/Shaders/Special/fullscreen.frag"), GLShaderType.Fragment);
+
+            FullscreenProgram.Attach(VS).Attach(FS).Link();
+
+            float[] verts =
+            {
+                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+                 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f
+            };
+            uint[] inds =
+            {
+                0, 1, 2,
+                0, 2, 3
+            };
+
+            VAO.Bind();
+            FullscreenProgram.Use();
+
+            RenderBuffer.Bind(BufferTarget.ArrayBuffer);
+            RenderBuffer.Data(verts, BufferUsageHint.StaticDraw);
+            IndexBuffer.Bind(BufferTarget.ElementArrayBuffer);
+            IndexBuffer.Data(inds, BufferUsageHint.StaticDraw);
+
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+            GL.EnableVertexAttribArray(0);
+            GL.EnableVertexAttribArray(1);
+
+            GL.BindVertexArray(0);
+        }
+
+        public static void RenderToScreen()
+        {
+            if (DontDrawTextureToScreen)
+                return;
+
+            VAO.Bind();
+            FullscreenProgram.Use();
+
+            GL.Disable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.CullFace);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            RenderTexture.Bind();
+            FullscreenProgram.Uniform1i("tex", 0);
+
+            GL.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
+
+            GL.BindVertexArray(0);
+
+            GLRenderTexture.Reset();
         }
     }
 }

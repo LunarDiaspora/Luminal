@@ -150,6 +150,12 @@ namespace Luminal.OpenGL
 
         private static DebugProc _DebugCb = DebugLog;
 
+        public static void SetContext()
+        {
+            ImGui.SetCurrentContext(Context);
+            ImGuizmo.SetImGuiContext(Context);
+        }
+
         public static unsafe void Initialise()
         {
             GL.LoadBindings(new SDLBindingsContext());
@@ -273,6 +279,7 @@ namespace Luminal.OpenGL
         public static unsafe void BeforeFrame()
         {
             if (!Initialised) throw new Exception("Tried to call BeforeFrame before initialising.");
+            SetContext();
 
             ImGui.NewFrame();
             ImGuizmo.BeginFrame();
@@ -281,6 +288,7 @@ namespace Luminal.OpenGL
 
         internal static void ImGuiCreateFontAtlas()
         {
+            SetContext();
             ImGui.GetIO().Fonts.GetTexDataAsRGBA32(out IntPtr p, out int w, out int h, out int bpp);
 
             var fontTex = new GLTexture("ImGui Font Texture", w, h, p);
@@ -298,6 +306,7 @@ namespace Luminal.OpenGL
         {
             if (NewFrame)
             {
+                SetContext();
                 NewFrame = false;
                 var dd = ImGui.GetDrawData();
                 IGRender2(dd);
@@ -306,6 +315,7 @@ namespace Luminal.OpenGL
 
         private static void IGRender2(ImDrawDataPtr dd)
         {
+            SetContext();
             GLRenderTexture.Reset();
 
             GL.Viewport(0, 0, Viewport.Width, Viewport.Height);
@@ -401,6 +411,7 @@ namespace Luminal.OpenGL
 
         private unsafe static void IGUpdate(float dt)
         {
+            SetContext();
             var ioptr = ImGuiNative.igGetIO();
 
             ioptr->DeltaTime = dt;
@@ -431,6 +442,7 @@ namespace Luminal.OpenGL
 
         public static unsafe void ImGuiHandleEvent(SDL.SDL_Event e)
         {
+            SetContext();
             // This function is mostly straight ported from IMGUI's SDL backend thing.
 
             var io = ImGui.GetIO();
@@ -482,6 +494,7 @@ namespace Luminal.OpenGL
 
         public static void ImGuiUpdateMouse()
         {
+            SetContext();
             var io = ImGui.GetIO();
 
             uint mousestate = SDL.SDL_GetMouseState(out int x, out int y);
@@ -510,13 +523,18 @@ namespace Luminal.OpenGL
 
         public static unsafe void Draw()
         {
+            GLRenderTexture.Reset();
+
             OnOpenGL?.Invoke();
 
+            SetContext();
+            //ImGui.Render();
             IGRender();
         }
 
         public static void AfterGUI()
         {
+            //SetContext();
             ImGui.Render();
         }
     }

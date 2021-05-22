@@ -7,7 +7,9 @@ using Luminal.Entities.Screen;
 using Luminal.Entities.World;
 using Luminal.Input;
 using Luminal.Logging;
+using Luminal.OpenGL;
 using Luminal.OpenGL.Models;
+using Luminal.OpenGL.TextureImGui;
 using System.Collections.Generic;
 using static SDL2.SDL.SDL_Scancode;
 using Vector3 = System.Numerics.Vector3;
@@ -199,12 +201,14 @@ namespace Luminal.TestApplication
         {
         }
 
-        internal static Object3D camera = new();
-        internal static Object3D model = new();
+        internal static Object3D camera;
+        internal static Object3D model;
 
-        internal static Object2D test2d = new();
+        internal static Object2D test2d;
 
         private static Model testModel;
+
+        private static Scene testScene = new();
 
         internal static PointLight3D MakeNewLight(Vector3 where, Vector3 colour)
         {
@@ -232,6 +236,9 @@ namespace Luminal.TestApplication
 
         private void Init(Engine _)
         {
+            testScene.SetActive();
+
+            camera = new();
             camera.Position = new Vector3(0f, 0f, -5.0f);
             camera.Euler = Vector3.Zero;
 
@@ -245,21 +252,42 @@ namespace Luminal.TestApplication
 
             MakeNewLight(new Vector3(0f, 0f, -10.0f), new Vector3(1.0f, 1.0f, 1.0f));
 
+            model = new();
             var mr = model.CreateComponent<ModelRenderer>();
 
             testModel = new("cube.obj");
             mr.Model = testModel;
 
-            mr.Material.AlbedoMap = new("Boris", "boris.jpg");
+            //mr.Material.AlbedoMap = new GLTexture("Boris", "boris.jpg");
+            mr.Material.AlbedoMap = TextureImGuiController.Texture;
 
             var cm = model.CreateComponent<CubemapRenderer>();
-            cm.Cubemap = new OpenGL.GLCubemap("Resources/cubemap.jpg", "Cubemap");
+            cm.Cubemap = new GLCubemap("Resources/cubemap.jpg", "Cubemap");
+
+            var testModel2 = new Object3D("Test model 2");
+            var mr2 = testModel2.CreateComponent<ModelRenderer>();
+            mr2.Model = new("teapot.obj");
+
+            //mr2.Material.AlbedoMap = TextureImGuiController.Texture;
+            TextureImGuiController.OnGUI += () =>
+            {
+                ImGui.Begin("test window", ImGuiWindowFlags.AlwaysAutoResize);
+
+                ImGui.Text("wooooooooooooooo");
+
+                ImGui.End();
+            };
 
             //var ir = test2d.CreateComponent<ImageRenderer>();
             //ir.LoadImage("file.jpg");
 
+            testModel2.Position.X = 10f;
+
+            test2d = new();
             test2d.Position.X = 300f;
             test2d.Position.Y = 300f;
+
+            ECSScene.Update = true;
         }
 
         internal static float modelAngle = 0.0f;

@@ -18,6 +18,7 @@ using System.Numerics;
 using Luminal.Input;
 using System.Threading;
 using Luminal.UI;
+using Luminal.OpenGL.TextureImGui;
 
 namespace Luminal.Core
 {
@@ -251,8 +252,11 @@ namespace Luminal.Core
             theme.InitTheme(ImGui.GetStyle(), ImGui.GetIO());
             OpenGLManager.ImGuiCreateFontAtlas();
 
+            TextureImGuiController.Init();
+
             if (OnLoading != null) OnLoading(this);
 
+            ECSScene.InitRender();
             ECSScene.L3D_SetUp();
 
             if (OnFinishedLoad != null) OnFinishedLoad(this);
@@ -404,6 +408,7 @@ namespace Luminal.Core
                 AudioEngine.Instance.Update();
 
                 AnimationManager.Update(seconds);
+                TextureImGuiController.DoFrame(seconds);
 
                 ECSScene.UpdateAll();
 
@@ -439,6 +444,8 @@ namespace Luminal.Core
                 ECSScene.ProcessChangesToObjects();
 
                 SDL_GPU.GPU_ResetRendererState();
+
+                ECSScene.RenderToScreen();
 
                 // This next line draws IMGUI. It's important that this comes after everything else, else debug UI won't be drawn!
                 OpenGLManager.Draw();

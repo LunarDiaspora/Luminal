@@ -7,7 +7,7 @@ using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
 namespace Luminal.OpenGL
 {
-    public class GLTexture : IDisposable
+    public class GLTexture : IDisposable, TextureLike
     {
         public string Name;
         public int Width;

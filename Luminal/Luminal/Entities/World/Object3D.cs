@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using Vector3 = System.Numerics.Vector3;
 using Quaternion = OpenTK.Mathematics.Quaternion;
+using Luminal.Core;
 
 namespace Luminal.Entities.World
 {
@@ -129,6 +130,12 @@ namespace Luminal.Entities.World
         public void Translate(Vector3 delta)
         {
             Position += delta;
+        }
+
+        public Vector3 Unproject(Vector2 point)
+        {
+            return MatrixUtils.Unproject(Position.ToOpenTK(), point,
+                ECSScene.CurrentScene.Camera.Projection(), ECSScene.CurrentScene.Camera.View()).ToSystemNumerics();
         }
     }
 }

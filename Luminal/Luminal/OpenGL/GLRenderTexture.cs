@@ -11,7 +11,14 @@ using Luminal.Console;
 
 namespace Luminal.OpenGL
 {
-    public class GLRenderTexture
+    public enum ForceAntialiasMode
+    {
+        DontCare,
+        ForceDontAntialias,
+        ForceAntialias
+    }
+
+    public class GLRenderTexture : TextureLike
     {
         public int GLObject;
         public int GLTextureObject;
@@ -31,6 +38,8 @@ namespace Luminal.OpenGL
 
         [ConVar("r_antialiasing", "Dictates whether rendertextures use the antialiased versions or not.")]
         public static bool UseAntialiasing = true;
+
+        public ForceAntialiasMode AAMode = ForceAntialiasMode.DontCare;
 
         static bool lastUse = true;
 
@@ -127,7 +136,7 @@ namespace Luminal.OpenGL
         {
             Viewport.Size = Size;
 
-            if (UseAntialiasing)
+            if ((UseAntialiasing || AAMode == ForceAntialiasMode.ForceAntialias) && AAMode != ForceAntialiasMode.ForceDontAntialias)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, GLObject);
 
@@ -182,7 +191,7 @@ namespace Luminal.OpenGL
 
         public void AfterFrame()
         {
-            if (UseAntialiasing)
+            if ((UseAntialiasing || AAMode == ForceAntialiasMode.ForceAntialias) && AAMode != ForceAntialiasMode.ForceDontAntialias)
             {
                 GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, GLObject);
             } else
@@ -202,6 +211,11 @@ namespace Luminal.OpenGL
             Viewport.Size = new(Engine.Width, Engine.Height);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        }
+
+        public void Bind()
+        {
+            GL.BindTexture(TextureTarget.Texture2D, ResolveTex);
         }
     }
 }
