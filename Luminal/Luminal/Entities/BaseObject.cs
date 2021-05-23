@@ -11,7 +11,8 @@ namespace Luminal.Entities
 {
     public class BaseObject
     {
-        public readonly List<Component> components = new();
+        public readonly List<Component> Components = new();
+        internal readonly List<Component> deferredAdds = new();
 
         public string Name = "Object";
 
@@ -56,7 +57,7 @@ namespace Luminal.Entities
 
         public T? GetComponent<T>() where T : Component
         {
-            foreach (var c in components)
+            foreach (var c in Components)
             {
                 if (c.GetType() == typeof(T))
                 {
@@ -81,7 +82,7 @@ namespace Luminal.Entities
                 throw new Exception($"Component type mismatch! (Tried to add a {typeof(T)} (Component2D) to an object that is not 2D.)");
             }
 
-            var theresAlreadyOne = components.Any(j => j is T);
+            var theresAlreadyOne = Components.Any(j => j is T);
             if (theresAlreadyOne)
                 throw new Exception($"There is already a component of type {typeof(T)}, but you are trying to add another. Don't do that!");
 
@@ -92,7 +93,7 @@ namespace Luminal.Entities
 
             c._parent = this;
 
-            components.Add(c);
+            deferredAdds.Add(c);
 
             c.Create();
 
@@ -105,6 +106,12 @@ namespace Luminal.Entities
             if (comp != null)
                 return comp;
             return CreateComponent<T>();
+        }
+
+        internal void TickDeferred()
+        {
+            Components.AddRange(deferredAdds);
+            deferredAdds.Clear();
         }
     }
 }

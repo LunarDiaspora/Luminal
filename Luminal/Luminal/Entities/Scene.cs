@@ -24,7 +24,7 @@ namespace Luminal.Entities
 
             foreach (var t in Objects)
             {
-                foreach (var c in t.components)
+                foreach (var c in t.Components)
                 {
                     c.Create();
                 }

@@ -62,7 +62,7 @@ namespace Luminal.Editor.Components
 
                 ImGui.Separator();
 
-                foreach (var i in c.components)
+                foreach (var i in c.Components)
                 {
                     ImGui.SetNextItemWidth(-1);
                     

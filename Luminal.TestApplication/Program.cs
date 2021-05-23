@@ -208,8 +208,6 @@ namespace Luminal.TestApplication
 
         private static Model testModel;
 
-        private static Scene testScene = new();
-
         internal static PointLight3D MakeNewLight(Vector3 where, Vector3 colour)
         {
             var obj = new Object3D();
@@ -236,7 +234,7 @@ namespace Luminal.TestApplication
 
         private void Init(Engine _)
         {
-            testScene.SetActive();
+            //testScene.SetActive();
 
             camera = new();
             camera.Position = new Vector3(0f, 0f, -5.0f);

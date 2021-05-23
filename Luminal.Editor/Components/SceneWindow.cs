@@ -111,7 +111,7 @@ namespace Luminal.Editor.Components
                     ImGui.Separator();
 
                     int j = 0;
-                    foreach (var c in obj.components)
+                    foreach (var c in obj.Components)
                     {
                         j++;
 

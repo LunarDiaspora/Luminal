@@ -318,7 +318,7 @@ namespace Luminal.OpenGL
             SetContext();
             GLRenderTexture.Reset();
 
-            GL.Viewport(0, 0, Viewport.Width, Viewport.Height);
+            GL.Viewport(0, 0, Engine.Width, Engine.Height);
 
             if (dd.CmdListsCount == 0)
             {
@@ -412,6 +412,8 @@ namespace Luminal.OpenGL
         private unsafe static void IGUpdate(float dt)
         {
             SetContext();
+            GLRenderTexture.Reset();
+
             var ioptr = ImGuiNative.igGetIO();
 
             ioptr->DeltaTime = dt;

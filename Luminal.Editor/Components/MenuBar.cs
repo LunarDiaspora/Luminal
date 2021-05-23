@@ -14,6 +14,19 @@ using Luminal.Reflection;
 namespace Luminal.Editor.Components
 {
     [Skip]
+    public class ImGuiDemoWindowComponent : Component3D
+    {
+        public bool open = true;
+        public override void OnGUI()
+        {
+            ImGui.ShowDemoWindow(ref open);
+
+            if (!open)
+                Enabled = false;
+        }
+    }
+
+    [Skip]
     public class MenuBar : Component3D
     {
         private string objName = "";
@@ -60,6 +73,18 @@ namespace Luminal.Editor.Components
 
                     if (ImGui.MenuItem("Play"))
                         Editor.SwitchEditorPhase(EditorPhase.Play);
+
+                    ImGui.EndMenu();
+                }
+
+                if (ImGui.BeginMenu("Tools"))
+                {
+                    if (ImGui.MenuItem("Show ImGui demo window..."))
+                    {
+                        var cp = Parent.GetOrCreateComponent<ImGuiDemoWindowComponent>();
+                        cp.open = true;
+                        cp.Enabled = true;
+                    }
 
                     ImGui.EndMenu();
                 }

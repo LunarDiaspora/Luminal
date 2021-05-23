@@ -165,8 +165,6 @@ namespace Luminal.OpenGL.TextureImGui
             SetContext();
             var ioptr = ImGuiNative.igGetIO();
 
-            Matrix4.CreateTranslation(0, 0, 0).
-
             ioptr->DeltaTime = dt;
 
             ioptr->DisplaySize = new System.Numerics.Vector2(

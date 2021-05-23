@@ -81,7 +81,7 @@ namespace Luminal.Player.Core
             s.Serialize(writer, value.Position);
 
             writer.WritePropertyName("components");
-            s.Serialize(writer, value.components);
+            s.Serialize(writer, value.Components);
 
             writer.WriteEndObject();
         }

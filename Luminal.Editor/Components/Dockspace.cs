@@ -15,6 +15,7 @@ namespace Luminal.Editor.Components
     {
         public override void OnGUI()
         {
+            ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
             var flags = ImGuiDockNodeFlags.None;
 
             var vp = ImGui.GetMainViewport();

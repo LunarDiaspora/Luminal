@@ -72,6 +72,8 @@ namespace Luminal.Editor
 
         public static void Init()
         {
+            ECSScene.DontDrawTextureToScreen = true;
+
             SetUpStoredScene();
 
             SwitchEditorPhase(EditorPhase.Welcome);

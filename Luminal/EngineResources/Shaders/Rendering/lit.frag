@@ -14,6 +14,7 @@ uniform vec3 AmbientColour;
 uniform vec3 ObjectColour;
 
 uniform vec3 ViewPosition;
+uniform vec3 aViewDir;
 
 uniform bool BlinnPhong;
 uniform float BlinnPhongMultiplier;
@@ -112,7 +113,7 @@ vec3 CalculatePointLight(PointLight light, vec3 viewDirection)
 
     vec3 normal = normalize(Normal);
 
-    vec3 lightDirection = normalize(light.Position - FragPosition);
+    vec3 lightDirection = normalize((light.Position) - FragPosition);
 
     float difference = max(dot(normal, lightDirection), 0.0f);
 

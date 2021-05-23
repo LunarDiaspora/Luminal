@@ -39,7 +39,7 @@ namespace Luminal.Player.Core
                 {
                     o._Store();
 
-                    foreach (var c in o.components)
+                    foreach (var c in o.Components)
                     {
                         c.Create();
 
@@ -59,7 +59,7 @@ namespace Luminal.Player.Core
                 {
                     o._Load();
 
-                    foreach (var c in o.components)
+                    foreach (var c in o.Components)
                     {
                         c.EndPlay();
                     }

@@ -11,7 +11,7 @@ namespace Luminal.Entities
 {
     public class ECSScene
     {
-        public static Scene CurrentScene;
+        public static Scene CurrentScene = new(); // Default scene
 
         public static List<BaseObject> enabled = new();
 
@@ -41,7 +41,7 @@ namespace Luminal.Entities
 
             foreach (var o in enabled)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var c in o.Components.Where(a => a.Enabled))
                 {
                     c.UpdateAlways();
                     if (Engine.Playing || Update) c.Update();
@@ -55,7 +55,7 @@ namespace Luminal.Entities
 
             foreach (var o in enabled)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var c in o.Components.Where(a => a.Enabled))
                 {
                     c.Render2D();
                 }
@@ -68,8 +68,9 @@ namespace Luminal.Entities
 
             foreach (var o in enabled)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var c in o.Components.Where(a => a.Enabled))
                 {
+                    OpenGLManager.SetContext();
                     c.OnGUI();
                 }
             }
@@ -84,7 +85,7 @@ namespace Luminal.Entities
 
             foreach (var o in enabled)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var c in o.Components.Where(a => a.Enabled))
                 {
                     c.EarlyRender3D();
                 }
@@ -92,7 +93,7 @@ namespace Luminal.Entities
 
             foreach (var o in enabled)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var c in o.Components.Where(a => a.Enabled))
                 {
                     c.Render3D();
                 }
@@ -100,7 +101,7 @@ namespace Luminal.Entities
 
             foreach (var o in enabled)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var c in o.Components.Where(a => a.Enabled))
                 {
                     c.LateRender3D();
                 }
@@ -116,7 +117,7 @@ namespace Luminal.Entities
 
             foreach (var o in enabled)
             {
-                foreach (var c in o.components.Where(a => a.Enabled))
+                foreach (var c in o.Components.Where(a => a.Enabled))
                 {
                     c.Render3D();
                 }
@@ -125,6 +126,8 @@ namespace Luminal.Entities
 
         public static void ProcessChangesToObjects(bool dontKill = false)
         {
+            if (CurrentScene == null) return; // Nah
+
             foreach (var o in deferred)
             {
                 if (o.Destroying) continue;
@@ -139,12 +142,17 @@ namespace Luminal.Entities
             {
                 foreach (var o in dead)
                 {
-                    foreach (var c in o.components.Where(a => a.Enabled))
+                    foreach (var c in o.Components.Where(a => a.Enabled))
                     {
                         c.Destroy();
                     }
                     if (!dontKill) CurrentScene.Objects?.Remove(o);
                 }
+            }
+
+            foreach (var c in CurrentScene?.Objects)
+            {
+                c.TickDeferred();
             }
 
             if (!dontKill) deferred.Clear();
@@ -201,6 +209,7 @@ namespace Luminal.Entities
             Program.Uniform3("AmbientColour", AmbientColour);
             Program.Uniform3("ObjectColour", ObjectColour);
             Program.Uniform3("ViewPosition", Camera.Parent.Position);
+            Program.Uniform3("aViewDir", Camera.Parent.Forward);
 
             Program.Uniform1i("BlinnPhong", RenderingVariables.UseBlinnPhong ? 1 : 0);
             Program.Uniform1("BlinnPhongMultiplier", RenderingVariables.BlinnPhongMult);
@@ -250,7 +259,7 @@ namespace Luminal.Entities
             {
                 foreach (var o in CurrentScene.Objects)
                 {
-                    foreach (var c in o.components)
+                    foreach (var c in o.Components)
                     {
                         c.Destroy();
                     }
