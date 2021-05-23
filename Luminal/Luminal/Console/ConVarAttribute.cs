@@ -111,5 +111,37 @@ namespace Luminal.Console
 
             throw new ArgumentException("Failed to parse your input!");
         }
+
+        public dynamic GetValue()
+        {
+            switch (Target)
+            {
+                case ConVarTarget.FIELD:
+                    return FieldInfo.GetValue(null);
+                case ConVarTarget.PROPERTY:
+                    if (!PropertyInfo.CanRead)
+                        return "<unavailable>";
+                    return PropertyInfo.GetValue(null);
+            }
+            return null;
+        }
+
+        public string GetPropString()
+        {
+            var j = new List<string>();
+            if (Target == ConVarTarget.PROPERTY)
+            {
+                if (!PropertyInfo.CanRead)
+                {
+                    j.Add("writeonly");
+                }
+                if (!PropertyInfo.CanWrite)
+                {
+                    j.Add("readonly");
+                }
+            }
+
+            return Flags.GetFlagString(j.ToArray());
+        }
     }
 }

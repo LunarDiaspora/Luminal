@@ -114,4 +114,35 @@ namespace Luminal.Console.Commands
             DebugConsole.ConsoleOutput.Clear();
         }
     }
+
+    [ConCommand("list_cvar", "Lists every console variable.")]
+    public class CvarListCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            var t = "";
+            foreach (var (name, cv) in ConsoleManager.ConVars)
+            {
+                var prop = cv.GetPropString();
+                t += $"{name} ({cv.ValueType.ToString().ToLower()}) = \"{cv.GetValue()}\"" +
+                    $"\n{(prop.Length > 0 ? prop + "\n" : "")}" +
+                    $" - {cv.Description ?? "No description provided."}\n\n";
+            }
+            DebugConsole.LogRaw(t.Trim());
+        }
+    }
+
+    [ConCommand("list_command", "Lists every console command.")]
+    public class CommandListCommand : IConCommand
+    {
+        public void Run(Arguments a)
+        {
+            var t = "";
+            foreach (var (name, cv) in ConsoleManager.Commands)
+            {
+                t += $"{name}\n - {cv.Description ?? "No description provided."}\n\n";
+            }
+            DebugConsole.LogRaw(t.Trim());
+        }
+    }
 }
