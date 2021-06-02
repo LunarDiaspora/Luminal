@@ -259,6 +259,8 @@ namespace Luminal.Core
             ECSScene.InitRender();
             ECSScene.L3D_SetUp();
 
+            Physics.PhysicsSystem.Initialise();
+
             if (OnFinishedLoad != null) OnFinishedLoad(this);
             WindowOpen = true;
 

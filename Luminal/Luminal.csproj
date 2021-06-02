@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0-windows7.0</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <Authors>The Lunar Diaspora</Authors>
     <Description>Fast, simple game engine.</Description>
     <Copyright>(C) 2021 Supernova Dev Team</Copyright>
@@ -18,6 +18,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <OutputPath>bin\Debug\net5.0\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -42,6 +43,9 @@
     </Reference>
     <Reference Include="ImGuizmo.NET">
       <HintPath>..\Dependencies\ImGuizmo.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="PhysX.Net">
+      <HintPath>..\Dependencies\PhysX.Net.dll</HintPath>
     </Reference>
     <Reference Include="SDL2-CS">
       <HintPath>..\Dependencies\SDL2-CS.dll</HintPath>

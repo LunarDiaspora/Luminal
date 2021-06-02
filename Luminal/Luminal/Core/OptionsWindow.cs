@@ -5,6 +5,7 @@ using Luminal.Entities.Components;
 using Luminal.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,6 +60,8 @@ namespace Luminal.Core
             }
         }
 
+        static string _physxText = File.ReadAllText("EngineResources/Data/PhysXLicense.txt");
+
         public static void Draw()
         {
             if (Open)
@@ -103,6 +106,25 @@ namespace Luminal.Core
                         AudioEngine.AudioVolume = av;
 
                         ImGui.EndTabItem();
+                    }
+
+                    if (ImGui.BeginTabItem("About"))
+                    {
+                        ImGui.Text($"Luminal Game Engine version {EngineVersion.Current}");
+                        ImGui.Text("Programmed by Rin for The Lunar Diaspora, 2021.");
+
+                        ImGui.Text("");
+                        ImGui.Text("This product contains NVIDIA PhysX technology, under license by NVIDIA Corporation.");
+                        ImGui.Text("All rights are reserved to their respective owners.");
+                        ImGui.Text("");
+                        ImGui.Text("This project is provided under the MIT license, with no warranty provided.");
+                        ImGui.Text("Technical support may not be provided at all times.");
+                        ImGui.Text("");
+                        ImGui.Separator();
+                        if (ImGui.CollapsingHeader("NVIDIA PhysX", ImGuiTreeNodeFlags.DefaultOpen))
+                        {
+                            ImGui.Text(_physxText);
+                        }
                     }
 
                     ImGui.EndTabBar();
