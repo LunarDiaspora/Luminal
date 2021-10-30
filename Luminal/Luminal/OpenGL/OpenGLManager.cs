@@ -120,8 +120,8 @@ namespace Luminal.OpenGL
 
             var msg = Marshal.PtrToStringAnsi(message);
 
-            if (msg.Contains("unknown") && msg.Contains("object"))
-                return; // God is dead, and this shitty hack has killed him
+            //if (msg.Contains("unknown") && msg.Contains("object"))
+            //    return; // God is dead, and this shitty hack has killed him
             // I beg you, future graphics programmers that will be inheriting this codebase,
             // please fix this.
 

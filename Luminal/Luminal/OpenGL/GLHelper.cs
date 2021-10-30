@@ -15,7 +15,7 @@ namespace Luminal.OpenGL
 
         public static void LabelObj(ObjectLabelIdentifier ident, int obj, string name)
         {
-            GL.ObjectLabel(ident, obj, name.Length, name);
+            //GL.ObjectLabel(ident, obj, name.Length, name);
         }
 
         public static void Texture(TextureTarget target, string Name, out int Tex)
