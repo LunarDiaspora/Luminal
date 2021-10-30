@@ -5,6 +5,7 @@ using Luminal.Entities;
 using Luminal.Entities.Components;
 using Luminal.Entities.Screen;
 using Luminal.Entities.World;
+using Luminal.Graphics;
 using Luminal.Input;
 using Luminal.Logging;
 using Luminal.OpenGL;
@@ -176,14 +177,14 @@ namespace Luminal.TestApplication
                 Ease = Easing.Exponential.InOut
             });
 
-            e.StartRenderer(1920, 1080, "Luminal Engine 3D Demonstration", typeof(Main),
+            e.StartRenderer(1280, 720, "Luminal Engine 3D Demonstration", typeof(Main),
                 LuminalFlags.EnableKeyRepeat | LuminalFlags.Resizable | LuminalFlags.RespectConfigResolution);
         }
 
         public void Draw(Engine _)
         {
             Context.SetColour(255, 0, 0, 255);
-            //Render.Rectangle(100 + AnimationManager.Value("test", 0.0f), 100, 100, 100, RenderMode.FILL);
+            Render.Rectangle(100 + AnimationManager.Value("test", 0.0f), 100, 100, 100, RenderMode.Fill);
         }
 
         internal static Vector3 AmbientColour = new(1, 1, 1);
@@ -256,25 +257,27 @@ namespace Luminal.TestApplication
             testModel = new("cube.obj");
             mr.Model = testModel;
 
-            //mr.Material.AlbedoMap = new GLTexture("Boris", "boris.jpg");
-            mr.Material.AlbedoMap = TextureImGuiController.Texture;
+            mr.Material.Albedo = new Vector3(1.0f, 1.0f, 0.0f);
 
-            var cm = model.CreateComponent<CubemapRenderer>();
-            cm.Cubemap = new GLCubemap("Resources/cubemap.jpg", "Cubemap");
+            //mr.Material.AlbedoMap = new GLTexture("Boris", "boris.jpg");
+            //mr.Material.AlbedoMap = TextureImGuiController.Texture;
+
+            //var cm = model.CreateComponent<CubemapRenderer>();
+            //cm.Cubemap = new GLCubemap("Resources/cubemap.jpg", "Cubemap");
 
             var testModel2 = new Object3D("Test model 2");
             var mr2 = testModel2.CreateComponent<ModelRenderer>();
-            mr2.Model = new("teapot.obj");
+            mr2.Model = new("test.obj");
 
             //mr2.Material.AlbedoMap = TextureImGuiController.Texture;
-            TextureImGuiController.OnGUI += () =>
+            /*TextureImGuiController.OnGUI += () =>
             {
                 ImGui.Begin("test window", ImGuiWindowFlags.AlwaysAutoResize);
 
                 ImGui.Text("wooooooooooooooo");
 
                 ImGui.End();
-            };
+            };*/
 
             //var ir = test2d.CreateComponent<ImageRenderer>();
             //ir.LoadImage("file.jpg");

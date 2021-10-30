@@ -106,8 +106,6 @@ namespace Luminal.Entities
                     c.LateRender3D();
                 }
             }
-
-            L3D_AfterFrame();
         }
 
         internal static void ExplicitRender()

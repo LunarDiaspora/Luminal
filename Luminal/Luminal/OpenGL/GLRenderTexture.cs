@@ -51,7 +51,8 @@ namespace Luminal.OpenGL
 
             GL.BindTexture(TextureTarget.Texture2DMultisample, GLTextureObject);
 
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, OptionsWindow.AASamples, PixelInternalFormat.Rgb,
+            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample,
+                OptionsWindow.AASamples, PixelInternalFormat.Rgba,
                 (int)Size.X, (int)Size.Y, true);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
@@ -85,8 +86,8 @@ namespace Luminal.OpenGL
 
             GL.BindTexture(TextureTarget.Texture2D, NoAA_GLTexture);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb,
-                (int)Size.X, (int)Size.Y, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                (int)Size.X, (int)Size.Y, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
@@ -96,7 +97,8 @@ namespace Luminal.OpenGL
             GL.FramebufferParameter(FramebufferTarget.Framebuffer, FramebufferDefaultParameter.FramebufferDefaultSamples,
                 1);
 
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
+                FramebufferAttachment.ColorAttachment0,
                 TextureTarget.Texture2D, NoAA_GLTexture, 0);
 
             NoAA_GLRBO = GL.GenRenderbuffer();
@@ -119,8 +121,8 @@ namespace Luminal.OpenGL
 
             GL.BindTexture(TextureTarget.Texture2D, ResolveTex);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb,
-                (int)Size.X, (int)Size.Y, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                (int)Size.X, (int)Size.Y, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);

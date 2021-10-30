@@ -21,7 +21,7 @@ namespace Luminal.Editor
 
             var f = LuminalFlags.EnableKeyRepeat | LuminalFlags.Resizable | LuminalFlags.RespectConfigResolution;
 
-            EnginePlayer.Instance.Start(1920, 1080, "Luminal Editor",
+            EnginePlayer.Instance.Start(1600, 900, "Luminal Editor",
                 f, new LuminalTheme());
         }
     }

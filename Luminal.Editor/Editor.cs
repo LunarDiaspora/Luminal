@@ -147,10 +147,10 @@ namespace Luminal.Editor
             //l.CreateComponent<PointLight3D>();
 
             // 3D audio test
-            var t = new Object3D("3D audio test");
-            var sr = t.CreateComponent<AudioSource>();
-            sr.Audio = new AudioFile("test.wav");
-            sr.PlayOnEnteringPlayMode = true;
+            //var t = new Object3D("3D audio test");
+            //var sr = t.CreateComponent<AudioSource>();
+            //sr.Audio = new AudioFile("test.wav");
+            //sr.PlayOnEnteringPlayMode = true;
 
             Scene.Deactivate();
         }

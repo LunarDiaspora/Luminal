@@ -428,13 +428,7 @@ namespace Luminal.Core
 
                 ECSScene.Render3DAll();
 
-                if (OnDraw != null)
-                    OnDraw(this);
-
-                ECSScene.Render2DAll();
-
-                if (OnLateDraw != null)
-                    OnLateDraw(this);
+                ECSScene.L3D_AfterFrame();
 
                 // This moves deferred objects into the main object list.
                 // This also cleans up objects that have been destroyed.
@@ -448,6 +442,14 @@ namespace Luminal.Core
                 SDL_GPU.GPU_ResetRendererState();
 
                 ECSScene.RenderToScreen();
+
+                if (OnDraw != null)
+                    OnDraw(this);
+
+                ECSScene.Render2DAll();
+
+                if (OnLateDraw != null)
+                    OnLateDraw(this);
 
                 // This next line draws IMGUI. It's important that this comes after everything else, else debug UI won't be drawn!
                 OpenGLManager.Draw();
