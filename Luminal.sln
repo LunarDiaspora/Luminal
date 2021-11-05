@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luminal", "Luminal\Luminal.csproj", "{9343A861-B6AA-442B-9469-710C1FDB1536}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9343A861-B6AA-442B-9469-710C1FDB1536}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9343A861-B6AA-442B-9469-710C1FDB1536}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9343A861-B6AA-442B-9469-710C1FDB1536}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9343A861-B6AA-442B-9469-710C1FDB1536}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FFDA0CA4-C441-4599-BF7B-826490AE76EF}
+	EndGlobalSection
+EndGlobal
