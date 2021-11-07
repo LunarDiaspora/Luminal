@@ -10,6 +10,8 @@ namespace Luminal.Logging
     {
         private static void AddLog(LogLevel l, string text)
         {
+            Console.WriteLine($"{l}: {text}");
+
             var s = text.Split('\n');
             foreach (var i in s)
             {

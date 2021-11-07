@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="OpenTK" Version="4.6.7" />
     <PackageReference Include="SDL2-CS.NetCore" Version="2.0.8" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="echo D | xcopy /E /Y &quot;$(SolutionDir)NativeDependencies&quot; &quot;$(TargetDir)&quot;" />
+    <Exec Command="echo D | xcopy /E /Y &quot;$(SolutionDir)DefaultPackages&quot; &quot;$(TargetDir)DefaultPackages&quot;" />
   </Target>
 
 </Project>

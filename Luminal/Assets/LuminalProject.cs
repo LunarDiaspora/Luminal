@@ -17,12 +17,14 @@ namespace Luminal.Assets
         public string AssetsRoot;
         public string AbsoluteAssetsRoot;
         public string PlayerConfig;
+        public List<string> Dependencies;
 
         struct ProjectJson
         {
             public string Name { get; set; }
             public string AssetsRoot { get; set; }
             public string PlayerConfig { get; set; }
+            public List<string> PackageDependencies { get; set; }
         }
 
         public static LuminalProject LoadFromDisk(string path)
@@ -44,7 +46,8 @@ namespace Luminal.Assets
                 Name = k.Name,
                 AssetsRoot = k.AssetsRoot,
                 PlayerConfig = k.PlayerConfig,
-                AbsoluteAssetsRoot = Path.Combine(directory, k.AssetsRoot)
+                AbsoluteAssetsRoot = Path.Combine(directory, k.AssetsRoot),
+                Dependencies = k.PackageDependencies
             };
 
             return prj;

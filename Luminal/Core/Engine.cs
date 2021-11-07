@@ -13,6 +13,9 @@ using ImGuiNET;
 using Luminal.Private;
 using Luminal.DebugUI;
 using Luminal.Logging;
+using Luminal.Assets.Complex;
+using Luminal.Packages;
+using Luminal.ComplexTypes;
 
 namespace Luminal.Core
 {
@@ -43,7 +46,14 @@ namespace Luminal.Core
             Log.Info($"Project loaded: {LoadedProject.Name}");
             Log.Info($"Asset root: {AbsoluteAssetPath}");
 
-            var playerConfig = AssetLoader.LoadDocument<PlayerConfig>(LoadedProject.PlayerConfig);
+            PackageGlobals.AddAssets();
+            foreach (var pkg in LoadedProject.Dependencies)
+            {
+                PackageGlobals.LoadPackage(pkg);
+            }
+            ComplexTypeManager.Init();
+
+            var playerConfig = Asset.Load<PlayerConfig>(LoadedProject.PlayerConfig);
 
             // Now we can proceed to create the window
             CreateWindow(playerConfig);
