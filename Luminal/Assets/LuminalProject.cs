@@ -31,14 +31,15 @@ namespace Luminal.Assets
         {
             var t = File.ReadAllText(path);
             var splitRaw = t.Split('\n');
-            var split = splitRaw.Select(e => e.Trim()).ToList();
+            var split = splitRaw.Select(e => e.Trim()).ToArray();
+            var rejoin = string.Join('\n', split[1..]);
 
             if (split[0] != (ProjectFileHeader + FormatVersion))
             {
                 throw new Exception("Malformed project file!");
             }
 
-            var k = JsonSerializer.Deserialize<ProjectJson>(split[1]);
+            var k = JsonSerializer.Deserialize<ProjectJson>(rejoin);
             var directory = Path.GetDirectoryName(path);
 
             var prj = new LuminalProject()
