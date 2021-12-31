@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Luminal.Assets.Complex
 {
-    public class ComplexAsset
+    public class ComplexAsset : AssetData
     {
         public virtual void OnConstruct(string rootPath, string metaFileContents) { }
     }

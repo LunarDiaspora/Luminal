@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Luminal.Assets
+namespace Luminal.Assets.Simple
 {
-    public class AssetData
+    public class SimpleAsset : AssetData
     {
+        public virtual void OnConstruct(string filePath) { }
     }
 }

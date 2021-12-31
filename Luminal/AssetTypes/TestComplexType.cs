@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Luminal.ComplexTypes
+namespace Luminal.AssetTypes
 {
     [ComplexType("TestComplex")]
     public class TestComplexType : ComplexAsset

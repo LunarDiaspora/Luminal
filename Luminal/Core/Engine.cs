@@ -15,7 +15,7 @@ using Luminal.DebugUI;
 using Luminal.Logging;
 using Luminal.Assets.Complex;
 using Luminal.Packages;
-using Luminal.ComplexTypes;
+using Luminal.AssetTypes;
 
 namespace Luminal.Core
 {

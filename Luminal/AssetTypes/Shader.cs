@@ -9,10 +9,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace Luminal.ComplexTypes
+namespace Luminal.AssetTypes
 {
-    [ComplexType("ShaderAsset")]
-    public class ShaderAsset : ComplexAsset
+    [ComplexType("Shader")]
+    public class Shader : ComplexAsset
     {
         struct MetaJson
         {

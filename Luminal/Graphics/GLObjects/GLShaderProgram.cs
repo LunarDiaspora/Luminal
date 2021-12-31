@@ -40,5 +40,20 @@ namespace Luminal.Graphics.GLObjects
 
             return this;
         }
+
+        public int GetAttribLocation(string name)
+        {
+            return GL.GetAttribLocation(Reference, name);
+        }
+
+        public int GetUniformLocation(string name)
+        {
+            return GL.GetUniformLocation(Reference, name);
+        }
+
+        public void Use()
+        {
+            GL.UseProgram(Reference);
+        }
     }
 }
